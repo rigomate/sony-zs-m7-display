@@ -1,0 +1,111 @@
+{
+  "uptime_ms": 50275,
+  "stale_after_ms": 1500,
+  "dropped_frames": 0,
+  "capture_error": "",
+  "buses": [
+    {
+      "frames": 0,
+      "complete": 0,
+      "rejected": 0,
+      "age_ms": null,
+      "fresh": false,
+      "raw_hex": ""
+    },
+    {
+      "frames": 201,
+      "complete": 193,
+      "rejected": 8,
+      "age_ms": 43712,
+      "fresh": false,
+      "raw_hex": "80 C0 00 F3 EF 3F FF FF FF FF FF FF FF FF 80"
+    }
+  ],
+  "numeric": null,
+  "title": {
+    "text": null,
+    "codes": [
+      0,
+      243,
+      239,
+      63,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  "receiver": [
+    {
+      "transactions": 206,
+      "zero_bits": 206,
+      "wrong_bits": 0,
+      "last_bits": 0,
+      "rising_edges": 4,
+      "edge_counter_ready": true,
+      "clock_route": 128,
+      "clock_mux": 11008,
+      "rx_lsbfirst": 1,
+      "tx_lsbfirst": 0,
+      "gpio": {
+        "data": {
+          "pin": 26,
+          "high": 17930,
+          "low": 6259
+        },
+        "clock": {
+          "pin": 0,
+          "high": 24189,
+          "low": 0
+        },
+        "select": {
+          "pin": 36,
+          "high": 17435,
+          "low": 6754
+        }
+      }
+    },
+    {
+      "transactions": 206,
+      "zero_bits": 5,
+      "wrong_bits": 8,
+      "last_bits": 0,
+      "rising_edges": 39474,
+      "edge_counter_ready": true,
+      "clock_route": 161,
+      "clock_mux": 10752,
+      "rx_lsbfirst": 1,
+      "tx_lsbfirst": 0,
+      "gpio": {
+        "data": {
+          "pin": 32,
+          "high": 8924,
+          "low": 15265
+        },
+        "clock": {
+          "pin": 33,
+          "high": 13526,
+          "low": 10663
+        },
+        "select": {
+          "pin": 36,
+          "high": 17435,
+          "low": 6754
+        }
+      }
+    }
+  ],
+  "gpio0_voltage_at_boot": {
+    "samples": 4168,
+    "min_raw": 2295,
+    "max_raw": 4095,
+    "approx_min_mv": 1935,
+    "approx_max_mv": 3104,
+    "saturated_samples": 3942,
+    "calibration": 0
+  }
+}

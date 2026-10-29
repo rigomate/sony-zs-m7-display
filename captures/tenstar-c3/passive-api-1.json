@@ -1,0 +1,86 @@
+{
+  "uptime_ms": 41892,
+  "stale_after_ms": 1500,
+  "dropped_frames": 0,
+  "capture_error": "",
+  "buses": [
+    {
+      "frames": 2612,
+      "complete": 0,
+      "rejected": 2612,
+      "age_ms": 3,
+      "fresh": true,
+      "raw_hex": "FF FF FF 01 00 00 00 00 00 00 00 00 00 80 FF FF FF 00 00 00 00 00 00 00 00 E0 FF FF 1F 00 00 C0"
+    },
+    {
+      "frames": 1305,
+      "complete": 12,
+      "rejected": 1293,
+      "age_ms": 297,
+      "fresh": true,
+      "raw_hex": "FF 00 94 A2 29 AA FF FF FF FF FF FF FF FF"
+    }
+  ],
+  "numeric": null,
+  "title": null,
+  "receiver": [
+    {
+      "paused": false,
+      "output_enable_mask": 0,
+      "backend": "spi-slave",
+      "transactions": 2612,
+      "zero_bits": 0,
+      "wrong_bits": 2612,
+      "last_bits": 1958,
+      "rising_edges": null,
+      "gpio": {
+        "data": {
+          "pin": 7,
+          "high": 10575,
+          "low": 9486
+        },
+        "clock": {
+          "pin": 6,
+          "high": 19040,
+          "low": 1021
+        },
+        "select": {
+          "pin": 10,
+          "high": 8726,
+          "low": 11335
+        }
+      }
+    },
+    {
+      "paused": false,
+      "output_enable_mask": 0,
+      "backend": "gpio-isr",
+      "transactions": 1305,
+      "zero_bits": 0,
+      "wrong_bits": 1293,
+      "last_bits": 119,
+      "rising_edges": 313423,
+      "low_callbacks": 156708,
+      "short_edges": 106483,
+      "accepted_edges": 50232,
+      "gpio": {
+        "data": {
+          "pin": 4,
+          "high": 11265,
+          "low": 8796
+        },
+        "clock": {
+          "pin": 5,
+          "high": 19142,
+          "low": 919
+        },
+        "select": {
+          "pin": 3,
+          "high": 8725,
+          "low": 11336
+        }
+      }
+    }
+  ],
+  "gpio0_voltage_at_boot": null
+}

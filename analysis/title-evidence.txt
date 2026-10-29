@@ -1,0 +1,48 @@
+title-test-01-0123456789AB-raw
+  last window: '0123456789AB'
+  common windows: [('ÿÿÿÿÿÿÿÿÿÿÿÿ', 139), ('0123456789AB', 27), ('\x00\x00\x00\x00\x00       ', 13)]
+  expected substring matches by bus: {'SDI2': 27, 'SDO2': 26, 'SDT1': 0}
+title-test-02-CDEFGHIJKLMN-raw
+  last window: 'CDEFGHIJKLMN'
+  common windows: [('0123456789AB', 123), ('CDEFGHIJKLMN', 42), ('\x00\x00\x00\x00\x00       ', 15)]
+  expected substring matches by bus: {'SDT1': 0, 'SDI2': 42, 'SDO2': 41}
+title-test-03-OPQRSTUVWXYZ-raw
+  last window: 'OPQRSTUVWXYZ'
+  common windows: [('CDEFGHIJKLMN', 124), ('OPQRSTUVWXYZ', 38), ('\x00\x00\x00\x00\x00       ', 15)]
+  expected substring matches by bus: {'SDI2': 38, 'SDO2': 37, 'SDT1': 0}
+title-test-04-abcdefghijkl-raw
+  last window: 'abcdefghijkl'
+  common windows: [('OPQRSTUVWXYZ', 127), ('abcdefghijkl', 35), ('\x00\x00\x00\x00\x00       ', 15)]
+  expected substring matches by bus: {'SDI2': 35, 'SDO2': 34, 'SDT1': 0}
+title-test-05-mnopqrstuvwx-raw
+  last window: 'mnopqrstuvwx'
+  common windows: [('abcdefghijkl', 111), ('mnopqrstuvwx', 50), ('\x00\x00\x00\x00\x00       ', 15)]
+  expected substring matches by bus: {'SDI2': 50, 'SDO2': 49, 'SDT1': 0}
+title-test-06-yz-punct-raw
+  last window: 'yz!?+-_./:;ÿ'
+  common windows: [('mnopqrstuvwx', 116), ('yz!?+-_./:;ÿ', 46), ('\x00\x00\x00\x00\x00       ', 15)]
+  expected substring matches by bus: {'SDI2': 47, 'SDO2': 46, 'SDT1': 0}
+title-test-07-reference-b-raw
+  last window: 'bÿÿÿÿÿÿÿÿÿÿÿ'
+  common windows: [('yz!?+-_./:;ÿ', 153), ('bÿÿÿÿÿÿÿÿÿÿÿ', 13), ('\x00\x00\x00\x00\x00       ', 11)]
+  expected substring matches by bus: {'SDI2': 25, 'SDO2': 23, 'SDT1': 0}
+title-test-08-reference-H-raw
+  last window: 'Hÿÿÿÿÿÿÿÿÿÿÿ'
+  common windows: [('bÿÿÿÿÿÿÿÿÿÿÿ', 136), ('Hÿÿÿÿÿÿÿÿÿÿÿ', 30), ('\x00\x00\x00\x00\x00       ', 11)]
+  expected substring matches by bus: {'SDT1': 0, 'SDI2': 42, 'SDO2': 40}
+title-test-09-PLAY-raw
+  last window: 'PLAYÿÿÿÿÿÿÿÿ'
+  common windows: [('Hÿÿÿÿÿÿÿÿÿÿÿ', 139), ('PLAYÿÿÿÿÿÿÿÿ', 27), ('\x00\x00\x00\x00\x00       ', 11)]
+  expected substring matches by bus: {'SDT1': 0, 'SDI2': 35, 'SDO2': 33}
+title-test-10-TRACK-10-raw
+  last window: 'PLAYÿÿÿÿÿÿÿÿ'
+  common windows: [('PLAYÿÿÿÿÿÿÿÿ', 189)]
+  expected substring matches by bus: {'SDT1': 0, 'SDI2': 189, 'SDO2': 189}
+title-test-11-0123456789-raw
+  last window: 'TRACK 10ÿÿÿÿ'
+  common windows: [('TRACK 10ÿÿÿÿ', 147)]
+  expected substring matches by bus: {'SDI2': 147, 'SDO2': 147, 'SDT1': 0}
+title-test-12-long-title-raw
+  last window: '         LON'
+  common windows: [('\x00\x00\x00\x00\x00       ', 35), ('0123456789ÿÿ', 16), ('            ', 10)]
+  expected substring matches by bus: {'SDT1': 0, 'SDI2': 1, 'SDO2': 0}

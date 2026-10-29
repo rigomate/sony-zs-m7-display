@@ -1,0 +1,242 @@
+[
+  {
+    "capture": "captures/test20/01-play-time-raw/digital.csv",
+    "rising_clocks": [
+      562753,
+      527593
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 8793
+  },
+  {
+    "capture": "captures/test20/02-next-raw/digital.csv",
+    "rising_clocks": [
+      64264,
+      60256
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1006
+  },
+  {
+    "capture": "captures/test20/03-next-raw/digital.csv",
+    "rising_clocks": [
+      64424,
+      60392
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1007
+  },
+  {
+    "capture": "captures/test20/04-next-raw/digital.csv",
+    "rising_clocks": [
+      64384,
+      60360
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1007
+  },
+  {
+    "capture": "captures/test20/05-next-raw/digital.csv",
+    "rising_clocks": [
+      64419,
+      60376
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1007
+  },
+  {
+    "capture": "captures/test20/06-next-raw/digital.csv",
+    "rising_clocks": [
+      64512,
+      60464
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1008
+  },
+  {
+    "capture": "captures/test20/07-next-raw/digital.csv",
+    "rising_clocks": [
+      64448,
+      60392
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1007
+  },
+  {
+    "capture": "captures/test20/08-next-raw/digital.csv",
+    "rising_clocks": [
+      64256,
+      60240
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1006
+  },
+  {
+    "capture": "captures/test20/09-next-raw/digital.csv",
+    "rising_clocks": [
+      64384,
+      60360
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1006
+  },
+  {
+    "capture": "captures/test20/10-next-raw/digital.csv",
+    "rising_clocks": [
+      64448,
+      60392
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1007
+  },
+  {
+    "capture": "captures/test20/11-next-raw/digital.csv",
+    "rising_clocks": [
+      64384,
+      60360
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1007
+  },
+  {
+    "capture": "captures/test20/12-next-raw/digital.csv",
+    "rising_clocks": [
+      64384,
+      60360
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1006
+  },
+  {
+    "capture": "captures/test20/13-next-raw/digital.csv",
+    "rising_clocks": [
+      64470,
+      60462
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1008
+  },
+  {
+    "capture": "captures/test20/14-next-raw/digital.csv",
+    "rising_clocks": [
+      64395,
+      60379
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1007
+  },
+  {
+    "capture": "captures/test20/15-next-raw/digital.csv",
+    "rising_clocks": [
+      64384,
+      60360
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1007
+  },
+  {
+    "capture": "captures/test20/16-next-raw/digital.csv",
+    "rising_clocks": [
+      64464,
+      60447
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1006
+  },
+  {
+    "capture": "captures/test20/17-next-raw/digital.csv",
+    "rising_clocks": [
+      64472,
+      60456
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1008
+  },
+  {
+    "capture": "captures/test20/18-next-raw/digital.csv",
+    "rising_clocks": [
+      64640,
+      60614
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1011
+  },
+  {
+    "capture": "captures/test20/19-next-raw/digital.csv",
+    "rising_clocks": [
+      64597,
+      60581
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1009
+  },
+  {
+    "capture": "captures/test20/20-next-raw/digital.csv",
+    "rising_clocks": [
+      64448,
+      60416
+    ],
+    "clocks_outside_CS1": [
+      0,
+      0
+    ],
+    "rows_with_different_selects": 1006
+  }
+]

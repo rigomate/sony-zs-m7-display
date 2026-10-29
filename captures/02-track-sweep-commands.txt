@@ -1,0 +1,34 @@
+Capture: 02-track-sweep.sal (MCP capture ID 11)
+Remote: zs-m7, SONY15 address 100
+Starting state: stopped on track 11
+Capture: 20 seconds, 8 MS/s, digital channels 0-7
+
+Times below are seconds from the command-logging script start, not from Saleae capture start. The capture was started shortly before the script; the precise offset is not known. Track numbers are expected positions from the known starting state and number of successful navigation commands.
+
+| Script time (s) | Expected track | Command | Remote result |
+|---:|---:|---|---|
+| 0.351 | 10 | track_prev | ACK, function 67 |
+| 1.002 | 9 | track_prev | ACK, function 67 |
+| 1.654 | 8 | track_prev | ACK, function 67 |
+| 2.305 | 7 | track_prev | ACK, function 67 |
+| 2.956 | 6 | track_prev | ACK, function 67 |
+| 3.608 | 5 | track_prev | ACK, function 67 |
+| 4.259 | 4 | track_prev | ACK, function 67 |
+| 4.910 | 3 | track_prev | ACK, function 67 |
+| 5.562 | 2 | track_prev | ACK, function 67 |
+| 6.214 | 1 | track_prev | ACK, function 67 |
+| 7.666 | 2 | track_next | ACK, function 68 |
+| 8.317 | 3 | track_next | ACK, function 68 |
+| 8.968 | 4 | track_next | ACK, function 68 |
+| 9.620 | 5 | track_next | ACK, function 68 |
+| 10.272 | 6 | track_next | ACK, function 68 |
+| 10.924 | 7 | track_next | ACK, function 68 |
+| 11.576 | 8 | track_next | ACK, function 68 |
+| 12.228 | 9 | track_next | ACK, function 68 |
+| 12.879 | 10 | track_next | ACK, function 68 |
+| 14.331 | 11 | track_next | ACK, function 68 |
+| 14.983 | 12 | track_next | ACK, function 68 |
+| 16.435 | 11 | track_prev | ACK, function 67 |
+| 17.087 | 11 | stop | ACK; response reported address 68, function 126 |
+
+The navigation command itself typically took about 0.35 seconds including serial response collection; extra dwell was added between target states. The stop acknowledgment's address differs from the remote's normal status (SONY15 address 100); this discrepancy is preserved here and should be investigated if relevant.

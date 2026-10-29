@@ -1,0 +1,30 @@
+# CMake and PlatformIO build output
+/build/
+/cmake-build-*/
+**/.pio/
+
+# Local firmware settings (may contain Wi-Fi credentials)
+/firmware/esp32/src/config.hpp
+.env
+.env.*
+!.env.example
+
+# Python bytecode and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Local agent configuration and credentials
+/.agents/
+/.codex/
+/.aws/
+
+# Editor and operating-system files
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

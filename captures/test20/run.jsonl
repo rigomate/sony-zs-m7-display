@@ -1,0 +1,80 @@
+{"utc": "2026-10-29T14:05:37.341480+00:00", "event": "capture_started", "stem": "01-play-time", "duration": 140, "response": {"captureId": 44}}
+{"utc": "2026-10-29T14:05:38.343545+00:00", "event": "remote_ack", "command": "play", "reply": "OK device=zs-m7 command=play protocol=SONY15 address=100 function=66\r\n"}
+{"utc": "2026-10-29T14:08:09.345959+00:00", "event": "saved", "stem": "01-play-time", "response": {}}
+{"utc": "2026-10-29T14:08:13.878580+00:00", "event": "exported", "stem": "01-play-time", "response": {}}
+{"utc": "2026-10-29T14:08:22.022353+00:00", "event": "capture_started", "stem": "02-next", "duration": 16, "response": {"captureId": 45}}
+{"utc": "2026-10-29T14:08:23.025359+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:08:39.341442+00:00", "event": "saved", "stem": "02-next", "response": {}}
+{"utc": "2026-10-29T14:08:39.838884+00:00", "event": "exported", "stem": "02-next", "response": {}}
+{"utc": "2026-10-29T14:08:40.116525+00:00", "event": "capture_started", "stem": "03-next", "duration": 16, "response": {"captureId": 46}}
+{"utc": "2026-10-29T14:08:41.118338+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:08:57.371121+00:00", "event": "saved", "stem": "03-next", "response": {}}
+{"utc": "2026-10-29T14:08:57.847138+00:00", "event": "exported", "stem": "03-next", "response": {}}
+{"utc": "2026-10-29T14:08:58.125327+00:00", "event": "capture_started", "stem": "04-next", "duration": 16, "response": {"captureId": 47}}
+{"utc": "2026-10-29T14:08:59.127186+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:09:15.382846+00:00", "event": "saved", "stem": "04-next", "response": {}}
+{"utc": "2026-10-29T14:09:15.858481+00:00", "event": "exported", "stem": "04-next", "response": {}}
+{"utc": "2026-10-29T14:09:16.162030+00:00", "event": "capture_started", "stem": "05-next", "duration": 16, "response": {"captureId": 48}}
+{"utc": "2026-10-29T14:09:17.164198+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:09:33.528884+00:00", "event": "saved", "stem": "05-next", "response": {}}
+{"utc": "2026-10-29T14:09:34.079591+00:00", "event": "exported", "stem": "05-next", "response": {}}
+{"utc": "2026-10-29T14:09:34.401435+00:00", "event": "capture_started", "stem": "06-next", "duration": 16, "response": {"captureId": 49}}
+{"utc": "2026-10-29T14:09:35.404386+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:09:51.737163+00:00", "event": "saved", "stem": "06-next", "response": {}}
+{"utc": "2026-10-29T14:09:52.233289+00:00", "event": "exported", "stem": "06-next", "response": {}}
+{"utc": "2026-10-29T14:09:52.510400+00:00", "event": "capture_started", "stem": "07-next", "duration": 16, "response": {"captureId": 50}}
+{"utc": "2026-10-29T14:09:53.512130+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:10:09.785627+00:00", "event": "saved", "stem": "07-next", "response": {}}
+{"utc": "2026-10-29T14:10:10.243307+00:00", "event": "exported", "stem": "07-next", "response": {}}
+{"utc": "2026-10-29T14:10:10.527001+00:00", "event": "capture_started", "stem": "08-next", "duration": 16, "response": {"captureId": 51}}
+{"utc": "2026-10-29T14:10:11.529300+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:10:27.794503+00:00", "event": "saved", "stem": "08-next", "response": {}}
+{"utc": "2026-10-29T14:10:28.357651+00:00", "event": "exported", "stem": "08-next", "response": {}}
+{"utc": "2026-10-29T14:10:28.624981+00:00", "event": "capture_started", "stem": "09-next", "duration": 16, "response": {"captureId": 52}}
+{"utc": "2026-10-29T14:10:29.627101+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:10:45.778649+00:00", "event": "saved", "stem": "09-next", "response": {}}
+{"utc": "2026-10-29T14:10:46.259206+00:00", "event": "exported", "stem": "09-next", "response": {}}
+{"utc": "2026-10-29T14:10:46.538599+00:00", "event": "capture_started", "stem": "10-next", "duration": 16, "response": {"captureId": 53}}
+{"utc": "2026-10-29T14:10:47.542899+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:11:03.832468+00:00", "event": "saved", "stem": "10-next", "response": {}}
+{"utc": "2026-10-29T14:11:04.368213+00:00", "event": "exported", "stem": "10-next", "response": {}}
+{"utc": "2026-10-29T14:11:04.659986+00:00", "event": "capture_started", "stem": "11-next", "duration": 16, "response": {"captureId": 54}}
+{"utc": "2026-10-29T14:11:05.662987+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:11:21.796159+00:00", "event": "saved", "stem": "11-next", "response": {}}
+{"utc": "2026-10-29T14:11:22.296651+00:00", "event": "exported", "stem": "11-next", "response": {}}
+{"utc": "2026-10-29T14:11:22.593914+00:00", "event": "capture_started", "stem": "12-next", "duration": 16, "response": {"captureId": 55}}
+{"utc": "2026-10-29T14:11:23.596270+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:11:39.724535+00:00", "event": "saved", "stem": "12-next", "response": {}}
+{"utc": "2026-10-29T14:11:40.243259+00:00", "event": "exported", "stem": "12-next", "response": {}}
+{"utc": "2026-10-29T14:11:40.609491+00:00", "event": "capture_started", "stem": "13-next", "duration": 16, "response": {"captureId": 56}}
+{"utc": "2026-10-29T14:11:41.611340+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:11:57.861339+00:00", "event": "saved", "stem": "13-next", "response": {}}
+{"utc": "2026-10-29T14:11:58.337436+00:00", "event": "exported", "stem": "13-next", "response": {}}
+{"utc": "2026-10-29T14:11:58.613845+00:00", "event": "capture_started", "stem": "14-next", "duration": 16, "response": {"captureId": 57}}
+{"utc": "2026-10-29T14:11:59.616176+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:12:15.775443+00:00", "event": "saved", "stem": "14-next", "response": {}}
+{"utc": "2026-10-29T14:12:16.355882+00:00", "event": "exported", "stem": "14-next", "response": {}}
+{"utc": "2026-10-29T14:12:16.624758+00:00", "event": "capture_started", "stem": "15-next", "duration": 16, "response": {"captureId": 58}}
+{"utc": "2026-10-29T14:12:17.627389+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:12:33.970792+00:00", "event": "saved", "stem": "15-next", "response": {}}
+{"utc": "2026-10-29T14:12:34.463499+00:00", "event": "exported", "stem": "15-next", "response": {}}
+{"utc": "2026-10-29T14:12:34.729666+00:00", "event": "capture_started", "stem": "16-next", "duration": 16, "response": {"captureId": 59}}
+{"utc": "2026-10-29T14:12:35.732007+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:12:51.890582+00:00", "event": "saved", "stem": "16-next", "response": {}}
+{"utc": "2026-10-29T14:12:52.468434+00:00", "event": "exported", "stem": "16-next", "response": {}}
+{"utc": "2026-10-29T14:12:52.737742+00:00", "event": "capture_started", "stem": "17-next", "duration": 16, "response": {"captureId": 60}}
+{"utc": "2026-10-29T14:12:53.740285+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:13:10.089015+00:00", "event": "saved", "stem": "17-next", "response": {}}
+{"utc": "2026-10-29T14:13:10.673635+00:00", "event": "exported", "stem": "17-next", "response": {}}
+{"utc": "2026-10-29T14:13:10.992973+00:00", "event": "capture_started", "stem": "18-next", "duration": 16, "response": {"captureId": 61}}
+{"utc": "2026-10-29T14:13:11.996222+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:13:28.211540+00:00", "event": "saved", "stem": "18-next", "response": {}}
+{"utc": "2026-10-29T14:13:28.787818+00:00", "event": "exported", "stem": "18-next", "response": {}}
+{"utc": "2026-10-29T14:13:29.109126+00:00", "event": "capture_started", "stem": "19-next", "duration": 16, "response": {"captureId": 62}}
+{"utc": "2026-10-29T14:13:30.111086+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:13:46.347929+00:00", "event": "saved", "stem": "19-next", "response": {}}
+{"utc": "2026-10-29T14:13:46.896170+00:00", "event": "exported", "stem": "19-next", "response": {}}
+{"utc": "2026-10-29T14:13:47.166724+00:00", "event": "capture_started", "stem": "20-next", "duration": 16, "response": {"captureId": 63}}
+{"utc": "2026-10-29T14:13:48.169291+00:00", "event": "remote_ack", "command": "track_next", "reply": "OK device=zs-m7 command=track_next protocol=SONY15 address=100 function=68\r\n"}
+{"utc": "2026-10-29T14:14:04.324682+00:00", "event": "saved", "stem": "20-next", "response": {}}
+{"utc": "2026-10-29T14:14:04.803609+00:00", "event": "exported", "stem": "20-next", "response": {}}

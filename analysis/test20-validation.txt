@@ -1,0 +1,23 @@
+PASS 01-play-time (4207 numeric frames, 3711 TEST windows)
+PASS 02-next (314 numeric frames, 314 TEST windows)
+PASS 03-next (315 numeric frames, 315 TEST windows)
+PASS 04-next (314 numeric frames, 314 TEST windows)
+PASS 05-next (314 numeric frames, 314 TEST windows)
+PASS 06-next (315 numeric frames, 315 TEST windows)
+PASS 07-next (314 numeric frames, 314 TEST windows)
+PASS 08-next (314 numeric frames, 314 TEST windows)
+PASS 09-next (315 numeric frames, 315 TEST windows)
+PASS 10-next (314 numeric frames, 314 TEST windows)
+PASS 11-next (314 numeric frames, 314 TEST windows)
+PASS 12-next (315 numeric frames, 315 TEST windows)
+PASS 13-next (315 numeric frames, 315 TEST windows)
+PASS 14-next (315 numeric frames, 315 TEST windows)
+PASS 15-next (314 numeric frames, 314 TEST windows)
+PASS 16-next (314 numeric frames, 314 TEST windows)
+PASS 17-next (315 numeric frames, 315 TEST windows)
+PASS 18-next (317 numeric frames, 317 TEST windows)
+PASS 19-next (316 numeric frames, 316 TEST windows)
+PASS 20-next (314 numeric frames, 314 TEST windows)
+<end of output>
+
+CTest: all three suites passed (numeric, title, framing).

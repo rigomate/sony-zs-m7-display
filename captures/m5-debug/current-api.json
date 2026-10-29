@@ -1,0 +1,90 @@
+{
+  "uptime_ms": 621889,
+  "stale_after_ms": 1500,
+  "dropped_frames": 0,
+  "capture_error": "",
+  "buses": [
+    {
+      "frames": 0,
+      "complete": 0,
+      "rejected": 0,
+      "age_ms": null,
+      "fresh": false,
+      "raw_hex": ""
+    },
+    {
+      "frames": 19521,
+      "complete": 18044,
+      "rejected": 1477,
+      "age_ms": 3,
+      "fresh": true,
+      "raw_hex": "F1 80 3F F3 EF 3F FF FF FF FF FF FF FF FF FD"
+    }
+  ],
+  "numeric": null,
+  "title": {
+    "text": null,
+    "codes": [
+      63,
+      243,
+      239,
+      63,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  "receiver": [
+    {
+      "transactions": 19521,
+      "zero_bits": 19521,
+      "wrong_bits": 0,
+      "last_bits": 0,
+      "gpio": {
+        "data": {
+          "pin": 26,
+          "high": 158219,
+          "low": 142587
+        },
+        "clock": {
+          "pin": 0,
+          "high": 300806,
+          "low": 0
+        },
+        "select": {
+          "pin": 36,
+          "high": 130736,
+          "low": 170070
+        }
+      }
+    },
+    {
+      "transactions": 19521,
+      "zero_bits": 0,
+      "wrong_bits": 1477,
+      "last_bits": 120,
+      "gpio": {
+        "data": {
+          "pin": 32,
+          "high": 160456,
+          "low": 140350
+        },
+        "clock": {
+          "pin": 33,
+          "high": 286902,
+          "low": 13904
+        },
+        "select": {
+          "pin": 36,
+          "high": 130735,
+          "low": 170071
+        }
+      }
+    }
+  ]
+}

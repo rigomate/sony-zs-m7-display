@@ -1,0 +1,33 @@
+# Title test capture run
+
+- Saleae: physical Logic device `DAAD127308D7F0CD`
+- Digital sample rate: 8 MS/s
+- Captured channels: 0-7; channel 0 is unused
+- Capture duration: 6 seconds per track
+- Cooldown: waited at least 3 seconds after every remote command acknowledgment
+- Remote commands: `play` on track 1, then `track_next` once per following track; all transmissions were acknowledged by the adapter
+- No `stop` or `power_off` command was sent in this run
+- Track positions are inferred from the screenshot's selected track 1 and acknowledged navigation count; the remote has no read-only track query
+
+| Expected track | Title | Command | Native capture | Raw Saleae CSV |
+|---:|---|---|---|---|
+| 1 | `0123456789AB` | `play` | `title-test-01-0123456789AB.sal` | `title-test-01-0123456789AB-raw/digital.csv` |
+| 2 | `CDEFGHIJKLMN` | `track_next` | `title-test-02-CDEFGHIJKLMN.sal` | `title-test-02-CDEFGHIJKLMN-raw/digital.csv` |
+| 3 | `OPQRSTUVWXYZ` | `track_next` | `title-test-03-OPQRSTUVWXYZ.sal` | `title-test-03-OPQRSTUVWXYZ-raw/digital.csv` |
+| 4 | `abcdefghijkl` | `track_next` | `title-test-04-abcdefghijkl.sal` | `title-test-04-abcdefghijkl-raw/digital.csv` |
+| 5 | `mnopqrstuvwx` | `track_next` | `title-test-05-mnopqrstuvwx.sal` | `title-test-05-mnopqrstuvwx-raw/digital.csv` |
+| 6 | `yz!?+-_./:;` | `track_next` | `title-test-06-yz-punct.sal` | `title-test-06-yz-punct-raw/digital.csv` |
+| 7 | `b` | `track_next` | `title-test-07-reference-b.sal` | `title-test-07-reference-b-raw/digital.csv` |
+| 8 | `H` | `track_next` | `title-test-08-reference-H.sal` | `title-test-08-reference-H-raw/digital.csv` |
+| 9 | `PLAY` | `track_next` | `title-test-09-PLAY.sal` | `title-test-09-PLAY-raw/digital.csv` |
+| 10 | `TRACK 10` | `track_next` | `title-test-10-TRACK-10.sal` | `title-test-10-TRACK-10-raw/digital.csv` |
+| 11 | `0123456789` | `track_next` | `title-test-11-0123456789.sal` | `title-test-11-0123456789-raw/digital.csv` |
+| 12 | `LONG TITLE SCROLL 0123456789 ABCDEFGHIJKLMNOP` | `track_next` | `title-test-12-long-title.sal` | `title-test-12-long-title-raw/digital.csv` |
+
+Capture 11 raised a Saleae `ReadTimeout` from `wait_capture`, but both native save and raw CSV export succeeded. Its CSV covers 4.7232 seconds and contains 147 complete frames per bus, so it is shorter than the other captures (about 6 seconds, 188-192 complete frames). Treat it as usable but lower-duration evidence.
+
+## What the capture can establish
+
+The configured SPI-2 return stream (SDO2, Saleae channel 1) has a title-correlated region in bytes 2-13 for the six 12-character test strings. This supports investigating a per-character code table. It does not yet prove whether SDO2 is the display text source, a readback/echo, or another correlated state stream. Compare against SPI-2 input SDI2 (channel 2) and SPI-1 SDT1 (channel 5) before assigning protocol semantics.
+
+No elapsed-time capture was made in this run. For elapsed-time decoding, keep a known track selected and capture continuously for at least 60 seconds after the 3-second seek delay, without issuing stop/power commands.

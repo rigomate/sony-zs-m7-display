@@ -1,0 +1,17 @@
+Isolated stopped-state captures for protocol correlation
+
+Common settings: Saleae Logic, 8 MS/s, digital channels 0-7, 8-bit SPI analyzers, MSB first, CPOL=1, CPHA=0, active-low enable. SPI-1 was MOSI-only (CH1/3/4); SPI-2 used MOSI CH5, provisional MISO/SDO2 CH2, clock CH6, enable CH7. The physical channel-2-to-SDO2 connection still needs continuity verification.
+
+03-track01-stopped.sal / decoded CSV
+- Starting from the previously known stopped track 11, sent `track_prev` ten times; all ten commands were acknowledged. Sent `stop` afterward.
+- Captured 3 seconds on expected track 1.
+
+04-track10-stopped.sal / decoded CSV
+- From expected track 1, sent `track_next` nine times; all nine commands were acknowledged. The first serial read also contained a delayed acknowledgment for the preceding `stop`.
+- Captured 3 seconds on expected track 10, still in stop mode.
+
+05-track12-stopped.sal / decoded CSV
+- From expected track 10, sent `track_next` twice; both commands were acknowledged.
+- Captured 5 seconds on expected track 12, still in stop mode, to observe possible long-title scrolling.
+
+The track positions above are inferred from the known starting position and acknowledged step counts; there is no independent player track-status command. The adapter's `sensor status` reported `PLAY_LED_OFF` before and after a later `play`/`stop` test, so IR reception by the player is not independently verified. These files are useful for comparing stream patterns, not as ground-truth display state labels.

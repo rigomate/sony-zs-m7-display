@@ -1,0 +1,16 @@
+Capture: 01-play-and-navigation.sal (MCP capture ID 10)
+Remote: zs-m7, SONY15 address 100
+Starting state: stopped on track 1
+Capture: 16 seconds, 8 MS/s, digital channels 0-7
+
+Stimulus sequence during capture:
+1. send play
+2. send track_next once (expected track 2)
+3. send track_next eight more times (expected track 10)
+4. send track_next twice (expected track 12)
+5. send track_prev once (expected track 11)
+6. send stop
+
+The remote acknowledged every command. Commands were spaced to allow the display to settle: about 1.2 seconds at the first track states, and 0.45 seconds between repeated navigation commands. `stop` was acknowledged with the unusual response `protocol=SONY15 address=68 function=126`; the other commands reported address 100. A subsequent read-only query reported the remote still selected for `zs-m7` and its sensor as `PLAY_LED_OFF`; this is not independent confirmation of the player state.
+
+This is the order of remote commands, not a sample-accurate timestamp log. Use the native capture and decoded CSV to align transactions precisely.

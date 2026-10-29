@@ -1,0 +1,22 @@
+# Latest per-track capture run
+
+Protocol: Saleae raw digital CSV, 8 MS/s, digital channels 0-7, 12-second timed capture per track. Each capture began before its remote command. The run waited at least 10 seconds after each command acknowledgment to allow seeking and display refresh.
+
+Remote commands used in this run: `play`, followed by `track_next` once per subsequent track. No `stop` or `power_off` command was sent in this run. The remote adapter acknowledged each command. The display/player state is inferred from the prior track selection and number of successful navigation commands; there is no independent player track-status response in the allowed command set.
+
+| Expected track | Title | Remote command during capture | Native capture | Raw data |
+|---:|---|---|---|---|
+| 1 | `8` | `play` | `track-01-after-play.sal` | `track-01-after-play-raw/digital.csv` |
+| 2 | `1` | `track_next` | `track-02-next.sal` | `track-02-next-raw/digital.csv` |
+| 3 | `2` | `track_next` | `track-03-next.sal` | `track-03-next-raw/digital.csv` |
+| 4 | `5` | `track_next` | `track-04-next.sal` | `track-04-next-raw/digital.csv` |
+| 5 | `0` | `track_next` | `track-05-next.sal` | `track-05-next-raw/digital.csv` |
+| 6 | `A` | `track_next` | `track-06-next.sal` | `track-06-next-raw/digital.csv` |
+| 7 | `b` | `track_next` | `track-07-next.sal` | `track-07-next-raw/digital.csv` |
+| 8 | `H` | `track_next` | `track-08-next.sal` | `track-08-next-raw/digital.csv` |
+| 9 | `PLAY` | `track_next` | `track-09-next.sal` | `track-09-next-raw/digital.csv` |
+| 10 | `TRACK 10` | `track_next` | `track-10-next.sal` | `track-10-next-raw/digital.csv` |
+| 11 | `0123456789` | `track_next` | `track-11-next.sal` | `track-11-next-raw/digital.csv` |
+| 12 | `LONG TITLE SCROLL ...` | `track_next` | `track-12-next.sal` | `track-12-next-raw/digital.csv` |
+
+Each raw file has a matching `.sal` capture. `00-port-busy-preflight`, `00-digit-command-rejected`, and `00-prior-run-stop-sent` are separately preserved diagnostic captures and are not part of the uninterrupted per-track run. `digit_1` was rejected by the remote adapter in the earlier attempt, and older test runs sent `stop`; do not treat those attempts as the safe run above.

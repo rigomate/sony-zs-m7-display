@@ -1,0 +1,37 @@
+{
+  "samples": 68,
+  "duration": 20,
+  "queue_drops_delta": 0,
+  "results": [
+    {
+      "bus": 1,
+      "exact_payload_matches": 51,
+      "unmatched": [],
+      "partial_samples": 9,
+      "frames": 594,
+      "complete": 551,
+      "rejected": 43
+    },
+    {
+      "bus": 2,
+      "exact_payload_matches": 49,
+      "unmatched": [],
+      "partial_samples": 11,
+      "frames": 594,
+      "complete": 557,
+      "rejected": 37
+    }
+  ],
+  "first": {
+    "track": 3,
+    "minutes": 4,
+    "seconds": 14,
+    "indicators": 1048572
+  },
+  "last": {
+    "track": 4,
+    "minutes": 0,
+    "seconds": 15,
+    "indicators": 1048568
+  }
+}
