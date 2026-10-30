@@ -1,0 +1,79 @@
+[
+  {
+    "capture": "01-stopped",
+    "commands": [],
+    "numeric_frames": 188,
+    "last_payload_hex": "00 00 07 01 00 05 09 FE FF CF AA 01 00 AA AA E3",
+    "byte5_values": [
+      5
+    ],
+    "byte9_values": [
+      207
+    ]
+  },
+  {
+    "capture": "02-play",
+    "commands": [
+      "play"
+    ],
+    "numeric_frames": 220,
+    "last_payload_hex": "00 20 01 01 00 07 09 FF FF CF AA 01 00 00 02 5B",
+    "byte5_values": [
+      5,
+      7
+    ],
+    "byte9_values": [
+      207
+    ]
+  },
+  {
+    "capture": "03-select-20",
+    "commands": [
+      "greater_than_10",
+      "digit_2",
+      "digit_0"
+    ],
+    "numeric_frames": 470,
+    "last_payload_hex": "80 20 01 01 00 07 09 00 00 C8 AA 20 00 00 04 8E",
+    "byte5_values": [
+      5,
+      7
+    ],
+    "byte9_values": [
+      200,
+      207
+    ]
+  },
+  {
+    "capture": "04-select-21",
+    "commands": [
+      "greater_than_10",
+      "digit_2",
+      "digit_1"
+    ],
+    "numeric_frames": 470,
+    "last_payload_hex": "80 20 01 01 00 07 09 00 00 C0 AA 21 00 00 05 0E",
+    "byte5_values": [
+      5,
+      7
+    ],
+    "byte9_values": [
+      192,
+      200
+    ]
+  },
+  {
+    "capture": "05-display-name",
+    "commands": [
+      "disc_name"
+    ],
+    "numeric_frames": 219,
+    "last_payload_hex": "00 00 07 01 00 07 09 FF FF CF AA 21 00 56 24 99",
+    "byte5_values": [
+      7
+    ],
+    "byte9_values": [
+      207
+    ]
+  }
+]

@@ -1,0 +1,112 @@
+{
+  "numeric_frames": 590,
+  "blank_frames": 58,
+  "visible_selection_sequence": [
+    {
+      "seconds": 0.240566,
+      "selected_track": 1,
+      "byte11_hex": "01"
+    },
+    {
+      "seconds": 1.515394,
+      "selected_track": 2,
+      "byte11_hex": "02"
+    },
+    {
+      "seconds": 2.344084,
+      "selected_track": 3,
+      "byte11_hex": "03"
+    },
+    {
+      "seconds": 3.109027,
+      "selected_track": 4,
+      "byte11_hex": "04"
+    },
+    {
+      "seconds": 3.937716,
+      "selected_track": 5,
+      "byte11_hex": "05"
+    },
+    {
+      "seconds": 4.957637,
+      "selected_track": 6,
+      "byte11_hex": "06"
+    },
+    {
+      "seconds": 6.009436,
+      "selected_track": 7,
+      "byte11_hex": "07"
+    },
+    {
+      "seconds": 6.901868,
+      "selected_track": 8,
+      "byte11_hex": "08"
+    },
+    {
+      "seconds": 7.889919,
+      "selected_track": 9,
+      "byte11_hex": "09"
+    },
+    {
+      "seconds": 8.718606,
+      "selected_track": 10,
+      "byte11_hex": "10"
+    },
+    {
+      "seconds": 9.961639,
+      "selected_track": 11,
+      "byte11_hex": "11"
+    },
+    {
+      "seconds": 11.587143,
+      "selected_track": 12,
+      "byte11_hex": "12"
+    },
+    {
+      "seconds": 12.766428,
+      "selected_track": 13,
+      "byte11_hex": "13"
+    },
+    {
+      "seconds": 13.563243,
+      "selected_track": 14,
+      "byte11_hex": "14"
+    },
+    {
+      "seconds": 14.296315,
+      "selected_track": 15,
+      "byte11_hex": "15"
+    },
+    {
+      "seconds": 14.933767,
+      "selected_track": 16,
+      "byte11_hex": "16"
+    },
+    {
+      "seconds": 15.4756,
+      "selected_track": 17,
+      "byte11_hex": "17"
+    },
+    {
+      "seconds": 16.049307,
+      "selected_track": 18,
+      "byte11_hex": "18"
+    },
+    {
+      "seconds": 16.623015,
+      "selected_track": 19,
+      "byte11_hex": "19"
+    },
+    {
+      "seconds": 17.196723,
+      "selected_track": 20,
+      "byte11_hex": "20"
+    },
+    {
+      "seconds": 18.216644,
+      "selected_track": 1,
+      "byte11_hex": "01"
+    }
+  ],
+  "commands_sent": []
+}

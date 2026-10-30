@@ -1,0 +1,137 @@
+{
+  "uptime_ms": 304087,
+  "stale_after_ms": 1500,
+  "dropped_frames": 5,
+  "capture_error": "",
+  "buses": [
+    {
+      "frames": 9533,
+      "complete": 9181,
+      "rejected": 352,
+      "age_ms": 17,
+      "valid_age_ms": 17,
+      "fresh": true,
+      "raw_hex": "81 20 01 01 00 03 05 FC FF 03 AA 03 00 01 59 CC"
+    },
+    {
+      "frames": 9532,
+      "complete": 9177,
+      "rejected": 355,
+      "age_ms": 17,
+      "valid_age_ms": 17,
+      "fresh": true,
+      "raw_hex": "AC 00 54 72 65 61 63 68 65 72 6F 75 73 20 DD"
+    }
+  ],
+  "numeric": {
+    "track": 3,
+    "minutes": 1,
+    "seconds": 59,
+    "indicators": 262140
+  },
+  "mode": "md",
+  "source": "md",
+  "symbols": {
+    "md": true,
+    "cd": false,
+    "radio": false,
+    "line": false,
+    "md_play": true,
+    "md_pause": false,
+    "md_disc": "animated"
+  },
+  "radio": null,
+  "md": {
+    "play": true,
+    "pause": false,
+    "time_blank": false,
+    "disc": "animated",
+    "animation_timing_approximate": true
+  },
+  "volume": {
+    "level": 5,
+    "max": 31,
+    "overlay": false,
+    "fresh": true
+  },
+  "title": {
+    "text": "Treacherous ",
+    "codes": [
+      84,
+      114,
+      101,
+      97,
+      99,
+      104,
+      101,
+      114,
+      111,
+      117,
+      115,
+      32
+    ]
+  },
+  "receiver": [
+    {
+      "paused": false,
+      "backend": "gpio-isr",
+      "output_enable_mask": 0,
+      "transactions": 9533,
+      "zero_bits": 0,
+      "wrong_bits": 352,
+      "last_bits": 128,
+      "rising_edges": 2440324,
+      "low_callbacks": 1220122,
+      "short_edges": 94,
+      "accepted_edges": 1220110,
+      "gpio": {
+        "data": {
+          "pin": 7,
+          "high": 63390,
+          "low": 74848
+        },
+        "clock": {
+          "pin": 6,
+          "high": 131170,
+          "low": 7068
+        },
+        "select": {
+          "pin": 10,
+          "high": 60092,
+          "low": 78146
+        }
+      }
+    },
+    {
+      "paused": false,
+      "backend": "gpio-isr",
+      "output_enable_mask": 0,
+      "transactions": 9532,
+      "zero_bits": 0,
+      "wrong_bits": 355,
+      "last_bits": 120,
+      "rising_edges": 2287788,
+      "low_callbacks": 1143850,
+      "short_edges": 116,
+      "accepted_edges": 1143822,
+      "gpio": {
+        "data": {
+          "pin": 4,
+          "high": 52457,
+          "low": 85781
+        },
+        "clock": {
+          "pin": 5,
+          "high": 131758,
+          "low": 6480
+        },
+        "select": {
+          "pin": 3,
+          "high": 60092,
+          "low": 78146
+        }
+      }
+    }
+  ],
+  "gpio0_voltage_at_boot": null
+}

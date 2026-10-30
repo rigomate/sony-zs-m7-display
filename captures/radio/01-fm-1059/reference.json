@@ -1,0 +1,6 @@
+{
+  "source": "user stated current tuning",
+  "band": "FM (inferred from frequency)",
+  "frequency_mhz": 105.9,
+  "commands_sent": []
+}

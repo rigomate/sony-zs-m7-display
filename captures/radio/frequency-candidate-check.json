@@ -1,0 +1,30 @@
+[
+  {
+    "reference_mhz": 105.9,
+    "candidate_decoded_values": [
+      105.9
+    ],
+    "tested_frames": 189
+  },
+  {
+    "reference_mhz": 103.9,
+    "candidate_decoded_values": [
+      103.9
+    ],
+    "tested_frames": 190
+  },
+  {
+    "reference_mhz": 102.5,
+    "candidate_decoded_values": [
+      102.5
+    ],
+    "tested_frames": 188
+  },
+  {
+    "reference_mhz": 98.7,
+    "candidate_decoded_values": [
+      98.7
+    ],
+    "tested_frames": 190
+  }
+]

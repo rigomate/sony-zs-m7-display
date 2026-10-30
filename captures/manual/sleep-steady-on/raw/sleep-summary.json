@@ -1,0 +1,9 @@
+{
+  "reference": "User confirmed SLEEP steadily lit",
+  "complete_numeric_frames": 190,
+  "candidate": "SDT1 byte9 bit7 cleared while SLEEP on; active-low hypothesis, requires paired off reference",
+  "byte9_values": [
+    3
+  ],
+  "commands_sent": []
+}

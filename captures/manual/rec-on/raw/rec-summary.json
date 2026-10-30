@@ -1,0 +1,12 @@
+{
+  "reference": "User confirms REC lamp on; location confirmation pending",
+  "complete_numeric_frames": 187,
+  "byte1_values": [
+    112
+  ],
+  "candidate_rec_mask": 64,
+  "known_play_mask": 32,
+  "known_pause_mask": 16,
+  "recording_vs_standby": "not inferred",
+  "commands_sent": []
+}

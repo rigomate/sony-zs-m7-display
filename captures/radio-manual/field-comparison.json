@@ -1,0 +1,146 @@
+[
+  {
+    "capture": "am-287khz-raw",
+    "complete_numeric_frames": 60,
+    "stable_fields": {
+      "4": [
+        32
+      ],
+      "6": [
+        74
+      ],
+      "7": [
+        0
+      ],
+      "12": [
+        10
+      ],
+      "13": [
+        40
+      ],
+      "14": [
+        122
+      ]
+    }
+  },
+  {
+    "capture": "am-323khz-raw",
+    "complete_numeric_frames": 35,
+    "stable_fields": {
+      "4": [
+        32
+      ],
+      "6": [
+        74
+      ],
+      "7": [
+        0
+      ],
+      "12": [
+        10
+      ],
+      "13": [
+        50
+      ],
+      "14": [
+        58
+      ]
+    }
+  },
+  {
+    "capture": "am-422khz-raw",
+    "complete_numeric_frames": 34,
+    "stable_fields": {
+      "4": [
+        32
+      ],
+      "6": [
+        74
+      ],
+      "7": [
+        0
+      ],
+      "12": [
+        10
+      ],
+      "13": [
+        66
+      ],
+      "14": [
+        42
+      ]
+    }
+  },
+  {
+    "capture": "am-575khz-raw",
+    "complete_numeric_frames": 31,
+    "stable_fields": {
+      "4": [
+        32
+      ],
+      "6": [
+        74
+      ],
+      "7": [
+        0
+      ],
+      "12": [
+        10
+      ],
+      "13": [
+        87
+      ],
+      "14": [
+        90
+      ]
+    }
+  },
+  {
+    "capture": "frequency_104.00-preset-label-off-raw",
+    "complete_numeric_frames": 46,
+    "stable_fields": {
+      "4": [
+        192
+      ],
+      "6": [
+        74
+      ],
+      "7": [
+        0
+      ],
+      "12": [
+        10
+      ],
+      "13": [
+        4
+      ],
+      "14": [
+        0
+      ]
+    }
+  },
+  {
+    "capture": "frequency_104.00-preset-label-on-raw",
+    "complete_numeric_frames": 69,
+    "stable_fields": {
+      "4": [
+        194
+      ],
+      "6": [
+        74
+      ],
+      "7": [
+        32
+      ],
+      "12": [
+        10
+      ],
+      "13": [
+        4
+      ],
+      "14": [
+        0
+      ]
+    }
+  }
+]

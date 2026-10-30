@@ -1,0 +1,269 @@
+{
+  "command": "date",
+  "ack": "OK device=zs-m7 command=date protocol=SONY15 address=68 function=99\r\n",
+  "before": {
+    "uptime_ms": 52901293,
+    "stale_after_ms": 1500,
+    "dropped_frames": 94,
+    "capture_error": "",
+    "buses": [
+      {
+        "frames": 101054,
+        "complete": 96634,
+        "rejected": 4420,
+        "age_ms": 11,
+        "valid_age_ms": 11,
+        "fresh": true,
+        "raw_hex": "00 00 07 04 20 00 09 00 00 80 AA AA 0A 15 3A 3E"
+      },
+      {
+        "frames": 101055,
+        "complete": 97134,
+        "rejected": 3921,
+        "age_ms": 11,
+        "valid_age_ms": 11,
+        "fresh": true,
+        "raw_hex": "BE 00 8A 8C 20 00 00 20 20 20 20 20 20 20 BA"
+      }
+    ],
+    "numeric": null,
+    "mode": "am",
+    "source": "radio",
+    "symbols": {
+      "md": false,
+      "cd": false,
+      "radio": true,
+      "line": false,
+      "md_play": false,
+      "md_pause": false,
+      "sleep": false,
+      "timer_play": false,
+      "timer_play_raw": 0,
+      "date": false,
+      "md_disc": "solid"
+    },
+    "radio": {
+      "frequency_khz": 153,
+      "band": "AM",
+      "preset": false,
+      "experimental": true
+    },
+    "md": null,
+    "volume": {
+      "level": 9,
+      "max": 31,
+      "overlay": false,
+      "fresh": true
+    },
+    "title": {
+      "text": null,
+      "codes": [
+        138,
+        140,
+        32,
+        0,
+        0,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ]
+    },
+    "receiver": [
+      {
+        "paused": false,
+        "backend": "gpio-isr",
+        "output_enable_mask": 0,
+        "transactions": 101059,
+        "zero_bits": 5,
+        "wrong_bits": 4420,
+        "last_bits": 128,
+        "rising_edges": 25862354,
+        "low_callbacks": 12930634,
+        "short_edges": 1574,
+        "accepted_edges": 12930146,
+        "gpio": {
+          "data": {
+            "pin": 7,
+            "high": 24967306,
+            "low": 1077203
+          },
+          "clock": {
+            "pin": 6,
+            "high": 25596406,
+            "low": 448103
+          },
+          "select": {
+            "pin": 10,
+            "high": 24849322,
+            "low": 1195187
+          }
+        }
+      },
+      {
+        "paused": false,
+        "backend": "gpio-isr",
+        "output_enable_mask": 0,
+        "transactions": 101057,
+        "zero_bits": 2,
+        "wrong_bits": 3921,
+        "last_bits": 120,
+        "rising_edges": 24246591,
+        "low_callbacks": 12122772,
+        "short_edges": 1616,
+        "accepted_edges": 12122203,
+        "gpio": {
+          "data": {
+            "pin": 4,
+            "high": 24852608,
+            "low": 1191901
+          },
+          "clock": {
+            "pin": 5,
+            "high": 25602523,
+            "low": 441986
+          },
+          "select": {
+            "pin": 3,
+            "high": 24848662,
+            "low": 1195847
+          }
+        }
+      }
+    ],
+    "gpio0_voltage_at_boot": null
+  },
+  "after": {
+    "uptime_ms": 52906117,
+    "stale_after_ms": 1500,
+    "dropped_frames": 94,
+    "capture_error": "",
+    "buses": [
+      {
+        "frames": 101205,
+        "complete": 96779,
+        "rejected": 4426,
+        "age_ms": 23,
+        "valid_age_ms": 23,
+        "fresh": true,
+        "raw_hex": "00 00 07 44 00 02 09 00 00 80 AA AA 0A FF FF 95"
+      },
+      {
+        "frames": 101206,
+        "complete": 97279,
+        "rejected": 3927,
+        "age_ms": 23,
+        "valid_age_ms": 23,
+        "fresh": true,
+        "raw_hex": "55 00 2D 2D 79 20 2D 2D 6D 20 2D 2D 64 20 07"
+      }
+    ],
+    "numeric": null,
+    "mode": "radio",
+    "source": "radio",
+    "symbols": {
+      "md": false,
+      "cd": false,
+      "radio": true,
+      "line": false,
+      "md_play": false,
+      "md_pause": false,
+      "sleep": false,
+      "timer_play": false,
+      "timer_play_raw": 0,
+      "date": true,
+      "md_disc": "solid"
+    },
+    "radio": null,
+    "md": null,
+    "volume": {
+      "level": 9,
+      "max": 31,
+      "overlay": false,
+      "fresh": true
+    },
+    "title": {
+      "text": "--y --m --d ",
+      "codes": [
+        45,
+        45,
+        121,
+        32,
+        45,
+        45,
+        109,
+        32,
+        45,
+        45,
+        100,
+        32
+      ]
+    },
+    "receiver": [
+      {
+        "paused": false,
+        "backend": "gpio-isr",
+        "output_enable_mask": 0,
+        "transactions": 101210,
+        "zero_bits": 5,
+        "wrong_bits": 4426,
+        "last_bits": 128,
+        "rising_edges": 25901176,
+        "low_callbacks": 12950045,
+        "short_edges": 1575,
+        "accepted_edges": 12949556,
+        "gpio": {
+          "data": {
+            "pin": 7,
+            "high": 24968160,
+            "low": 1078509
+          },
+          "clock": {
+            "pin": 6,
+            "high": 25598449,
+            "low": 448220
+          },
+          "select": {
+            "pin": 10,
+            "high": 24850270,
+            "low": 1196399
+          }
+        }
+      },
+      {
+        "paused": false,
+        "backend": "gpio-isr",
+        "output_enable_mask": 0,
+        "transactions": 101208,
+        "zero_bits": 2,
+        "wrong_bits": 3927,
+        "last_bits": 120,
+        "rising_edges": 24282995,
+        "low_callbacks": 12140973,
+        "short_edges": 1617,
+        "accepted_edges": 12140405,
+        "gpio": {
+          "data": {
+            "pin": 4,
+            "high": 24853321,
+            "low": 1193348
+          },
+          "clock": {
+            "pin": 5,
+            "high": 25604585,
+            "low": 442084
+          },
+          "select": {
+            "pin": 3,
+            "high": 24849610,
+            "low": 1197059
+          }
+        }
+      }
+    ],
+    "gpio0_voltage_at_boot": null
+  }
+}

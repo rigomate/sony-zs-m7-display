@@ -28,8 +28,46 @@ public:
             ++bus.rejected;
             return; // A damaged frame must not erase the last complete display.
         }
-        if (frame.bus == SpiBus::Display1) numeric_ = decode_numeric_display(frame);
-        else title_ = decode_title_window(frame);
+        if (frame.bus == SpiBus::Display1) {
+            source_ = decode_source_name(frame);
+            source_mask_ = frame.mosi[3] & 15;
+            date_ = (frame.mosi[3] & 0x40) != 0;
+            fm_ = (frame.mosi[4] & 0xc0) == 0xc0;
+            sleep_ = (frame.mosi[0] & 1) != 0;
+            step_ = (frame.mosi[5] & 0x80) != 0;
+            track_label_ = (frame.mosi[5] & 0x01) != 0;
+            pgm_ = (frame.mosi[5] & 0x08) != 0;
+            shuffle_ = (frame.mosi[5] & 0x10) != 0;
+            repeat_ = (frame.mosi[5] & 0x40) != 0;
+            repeat_one_ = (frame.mosi[5] & 0x20) != 0;
+            timer_play_mask_ = frame.mosi[0] & 0x0c;
+            rec_ = (frame.mosi[1] & 0x40) != 0;
+            md_play_ = (frame.mosi[1] & 0x20) != 0;
+            md_pause_ = (frame.mosi[1] & 0x10) != 0;
+            const auto disc = frame.mosi[2] & 7;
+            disc_ = disc == 0 ? "off" : disc == 7 ? "solid" :
+                    disc == 1 && source_ == "md" && (frame.mosi[1] & 0x30) == 0x20 ? "animated" : "unknown";
+            radio_ = decode_radio_display(frame);
+            md_ = decode_md_transport(frame);
+            program_ = decode_program_display(frame);
+            track_display_ = decode_track_display(frame);
+            over20_ = (frame.mosi[5] & 4) != 0;
+            if (source_ != "unknown" || radio_ || md_ || decode_numeric_display(frame))
+                numeric_volume_ = frame.mosi[6] & 0x1f;
+            else numeric_volume_.reset();
+            auto next = !program_ && (source_ == "md" || source_ == "unknown") ? decode_numeric_display(frame) : std::nullopt;
+            // Paused time digits deliberately blink to AA/AA. Retain the last
+            // value for this track; expose blanking separately for the UI.
+            if (!(!program_ && md_ && md_->time_blank && numeric_ &&
+                  decode_bcd(frame.mosi[11]) == std::optional<unsigned>(numeric_->track)))
+                numeric_ = next;
+        }
+        else {
+            text_volume_ = decode_volume_command(frame);
+            if (decode_predefined_message(frame)) message_code_ = frame.mosi[2];
+            else message_code_.reset();
+            if (!text_volume_) title_ = decode_title_window(frame);
+        }
     }
 
     std::string json(std::uint32_t now_ms, std::uint32_t dropped = 0,
@@ -66,6 +104,69 @@ public:
                 << ",\"seconds\":" << numeric_->seconds << ",\"indicators\":"
                 << numeric_->track_indicators << '}';
         } else out << "null";
+        out << ",\"mode\":\"" << (program_ ? "program" : radio_ ? (radio_->am ? "am" : "fm") : source_ != "unknown" ? source_.c_str() : (md_ || numeric_) ? "md" : "unknown") << "\"";
+        out << ",\"source\":"; quote(out, source_);
+        out << ",\"symbols\":";
+        if (buses_[0].have_complete) {
+            out << "{\"md\":" << ((source_mask_ & 1) ? "true" : "false")
+                << ",\"cd\":" << ((source_mask_ & 2) ? "true" : "false")
+                << ",\"radio\":" << ((source_mask_ & 4) ? "true" : "false")
+                << ",\"line\":" << ((source_mask_ & 8) ? "true" : "false")
+                << ",\"rec\":" << (rec_ ? "true" : "false")
+                << ",\"md_play\":" << (md_play_ ? "true" : "false")
+                << ",\"md_pause\":" << (md_pause_ ? "true" : "false")
+                << ",\"sleep\":" << (sleep_ ? "true" : "false")
+                << ",\"timer_play\":" << (timer_play_mask_ ? "true" : "false")
+                << ",\"timer_play_raw\":" << timer_play_mask_
+                << ",\"fm\":" << (fm_ ? "true" : "false")
+                << ",\"over20\":" << (over20_ ? "true" : "false")
+                << ",\"over20_inferred\":true"
+                << ",\"step\":" << (step_ ? "true" : "false")
+                << ",\"track\":" << (track_label_ ? "true" : "false")
+                << ",\"pgm\":" << (pgm_ ? "true" : "false")
+                << ",\"shuffle\":" << (shuffle_ ? "true" : "false")
+                << ",\"repeat\":" << (repeat_ ? "true" : "false")
+                << ",\"repeat_one\":" << (repeat_one_ ? "true" : "false")
+                << ",\"date\":" << (date_ ? "true" : "false")
+                << ",\"md_disc\":"; quote(out, disc_); out << '}';
+        } else out << "null";
+        out << ",\"radio\":";
+        if (radio_) out << "{\"frequency_khz\":" << radio_->frequency_khz
+                        << ",\"band\":\"" << (radio_->am ? "AM" : "FM") << "\""
+                        << ",\"display_band\":\"" << (!radio_->am ? "FM" :
+                            title_ && title_->codes[0]==0x8b && title_->codes[1]==0x8c ? "MW" :
+                            title_ && title_->codes[0]==0x8a && title_->codes[1]==0x8c ? "LW" : "AM") << "\""
+                        << ",\"preset\":" << (radio_->preset ? "true" : "false")
+                        << ",\"experimental\":true}";
+        else out << "null";
+        out << ",\"md\":";
+        if (md_) out << "{\"play\":" << (md_->play ? "true" : "false")
+                     << ",\"pause\":" << (md_->pause ? "true" : "false")
+                     << ",\"time_blank\":" << (md_->time_blank ? "true" : "false")
+                     << ",\"disc\":\"" << (md_->pause ? "solid" : "animated")
+                     << "\",\"animation_timing_approximate\":true}";
+        else out << "null";
+        out << ",\"track_display\":";
+        if (track_display_) out << "{\"number\":" << track_display_->number
+                               << ",\"indicators\":" << track_display_->indicators
+                               << ",\"playing\":" << (track_display_->playing ? "true" : "false") << '}';
+        else out << "null";
+        out << ",\"program\":";
+        if (program_) {
+            out << "{\"selected_track\":";
+            if (program_->selected_track) out << *program_->selected_track;
+            else out << "null";
+            out << ",\"track_blank\":" << (program_->track_blank ? "true" : "false") << '}';
+        } else out << "null";
+        out << ",\"volume\":";
+        const auto level = text_volume_ ? text_volume_ : numeric_volume_;
+        if (level) out << "{\"level\":" << *level << ",\"max\":31,\"overlay\":"
+                       << (text_volume_ ? "true" : "false")
+                       << ",\"fresh\":" << (fresh(buses_[text_volume_ ? 1 : 0], now_ms) ? "true" : "false") << '}';
+        else out << "null";
+        out << ",\"message\":";
+        if (message_code_) out << "{\"mode\":1,\"code\":" << *message_code_ << '}';
+        else out << "null";
         out << ",\"title\":";
         if (title_) {
             out << "{\"text\":";
@@ -91,7 +192,15 @@ private:
     };
     std::array<Bus, 2> buses_{};
     std::optional<NumericDisplay> numeric_;
+    std::optional<TrackDisplay> track_display_;
+    std::string source_ = "unknown", disc_ = "unknown";
+    unsigned source_mask_ = 0, timer_play_mask_ = 0;
+    bool md_play_ = false, md_pause_ = false, sleep_ = false, date_ = false, fm_ = false, repeat_ = false, repeat_one_ = false, shuffle_ = false, pgm_ = false, step_ = false, track_label_ = false, over20_ = false, rec_ = false;
+    std::optional<RadioDisplay> radio_;
+    std::optional<MdTransport> md_;
+    std::optional<ProgramDisplay> program_;
     std::optional<TitleWindow> title_;
+    std::optional<unsigned> numeric_volume_, text_volume_, message_code_;
 
     static bool fresh(const Bus& b, std::uint32_t now) {
         return b.have_complete && static_cast<std::uint32_t>(now - b.last_complete_ms) <= stale_after_ms;

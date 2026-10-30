@@ -1,0 +1,265 @@
+[
+  {
+    "experiment": "01-band",
+    "command": "radio_band",
+    "ack": "OK device=zs-m7 command=radio_band protocol=SONY15 address=100 function=111",
+    "complete_numeric_frames": 189,
+    "export_last_frame_seconds": 6.054469,
+    "observed_radio": {
+      "frequency_khz": 87500,
+      "band": "FM",
+      "preset": false,
+      "experimental": true
+    },
+    "observed_title": {
+      "text": null,
+      "codes": [
+        141,
+        139,
+        32,
+        0,
+        0,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ]
+    },
+    "numeric_byte4_values": [
+      0,
+      192
+    ]
+  },
+  {
+    "experiment": "02-band",
+    "command": "radio_band",
+    "ack": "OK device=zs-m7 command=radio_band protocol=SONY15 address=100 function=111",
+    "complete_numeric_frames": 188,
+    "export_last_frame_seconds": 5.975594,
+    "observed_radio": {
+      "frequency_khz": 531,
+      "band": "AM",
+      "preset": false,
+      "experimental": true
+    },
+    "observed_title": {
+      "text": null,
+      "codes": [
+        139,
+        140,
+        32,
+        0,
+        0,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ]
+    },
+    "numeric_byte4_values": [
+      32,
+      192
+    ]
+  },
+  {
+    "experiment": "03-mw-step",
+    "command": "tune_up",
+    "ack": "OK device=zs-m7 command=tune_up protocol=SONY15 address=100 function=115",
+    "complete_numeric_frames": 188,
+    "export_last_frame_seconds": 5.984222,
+    "observed_radio": {
+      "frequency_khz": 540,
+      "band": "AM",
+      "preset": false,
+      "experimental": true
+    },
+    "observed_title": {
+      "text": null,
+      "codes": [
+        139,
+        140,
+        32,
+        0,
+        0,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ]
+    },
+    "numeric_byte4_values": [
+      32
+    ]
+  },
+  {
+    "experiment": "04-band",
+    "command": "radio_band",
+    "ack": "OK device=zs-m7 command=radio_band protocol=SONY15 address=100 function=111",
+    "complete_numeric_frames": 188,
+    "export_last_frame_seconds": 5.982763,
+    "observed_radio": {
+      "frequency_khz": 153,
+      "band": "AM",
+      "preset": false,
+      "experimental": true
+    },
+    "observed_title": {
+      "text": null,
+      "codes": [
+        138,
+        140,
+        32,
+        0,
+        0,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ]
+    },
+    "numeric_byte4_values": [
+      32
+    ]
+  },
+  {
+    "experiment": "05-date",
+    "command": "date",
+    "ack": "OK device=zs-m7 command=date protocol=SONY15 address=68 function=99",
+    "complete_numeric_frames": 187,
+    "export_last_frame_seconds": 5.955725,
+    "observed_radio": null,
+    "observed_title": {
+      "text": "--y --m --d ",
+      "codes": [
+        45,
+        45,
+        121,
+        32,
+        45,
+        45,
+        109,
+        32,
+        45,
+        45,
+        100,
+        32
+      ]
+    },
+    "numeric_byte4_values": [
+      0,
+      32
+    ]
+  },
+  {
+    "experiment": "07-return-fm",
+    "command": "radio_band",
+    "ack": "OK device=zs-m7 command=radio_band protocol=SONY15 address=100 function=111",
+    "complete_numeric_frames": 186,
+    "export_last_frame_seconds": 5.967526,
+    "observed_radio": {
+      "frequency_khz": 87500,
+      "band": "FM",
+      "preset": false,
+      "experimental": true
+    },
+    "observed_title": {
+      "text": null,
+      "codes": [
+        141,
+        139,
+        32,
+        0,
+        0,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ]
+    },
+    "numeric_byte4_values": [
+      32,
+      192
+    ]
+  },
+  {
+    "experiment": "08-fm-step-up",
+    "command": "tune_up",
+    "ack": "OK device=zs-m7 command=tune_up protocol=SONY15 address=100 function=115",
+    "complete_numeric_frames": 112,
+    "export_last_frame_seconds": 3.583377,
+    "observed_radio": {
+      "frequency_khz": 87550,
+      "band": "FM",
+      "preset": false,
+      "experimental": true
+    },
+    "observed_title": {
+      "text": null,
+      "codes": [
+        141,
+        139,
+        32,
+        0,
+        0,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ]
+    },
+    "numeric_byte4_values": [
+      192
+    ]
+  },
+  {
+    "experiment": "09-fm-step-down",
+    "command": "tune_down",
+    "ack": "OK device=zs-m7 command=tune_down protocol=SONY15 address=100 function=116",
+    "complete_numeric_frames": 106,
+    "export_last_frame_seconds": 3.405498,
+    "observed_radio": {
+      "frequency_khz": 87500,
+      "band": "FM",
+      "preset": false,
+      "experimental": true
+    },
+    "observed_title": {
+      "text": null,
+      "codes": [
+        141,
+        139,
+        32,
+        0,
+        0,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ]
+    },
+    "numeric_byte4_values": [
+      192
+    ]
+  }
+]

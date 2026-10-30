@@ -1,0 +1,42 @@
+{
+  "numeric_frames": 130,
+  "text_frames": 130,
+  "message_mode": 1,
+  "message_codes": [
+    132,
+    133
+  ],
+  "zero_parameters": true,
+  "transitions": [
+    {
+      "time": 0.021211,
+      "mode": 1,
+      "code": 133
+    },
+    {
+      "time": 0.244318,
+      "mode": 1,
+      "code": 132
+    },
+    {
+      "time": 1.296108,
+      "mode": 1,
+      "code": 133
+    },
+    {
+      "time": 2.37977,
+      "mode": 1,
+      "code": 132
+    },
+    {
+      "time": 3.431558,
+      "mode": 1,
+      "code": 133
+    }
+  ],
+  "confirmed_wording": "Program On explicitly confirmed by user in program-on.sal; OFF counterpart from earlier ON/OFF pair",
+  "on_off_assignment": {
+    "0x84": "Program On",
+    "0x85": "Program Off (paired-state inference)"
+  }
+}

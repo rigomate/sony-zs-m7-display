@@ -1,0 +1,28 @@
+[
+  {
+    "capture": "repeat-one",
+    "numeric_frames": 78,
+    "byte5_values": [
+      99
+    ],
+    "repeat_values": [
+      true
+    ],
+    "one_values": [
+      true
+    ]
+  },
+  {
+    "capture": "repeat-all",
+    "numeric_frames": 188,
+    "byte5_values": [
+      67
+    ],
+    "repeat_values": [
+      true
+    ],
+    "one_values": [
+      false
+    ]
+  }
+]

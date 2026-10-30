@@ -1,0 +1,47 @@
+[
+  {
+    "frequency_mhz": 105.9,
+    "complete_numeric_frames": 189,
+    "frequency_byte_sets": {
+      "12": [
+        10
+      ],
+      "13": [
+        5
+      ],
+      "14": [
+        144
+      ]
+    }
+  },
+  {
+    "frequency_mhz": 103.9,
+    "complete_numeric_frames": 190,
+    "frequency_byte_sets": {
+      "12": [
+        10
+      ],
+      "13": [
+        3
+      ],
+      "14": [
+        144
+      ]
+    }
+  },
+  {
+    "frequency_mhz": 102.5,
+    "complete_numeric_frames": 188,
+    "frequency_byte_sets": {
+      "12": [
+        10
+      ],
+      "13": [
+        2
+      ],
+      "14": [
+        80
+      ]
+    }
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "runs": [
+    {
+      "source": "md",
+      "start_seconds": 0.025955,
+      "frames": 94,
+      "end_seconds": 2.989618
+    },
+    {
+      "source": "cd",
+      "start_seconds": 3.02217,
+      "frames": 22,
+      "end_seconds": 3.690759
+    },
+    {
+      "source": "radio",
+      "start_seconds": 3.723332,
+      "frames": 20,
+      "end_seconds": 4.328033
+    },
+    {
+      "source": "line",
+      "start_seconds": 4.360549,
+      "frames": 23,
+      "end_seconds": 5.060979
+    },
+    {
+      "source": "md",
+      "start_seconds": 5.093478,
+      "frames": 159,
+      "end_seconds": 10.12783
+    }
+  ],
+  "all_md_graphic_bytes": [
+    0
+  ]
+}

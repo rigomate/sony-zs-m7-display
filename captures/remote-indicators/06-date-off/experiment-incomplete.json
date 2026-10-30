@@ -1,0 +1,6 @@
+{
+  "command": "date",
+  "ack": "OK device=zs-m7 command=date protocol=SONY15 address=68 function=99",
+  "capture_close_error": "DEVICE_ERROR ReadTimeout",
+  "note": "Capture saved/exported; full before/after metadata not retained because close raised an error. Command was not repeated."
+}

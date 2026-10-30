@@ -1,0 +1,135 @@
+{
+  "uptime_ms": 14168,
+  "stale_after_ms": 1500,
+  "dropped_frames": 4,
+  "capture_error": "",
+  "buses": [
+    {
+      "frames": 433,
+      "complete": 421,
+      "rejected": 12,
+      "age_ms": 15,
+      "valid_age_ms": 47,
+      "fresh": true,
+      "raw_hex": "01 00 07 01 00 03 05 FF FF 03 AA 0C 80 B9 A2"
+    },
+    {
+      "frames": 433,
+      "complete": 421,
+      "rejected": 12,
+      "age_ms": 15,
+      "valid_age_ms": 47,
+      "fresh": true,
+      "raw_hex": "73 00 20 20 20 20 20 20 20 20 10 10 10 90"
+    }
+  ],
+  "numeric": {
+    "track": 18,
+    "minutes": 73,
+    "seconds": 45,
+    "indicators": 262143
+  },
+  "mode": "md",
+  "source": "md",
+  "symbols": {
+    "md": true,
+    "cd": false,
+    "radio": false,
+    "line": false,
+    "md_play": false,
+    "md_pause": false,
+    "sleep": true,
+    "timer_play": false,
+    "timer_play_raw": 0,
+    "date": false,
+    "md_disc": "solid"
+  },
+  "radio": null,
+  "md": null,
+  "volume": {
+    "level": 5,
+    "max": 31,
+    "overlay": false,
+    "fresh": true
+  },
+  "title": {
+    "text": "            ",
+    "codes": [
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32
+    ]
+  },
+  "receiver": [
+    {
+      "paused": false,
+      "backend": "gpio-isr",
+      "output_enable_mask": 0,
+      "transactions": 433,
+      "zero_bits": 0,
+      "wrong_bits": 12,
+      "last_bits": 127,
+      "rising_edges": 111499,
+      "low_callbacks": 55749,
+      "short_edges": 3,
+      "accepted_edges": 55749,
+      "gpio": {
+        "data": {
+          "pin": 7,
+          "high": 3500,
+          "low": 3144
+        },
+        "clock": {
+          "pin": 6,
+          "high": 6286,
+          "low": 358
+        },
+        "select": {
+          "pin": 10,
+          "high": 2898,
+          "low": 3746
+        }
+      }
+    },
+    {
+      "paused": false,
+      "backend": "gpio-isr",
+      "output_enable_mask": 0,
+      "transactions": 433,
+      "zero_bits": 0,
+      "wrong_bits": 12,
+      "last_bits": 119,
+      "rising_edges": 104493,
+      "low_callbacks": 52246,
+      "short_edges": 6,
+      "accepted_edges": 52241,
+      "gpio": {
+        "data": {
+          "pin": 4,
+          "high": 2968,
+          "low": 3676
+        },
+        "clock": {
+          "pin": 5,
+          "high": 6313,
+          "low": 331
+        },
+        "select": {
+          "pin": 3,
+          "high": 2899,
+          "low": 3745
+        }
+      }
+    }
+  ],
+  "gpio0_voltage_at_boot": null
+}

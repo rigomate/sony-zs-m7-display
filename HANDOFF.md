@@ -1,5 +1,199 @@
 # Handoff: Sony ZS-M7 replacement display
 
+## Stopped digits / track21 time / inferred OVER20
+
+User explicitly requested remote play and track21 tests. captures/track21 has
+stopped baseline, play, >10+2+0 selecting20, >10+2+1 selecting21, and later
+name display. Commands acknowledged and actual bus frames confirmed selection.
+No STOP sent; it was observed stopped before the name command (cause not recorded).
+Stopped selected01 hasAA/AA time, later stopped summary21/56:24; playback21
+has advancing time. Fixed <=20 decoder limit, now lowBCD1..99 with byte12zero.
+New track_display separates track/calendar from time; stopped blank time no
+longer hides digits. Program selection remains independent.
+OVER20 is inferred byte5 mask04, shown dashed with unconfirmed tooltip/APIflag.
+User could not see it. Earlier byte9 mask40 candidate is ruled out by the
+20-track normal summary having it set. Current21-disc flag04 stays set at1,
+20,21 and stopped. Final post-flash remote play/>10,2,1 verification showed track21 and advancing
+01:01..01:03; Chromium rendered21/01:04. Player left playing21 at last check.
+See analysis/track21-findings.md for proof and limits.
+
+## Program On/Off messages resolved
+
+User-labelled program-on.sal contains23 complete mode01/code84 messages,
+confirming Program On. Earlier paired84/85 recording had confirmed ON/OFF
+endings, so85 is the OFF member (prefix inferred from the paired ON wording).
+Firmware reconstructs Program On/Off for exact zero-parameter mode01 packets;
+API message preserves wire mode/code, title contains printable reconstructed
+text. Numeric program selection and PGM state remain independent. Native and
+browser checks cover messages and ASCII return. No IR sent.
+
+## Earlier ON/OFF investigation (superseded)
+
+program-on_program_off.sal has130 complete frames per bus. SPI-2 mode01,
+byte2 alternates84/85, remaining parameters zero. No literal ASCII strings.
+User confirmed only endings ON/OFF; prefix Program is uncertain. Which code
+means ON is also unconfirmed. Numeric PGM/STEP/REPEAT remain active, so do not
+infer global program-enabled state. No firmware strings were assigned.
+Need a one-message visually labelled ON capture or synchronized visual/code
+reference, then readable prefix. See analysis/program-message-findings.md.
+
+## Program selected-track number
+
+User capture program-track-01-to-20-to-01 actually walks all1..20 then1.
+590 numeric frames: byte11 packedBCD selected track, byte12=00 when visible;
+AA/0A blanks selection (58 frames). New program object separates this from
+playback numeric fields; UI MD PROGRAM, Program track, three-digit formatting,
+no elapsed time. Track>99/hundreds and numeric step index are not decoded.
+Native replay and browser cases cover selection/blank/exit. No IR sent.
+See analysis/program-track-findings.md and latest validation entry.
+
+## STEP and TRACK labels mapped
+
+User confirmed STEP and TRACK steady with flashing PGM; pgm-step-track passive
+capture has188 numeric frames, byte5=83/8B. STEP mask80 and TRACK mask01 are
+supported by this positive reference and earlier normal/date/source-only layouts.
+API symbols.step/track drive labels independently of PGM mask08. No program-step
+numeric decoder was added. Native and browser checks cover both PGM phases and
+cleared label states. See analysis/pgm-findings.md for reference limitations.
+
+## PGM blink mapped
+
+User-labelled pgm-blinking capture has253 complete numeric frames: byte5=83
+or8B, with~510ms phases. Mask08 is PGM illumination; the later STEP/TRACK reference assigns80 to STEP. API symbols.pgm and UI follow received phases
+without a local timer, independent of SHUFFLE/REPEAT bits. Native replay and
+browser lit/dark checks added. No IR command sent. See analysis/pgm-findings.md.
+
+## SHUFFLE mapped
+
+User-labelled shuffle-on capture has188 complete numeric frames, byte5=13.
+Controls match the earlier normal/repeat captures aside from mode bits:10 is
+SHUFFLE,40 REPEAT,20 repeat-one. API symbols.shuffle and UI are independent;
+captured mode replay and browser on/off checks added. No IR command sent.
+See analysis/shuffle-findings.md and latest physical validation entry.
+
+## REPEAT / REPEAT 1 mapped
+
+User-labelled repeat-one and repeat-all captures differ only in numeric byte5
+among control bytes1–10:63 versus43. Earlier normal baseline03 supplies off.
+Byte5 mask40=REPEAT,20=1 modifier. API symbols.repeat/repeat_one and UI visuals
+are independent. Captured/native and browser three-state checks pass. Evidence
+and baseline distinction: analysis/repeat-findings.md. No IR commands sent.
+
+## New remote controls / FM visual (2026-10-30)
+
+User explicitly authorised trying new remote features to investigate radio and
+clock indicators. Tested radio_band100/111, tune_up100/115, tune_down100/116,
+and date68/99 (SONY15), with captures/remote-indicators before/after evidence.
+FM87.50->MW531->MW540->LW153->DATE unset->FM87.50->87.55->87.50.
+Player leftFM87.50; MW tuning changed to540, presets not edited. No stop/eject/
+record/power/timer-setting command was sent. Current hardware runner has a
+restricted whitelist; do not import/run it just to inspect files.
+FM observed byte4=C0 versus20 onMW/LW. FM/MHz bits co-vary, not individually
+isolated. API symbols.fm and radio.display_band, plus FM/MW/LW custom glyph
+rendering, are added. ClockAM/PM remain unmapped. User's DATE view currently
+shows an unset clock; European manual says24h versusUS12h. Do not set AM from
+AM-radio mode. See analysis/remote-radio-indicators.md for limits and evidence.
+
+## DATE indicator confirmed
+
+Paired user-labelled captures/manual/date-on and date-off isolate numeric
+byte3 bit6(40):41 with MD+DATE,01 with MD only. API symbols.date and the separate
+DATE visual now follow that flag; the adjacent REC prefix remains unmapped.
+On-state text is26y10m29d (spaced) and numeric time21/04, but parsing a new
+clock/date numeric mode is outside this change. Source masking stays low4bits.
+See analysis/date-findings.md and physical validation entry.
+
+## TIMER/PLAY blinking pair
+
+User-labelled timer-play-blinking.sal isolates byte0 mask0C. Values04/08
+occur for one frame at edges;00/0C are main dark/lit phases. Individual TIMER
+versus PLAY bit roles remain unisolated. API symbols.timer_play_raw preserves
+the mask and timer_play is either bit set; the UI follows that observed pair
+without an independent blink timer. Timer REC and clock remain unmapped.
+See analysis/timer-play-findings.md and latest validation entry.
+
+## SLEEP visual decoded
+
+User-confirmed paired captures/manual/sleep-steady-on and sleep-off isolate
+byte0 bit0 as a steady positive SLEEP flag (01/81 on,00/80 off). Byte9 bit7
+changed inversely in the first pair, but the user-supplied sleepisblinking.sal
+keeps it fixed across both blink phases, ruling it out as the illumination bit. API symbols.sleep and
+steady UI visual are implemented. The UI follows the received bit0 directly, including blinking; no CSS timer.
+A32-frame short capture has16 on/16 off frames at~510ms per phase.
+See analysis/sleep-findings.md for the paired380-frame reference and tests.
+
+## Independent source logos / missing-MD radio fix
+
+User capture captures/manual/cycle-md-cd-radio-linein.sal isolates numeric
+byte3 logos01 MD,02 CD,04 RADIO,08 LINE. Byte2=00 with MD removed across all
+sources. Removed erroneous byte2=07 requirement from tuner decoding. Source
+and symbols JSON now independent of numeric interpretation, so CD/LINE/empty
+MD/RADIO stay correctly identified. MD graphic off hides its SVG completely;
+07 solid and matched01 playback animate independently of source labels.
+CD numeric playback remains unknown rather than being interpreted as MD.
+Native cycle replay and missing-disc FM/AM regression fixtures pass, along with
+MD/radio/volume/state checks. Browser checks include all empty source states,
+FM with MD graphic off, and RADIO before frequency digits arrive.
+See analysis/source-findings.md and latest physical validation entry.
+
+## Volume display implemented
+
+User supplied captures/manual/volume-from-min-to-max.sal. Exported paired
+frames establish SDT1 byte6 &1F as binary volume0..31 and bit5(20) as volume
+command active. SDI2 byte1=05 switches to parameterized volume mode; byte2 is
+the same value, bytes3..13 zero. All371 overlay frame pairs agree exactly,
+visiting every value0..31. Firmware now exposes volume level/max/overlay/fresh, separating mode05 commands
+from ASCII. The page has a read-only volume meter and VOLUME nn overlay, retaining
+the last normal title for restoration. Native sweep and browser min/max/title
+restoration checks pass. See the latest physical validation entry for flashing.
+See analysis/volume-findings.md and analysis/analyze_volume_sweep.py.
+
+## MD playback/pause animation
+
+User supplied images/md-playback/IMG_6470..6472.jpg and pause.jpg, confirming
+opposing wedge pairs animate during playback and all six wedges light in pause.
+Passive captures/md-animation/01-playback and02-held-time record both states;
+user confirmed the held-time state is pause. Numeric byte1=20 play,30 pause;
+byte2=01 animated,07 solid. Source matching remains limited to these patterns.
+The UI maps play/pause/disc states and reconstructs a three-pair animation with
+approximate1.5s timing (not wire-phase synchronised). Stale data freezes it.
+Pause deliberately blanks time bytes13/14 toAA/AA, correlated with byte5=01/03.
+LiveDisplay retains the same track's last numeric value while exposing blanking
+through the independent md object, so mode does not oscillate to unknown.
+Native playback/pause capture replay and browser animation/pause checks pass.
+See analysis/md-animation-findings.md for measured controls and limits.
+
+## Original faceplate visuals
+
+The user requested every visual from images/IMG_6467.jpeg on the hosted page.
+Named symbol placeholders, disc/clock SVG graphics and the position scale are
+added; see analysis/display-symbol-inventory.md. MHz/kHz/PRESET and known source
+labels follow decoded state; unknown symbols remain dotted/unmapped rather
+than falsely off. The20 numbered indicators remain visible in radio mode with
+unknown mapping. No additional protocol bits or player controls are invented.
+Browser checks cover unit/PRESET on/off, stale signals and return to MD.
+
+## AM/kHz and PRESET extension
+
+Six user-provided .sal files in captures/radio-manual are exported and analysed
+in analysis/radio-findings.md. AM filenames omit a faint leading1, which the
+user subsequently confirmed:1287,1323,1422,1575kHz. Byte6 bit6 is the shared
+leading1 segment (100MHz or1000kHz). AM byte13 is BCD hundreds/tens; byte14
+high nibble units, low nibble A blank. Byte4 patterns20=AM,C0=FM,C2=FM/PRESET.
+PRESET pair also changes byte7 bit5; exact individual segment roles unisolated.
+Firmware/API/UI support AM band, integer kHz and PRESET label; old FM behavior
+retained. Native replay covers all manual references and MD state regression.
+
+## Experimental FM display added
+
+User requested applying the frequency theory to firmware without requiring
+arbitrary tuning. Four user-labelled Saleae references under captures/radio:
+105.9,103.9,102.5,98.7MHz. Candidate uses byte6 bit6 for100MHz, byte13 packed
+BCD for tens/units, byte14 high nibble for tenths. Observed signature and range
+guard distinguish this provisional FM layout; other modes remain unverified.
+API mode/radio fields and webpage MHz view are implemented; MD track/time and
+indicator grid are hidden in radio mode. See analysis/radio-findings.md.
+
 ## Current target: working Tenstar C3 prototype
 
 User switched to the Tenstar Robot ESP32-C3 Super Mini, MAC18:8b:0e:2e:2d:04,
@@ -98,8 +292,10 @@ SDI2 and SDO2 usually agree when settled but differ during updates.
 
 ## Hardware constraints
 
-Only IR commands play, track_prev, track_next, digit_0 through digit_9,
-and power_off are user-approved. **Never send stop or any unlisted command.**
+Original capture restrictions permitted play, track_prev, track_next, digits
+and power_off. On2026-10-30 the user explicitly authorised testing new remote
+features for radio/clock indicators; radio_band, tune_up/down and date were used.
+Never send stop. Other unrelated commands still require applicable task scope.
 Avoid power_off unless specifically requested. This run used only play and
 track_next. Wait at least three seconds after each remote ACK; ACK confirms
 transmission, not player receipt.

@@ -1,0 +1,7 @@
+{
+  "pgm": "flashing",
+  "step": true,
+  "track": true,
+  "reference": "user explicitly confirmed STEP and TRACK on with flashing PGM",
+  "commands_sent": []
+}

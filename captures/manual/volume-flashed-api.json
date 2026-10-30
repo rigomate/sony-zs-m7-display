@@ -1,0 +1,121 @@
+{
+  "uptime_ms": 15530,
+  "stale_after_ms": 1500,
+  "dropped_frames": 2,
+  "capture_error": "",
+  "buses": [
+    {
+      "frames": 477,
+      "complete": 460,
+      "rejected": 17,
+      "age_ms": 12,
+      "valid_age_ms": 12,
+      "fresh": true,
+      "raw_hex": "80 00 07 01 00 03 05 FF FF 83 AA 18 00 73 45 CD"
+    },
+    {
+      "frames": 477,
+      "complete": 459,
+      "rejected": 18,
+      "age_ms": 12,
+      "valid_age_ms": 12,
+      "fresh": true,
+      "raw_hex": "6D 00 52 65 64 20 54 61 79 6C 6F 72 27 73 79"
+    }
+  ],
+  "numeric": {
+    "track": 18,
+    "minutes": 73,
+    "seconds": 45,
+    "indicators": 262143
+  },
+  "mode": "md",
+  "radio": null,
+  "md": null,
+  "volume": {
+    "level": 5,
+    "max": 31,
+    "overlay": false,
+    "fresh": true
+  },
+  "title": {
+    "text": "Red Taylor's",
+    "codes": [
+      82,
+      101,
+      100,
+      32,
+      84,
+      97,
+      121,
+      108,
+      111,
+      114,
+      39,
+      115
+    ]
+  },
+  "receiver": [
+    {
+      "paused": false,
+      "backend": "gpio-isr",
+      "output_enable_mask": 0,
+      "transactions": 477,
+      "zero_bits": 0,
+      "wrong_bits": 17,
+      "last_bits": 128,
+      "rising_edges": 122316,
+      "low_callbacks": 61154,
+      "short_edges": 5,
+      "accepted_edges": 61157,
+      "gpio": {
+        "data": {
+          "pin": 7,
+          "high": 3848,
+          "low": 3338
+        },
+        "clock": {
+          "pin": 6,
+          "high": 6769,
+          "low": 417
+        },
+        "select": {
+          "pin": 10,
+          "high": 3102,
+          "low": 4084
+        }
+      }
+    },
+    {
+      "paused": false,
+      "backend": "gpio-isr",
+      "output_enable_mask": 0,
+      "transactions": 477,
+      "zero_bits": 0,
+      "wrong_bits": 18,
+      "last_bits": 120,
+      "rising_edges": 114716,
+      "low_callbacks": 57355,
+      "short_edges": 6,
+      "accepted_edges": 57355,
+      "gpio": {
+        "data": {
+          "pin": 4,
+          "high": 2872,
+          "low": 4314
+        },
+        "clock": {
+          "pin": 5,
+          "high": 6847,
+          "low": 339
+        },
+        "select": {
+          "pin": 3,
+          "high": 3102,
+          "low": 4084
+        }
+      }
+    }
+  ],
+  "gpio0_voltage_at_boot": null
+}

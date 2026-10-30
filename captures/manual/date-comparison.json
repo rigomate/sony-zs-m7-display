@@ -1,0 +1,24 @@
+[
+  {
+    "capture": "date-on",
+    "user_confirmed_date": true,
+    "numeric_frames": 192,
+    "byte3_values": [
+      65
+    ],
+    "decoded_date_values": [
+      true
+    ]
+  },
+  {
+    "capture": "date-off",
+    "user_confirmed_date": false,
+    "numeric_frames": 190,
+    "byte3_values": [
+      1
+    ],
+    "decoded_date_values": [
+      false
+    ]
+  }
+]
