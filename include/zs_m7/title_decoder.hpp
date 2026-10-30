@@ -35,17 +35,38 @@ inline std::optional<unsigned> decode_volume_command(const SpiFrame& f) {
     return f.mosi[2];
 }
 
-// User-labelled Program On reference and paired ON/OFF recording.
-inline std::optional<std::string> decode_predefined_message(const SpiFrame& f) {
-    if (f.bus != SpiBus::Display2 || !f.complete() || f.mosi[1] != 1 ||
-        (f.mosi[2] != 0x84 && f.mosi[2] != 0x85)) return std::nullopt;
+// Audio emphasis adjustment commands: mode06 selects BASS and mode07 TRE.
+// Byte2 is the twelve-position display value, not an established dB scale.
+struct AudioAdjustment { unsigned position{}; bool treble{}; };
+
+inline std::optional<AudioAdjustment> decode_audio_adjustment(const SpiFrame& f) {
+    if (f.bus != SpiBus::Display2 || !f.complete() ||
+        (f.mosi[1] != 0x06 && f.mosi[1] != 0x07) ||
+        f.mosi[2] > 12) return std::nullopt;
     for (unsigned i=3;i<14;++i) if (f.mosi[i] != 0) return std::nullopt;
-    return f.mosi[2] == 0x84 ? "Program On" : "Program Off";
+    return AudioAdjustment{f.mosi[2], f.mosi[1] == 0x07};
+}
+
+// User-labelled message references, with their observed parameter layouts.
+inline std::optional<std::string> decode_predefined_message(const SpiFrame& f) {
+    if (f.bus != SpiBus::Display2 || !f.complete() || f.mosi[1] != 1) return std::nullopt;
+    const auto code=f.mosi[2];
+    if (code==0x84 || code==0x85) {
+        for (unsigned i=3;i<14;++i) if (f.mosi[i]!=0) return std::nullopt;
+        return code==0x84 ? "Program On" : "Program Off";
+    }
+    if (code==0x1e || code==0x05) {
+        for (unsigned i=3;i<7;++i) if (f.mosi[i]!=0) return std::nullopt;
+        for (unsigned i=7;i<14;++i) if (f.mosi[i]!=0x20) return std::nullopt;
+        return code==0x1e ? "Blank Disc" : "No Disc";
+    }
+    return std::nullopt;
 }
 
 inline std::optional<TitleWindow> decode_title_window(const SpiFrame& frame) {
     if (frame.bus != SpiBus::Display2 || !frame.complete()) return std::nullopt;
-    if (frame.mosi[1] == 0x05) return std::nullopt; // Volume parameters, not ASCII.
+    if (frame.mosi[1] == 0x05 || frame.mosi[1] == 0x06 || frame.mosi[1] == 0x07)
+        return std::nullopt; // Parameter commands, not ASCII.
     TitleWindow window;
     if (const auto message = decode_predefined_message(frame)) {
         window.codes.fill(0xff);

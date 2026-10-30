@@ -1,0 +1,152 @@
+{
+  "uptime_ms": 6643,
+  "stale_after_ms": 1500,
+  "dropped_frames": 2,
+  "capture_error": "",
+  "buses": [
+    {
+      "frames": 197,
+      "complete": 192,
+      "rejected": 5,
+      "age_ms": 35,
+      "valid_age_ms": 67,
+      "fresh": true,
+      "raw_hex": "80 00 07 04 62 00 25 02 00 40 55 55 85 01 C8"
+    },
+    {
+      "frames": 197,
+      "complete": 194,
+      "rejected": 3,
+      "age_ms": 35,
+      "valid_age_ms": 67,
+      "fresh": true,
+      "raw_hex": "27 80 C6 45 10 24 29 90 24 27 A3 27 10 90"
+    }
+  ],
+  "numeric": null,
+  "mode": "fm",
+  "source": "radio",
+  "symbols": {
+    "md": false,
+    "cd": false,
+    "radio": true,
+    "line": false,
+    "rec": false,
+    "md_play": false,
+    "md_pause": false,
+    "sleep": false,
+    "timer_play": false,
+    "timer_play_raw": 0,
+    "fm": true,
+    "over20": false,
+    "over20_inferred": true,
+    "step": false,
+    "track": false,
+    "pgm": false,
+    "shuffle": false,
+    "repeat": false,
+    "repeat_one": false,
+    "date": false,
+    "md_disc": "unknown"
+  },
+  "radio": {
+    "frequency_khz": 103900,
+    "band": "FM",
+    "display_band": "FM",
+    "preset": true,
+    "experimental": true
+  },
+  "md": null,
+  "track_display": null,
+  "program": null,
+  "volume": {
+    "level": 10,
+    "max": 31,
+    "overlay": false,
+    "fresh": true
+  },
+  "audio_adjustment": null,
+  "sleep_timer": null,
+  "clock_setting": null,
+  "message": null,
+  "title": {
+    "text": null,
+    "codes": [
+      141,
+      139,
+      32,
+      72,
+      82,
+      32,
+      73,
+      78,
+      70,
+      79,
+      32,
+      32
+    ]
+  },
+  "receiver": [
+    {
+      "paused": false,
+      "backend": "gpio-isr",
+      "output_enable_mask": 0,
+      "transactions": 198,
+      "zero_bits": 0,
+      "wrong_bits": 5,
+      "last_bits": 128,
+      "rising_edges": 50921,
+      "low_callbacks": 25461,
+      "short_edges": 0,
+      "accepted_edges": 25460,
+      "gpio": {
+        "data": {
+          "pin": 7,
+          "high": 1149,
+          "low": 1833
+        },
+        "clock": {
+          "pin": 6,
+          "high": 2833,
+          "low": 149
+        },
+        "select": {
+          "pin": 10,
+          "high": 1295,
+          "low": 1687
+        }
+      }
+    },
+    {
+      "paused": false,
+      "backend": "gpio-isr",
+      "output_enable_mask": 0,
+      "transactions": 198,
+      "zero_bits": 0,
+      "wrong_bits": 3,
+      "last_bits": 120,
+      "rising_edges": 47774,
+      "low_callbacks": 23886,
+      "short_edges": 0,
+      "accepted_edges": 23888,
+      "gpio": {
+        "data": {
+          "pin": 4,
+          "high": 1517,
+          "low": 1465
+        },
+        "clock": {
+          "pin": 5,
+          "high": 2844,
+          "low": 138
+        },
+        "select": {
+          "pin": 3,
+          "high": 1295,
+          "low": 1687
+        }
+      }
+    }
+  ],
+  "gpio0_voltage_at_boot": null
+}

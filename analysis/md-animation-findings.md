@@ -78,3 +78,12 @@ with plausible track/time values.
 Native replay checks both physical captures, pause flags and blank-time
 retention; browser fixtures check animated versus solid icon and play/pause
 indicators alongside existing radio and stale/disconnect states.
+
+## Fast-play direction captures
+
+Subsequent user-labelled captures resolve two fast transport states on the same
+boxed MD graphic: numeric byte2=`02` is fast reverse and `03` fast forward,
+with byte1=`20` and MD source in both. They are handled as distinct directions
+in `analysis/md-fast-directions.md`. The page uses reversed wedge phase order
+for reverse fast playback and a faster approximate cycle; normal playback and
+pause handling above are unchanged.

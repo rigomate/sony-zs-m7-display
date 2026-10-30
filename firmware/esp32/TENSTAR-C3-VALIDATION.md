@@ -371,3 +371,297 @@ Evidence: captures/track21/flashed-api.jsonl and dashboard.png. The player was
 left playing21 at the final check. Volume/presets/settings were not changed.
 
 Track21 firmware SHA256: `82f072d9883e28f77757e88fb3c6a9b7aca9f084439372276d7dfc32db720b30`.
+
+## BASS/TRE adjustment display and main REC indicator
+
+The user-labelled manual2 captures establish SPI-2 command mode06=BASS and
+mode07=TRE. Both payloads contain position values0..12 in byte2 and zero
+padding in bytes3..13. The C3 API now publishes the selected setting, position,
+and twelve-block meter data; ASCII title decoding excludes both command modes.
+The page renders BASS/TRE with the captured position and does not invent a dB
+scale. Numeric SPI-1 byte1 mask40 is also decoded as the main boxed REC below
+DIGITAL, explicitly confirmed by the user; this is only the illuminated icon,
+not a claim that the player is actively writing to disc.
+
+Native captured BASS/TRE replay, volume/title compatibility, physical REC
+capture replay, dashboard BASS/TRE minimum/maximum and REC on/off cases passed.
+The C3 upload hash was verified. Physical API after restart is fresh on FM
+103.9 MHz with `audio_adjustment:null`, as expected because no BASS/TRE command
+is currently on the display; no player commands were sent. Physical transient
+BASS/TRE rendering was therefore verified from the recorded Saleae frames and
+browser fixtures, not activated live after upload.
+
+Evidence: `captures/manual2/BASS-setting-goting-from-min-to-max/raw/frames.json`,
+`captures/manual2/TRE-setting-goting-from-min-to-max/raw/frames.json`,
+`captures/manual2/tenstar-api-after-flash.json`,
+`build/audio-adjustment-browser.log`, `build/audio-adjustment-ctest.log`, and
+`build/tenstar-c3-audio-adjustment-upload.log`.
+
+BASS/TRE firmware SHA256: `91871391b5f9664c99f2e7a4f2dd2d8e7173b9ed9583cbb233ebb41602680a82`.
+
+## Sleep timer selection display
+
+The user-labelled sleep timer capture cycles through10,20,30,60,90,120. Numeric
+bytes11/12 provide packed BCD, with byte12=`0A` for a blank hundreds digit and
+`01` for the leading1 in120. `AA/0A` blank phases are retained without changing
+the value; SLEEP icon blinking remains controlled by its existing independent
+byte0 bit0 mapping. The API and page show a separate Sleep timer value, hide
+track indicators and elapsed-time field during this layout, and restore normal
+display interpretation afterwards.
+
+Captured sleep timer, existing SLEEP lamp, MD animation, audio adjustment and
+live-state replay checks passed. Chromium passed timer blank,10,120 and return
+to playback cases. C3 flash hash verified; fresh physical API after reboot
+reported FM mode, `sleep_timer:null`, and fresh buses, consistent with the
+player's current radio screen. Timer was not activated after flashing and no
+player commands were sent. Evidence: `captures/manual2/SLEEP-blinking-with-10-20-30-60-90-120-on-display/raw/frames.json`,
+`captures/manual2/tenstar-sleep-timer-after-flash.json`,
+`build/sleep-timer-ctest.log`, `build/sleep-timer-browser.log`,
+`build/tenstar-c3-sleep-timer-upload.log`.
+
+Sleep-timer firmware SHA256: `e930159928518cf7b0a3638b7f4ddcf9fc7e0f0d42b64cca707915bfa60349a4`.
+
+The final build additionally clears the retained selection on re-entry to the
+sleep timer menu, before any new nonblank value arrives. Sleep timer, SLEEP
+indicator and live-state capture replays passed again; C3 was reflashed and
+the read-only API returned fresh buses on FM with no active timer menu.
+Final firmware SHA256: `c4320fe1896c0862945fe6f2d0f234aeb29fab90bb4d373cc2fd0f9041bfea84`.
+
+## Radio-mode sleep timer correction
+
+The user reported the timer was missing from the webpage. Read-only live API
+showed RADIO mode, so a passive10s Saleae capture was recorded while the player
+was displaying the sleep options. It contains the same10/20/30/60/90/120 values
+and blank phases, with a different SPI-1 envelope from the MD example. The
+decoder now recognizes both observed layouts. Native replay checks both the
+original MD recording and this live radio capture; browser checks include the
+radio source with a displayed sleep timer. These pass.
+
+The final C3 upload hash was verified. After its reboot the API returned fresh
+buses, RADIO mode and SLEEP lit; the short setting view had already ended, so
+`sleep_timer` was null at that spot check. The page should now display the timer
+when the radio-mode selection digits are on the player. No remote command was
+sent. Evidence: `captures/manual2/live-sleep-debug/capture.sal`,
+`captures/manual2/live-sleep-debug/raw/frames.json`,
+`captures/manual2/live-sleep-debug/api-samples.jsonl`,
+`captures/manual2/tenstar-sleep-timer-after-flash.json`, and
+`build/sleep-timer-browser.log`.
+
+Radio sleep timer firmware SHA256: `a031943e8ac07906bf36841ff86bda2846882c4b4937cd18d035c5c85c26db28`.
+
+## Fast MD disc direction
+
+User-labelled reverse/forward fast playback captures have51/48 complete
+numeric frames. Byte2=`02` in reverse and `03` in forward; both are MD source
+and byte1=`20` playback. Decoder/API now preserve those directions, and the
+webpage reverses the wedge sequence for reverse fast play with a faster
+approximate animation. Native replay, MD animation regressions and Chromium
+reverse/forward cases passed. The C3 build succeeded; upload verification
+follows below.
+
+Evidence: `captures/manual2/playback-disc-icon-spinning-backwards-fast-raw/frames.json`,
+`captures/manual2/playback-disc-icon-spinning-forward-fast-raw/frames.json`,
+`build/fast-disc-ctest.log`, `build/fast-disc-browser.log`,
+`build/tenstar-c3-fast-disc-upload.log`.
+
+Upload completed with the ROM flasher and verified flash hash. The read-only API
+reconnected with both buses fresh; at the spot check the player was in MD mode
+but not in one of the captured fast-play states, so direction was validated by
+the paired captured-frame replay and browser render. Snapshot:
+`captures/manual2/tenstar-fast-disc-after-flash.json`.
+Fast-disc firmware SHA256: `b29a1f9c8555cf81307861abf6279426540480be0b89eceadd6611452e02597a`.
+
+## Clock-setting hour/minute display
+
+The paired user captures isolate numeric byte13 as hour00..23 and byte14 as
+minute00..59. The edited pair alternates toAA; the other pair remains visible.
+The decoder preserves these values through blank phases and reports edit focus.
+The page shows HH:MM in a separate Clock setting layout, hiding playback track
+indicators and elapsed time.
+
+Native captured hour/minute, existing DATE/numeric/live-state replays and
+Chromium hour, minute, blank/retention layout cases passed. C3 build and ROM
+upload succeeded with verified hash. Post-flash API reconnected with fresh
+buses on FM; `clock_setting:null` is expected outside the setting screen. No
+player command was sent. Evidence:
+`captures/manual2/DATE-blinking-4numerical-hour-from-0-to-24-and-0-raw/frames.json`,
+`captures/manual2/DATE-blinking-4numerical-minute-from-0-to-59-to-0-again-raw/frames.json`,
+`captures/manual2/tenstar-clock-setting-after-flash.json`,
+`build/clock-setting-ctest.log`, `build/clock-setting-browser.log`,
+`build/tenstar-c3-clock-setting-upload.log`.
+
+Clock-setting firmware SHA256: `0cb72c0705d8bc942b1ab67f98f38ca5fbe16112a245881d96b950d6df944d8b`.
+
+## User-corrected fast disc animation direction
+
+The user reported that the rendered fast forward/reverse animation looked
+swapped. The byte-to-capture mapping remains byte2=`02` reverse and `03`
+forward; only the webpage wedge phase order was swapped. Browser tests assert
+the corresponding delays for each direction. The C3 was rebuilt, uploaded with
+verified flash hash, and reconnected with fresh buses. At the API spot check
+the player was on RADIO, so no fast MD direction was active. No player commands
+were sent. Browser evidence: `build/fast-disc-direction-reversed-browser.log`.
+
+Corrected animation firmware SHA256: `55783f7d7fe411551184a94ec2823417275e010b1cfab4e33f3734097db0fe16`.
+
+## All MD animation sequences inverted per user observation
+
+The user reported that normal playback, fast forward and fast reverse all
+looked opposite. The final visual update inverted the normal wedge phase order
+and inverted both fast phase orders, retaining the byte2 labels. Chromium
+checks assert all six delays; all dashboard cases passed. C3 build/upload and
+flash hash verification succeeded. The physical API reconnected with fresh
+buses and reported MD normal animation at the spot check. No player commands
+were sent. Evidence: `build/disc-animation-all-directions-inverted-browser.log`,
+`build/tenstar-c3-disc-animation-all-directions-inverted-upload.log`,
+`captures/manual2/tenstar-fast-disc-after-flash.json`.
+
+All-directions-inverted firmware SHA256: `7c1ac64817fa1db124000412c943b7c33d346093a78b017dfdcaaeef81cdc58e`.
+
+## Clock setting during MD playback
+
+The user reported that the blinking hour was not visible in the web UI while
+MD playback was active. Replay of `captures/manual2/live-clock-debug/raw/digital.csv`
+showed a second packet layout (`b1=20,b2=01`, bytes7..9=`FF FF 83`) compared
+with the stopped-player clock captures (`b1=00,b2=07`, bytes7..9=`03 00 80`).
+The strict decoder now accepts both signatures, and retains the 06:52 hour/minute
+value while byte13 blinks to `AA` during hour editing. Captured clock/date/live
+snapshot tests pass; dashboard playback clock fixture passes. Firmware was
+rebuilt and uploaded to the Tenstar C3; esptool verified the flash hash. Its
+post-flash API was fresh and receiving MD playback frames, but outside clock
+setting (`clock_setting:null`), so physical GUI confirmation while the clock
+editor is active remains pending. No player commands were sent.
+
+Clock playback-layout firmware SHA256: `268a2873b1b5426482b1f0a7145657f5d7bb1c01eb50a7f2363695ad2575a448`.
+
+The user then showed the hour blinking live. The active frame had the stopped
+header plus playback trailer (`00 00 07 ... 02 0A FF FF 83`), a hybrid not
+covered by the correlated signatures above. Added independent recognition of
+the header/trailer variants and a regression frame asserting retained 06:54
+through the hour's `AA` blank phase. Native clock/date/live tests pass. Flashed
+the C3 and verified hash. Live API now reports a fresh clock setting at04:54,
+editing hour, confirming the UI data path is active. No player commands sent.
+
+Clock hybrid-layout firmware SHA256: `66895a501afdf07cccf1d0be1bb435f7848da1c0ed460cd29dd9f0d57b1fb5ba`.
+
+## Radio recording to MiniDisc
+
+Captured track 1 and 2 recording frames were replayed, including countdown and
+both phases of the relevant track indicator. An independent REC-DATE reference
+supports byte3 bit20 for the REC beside DATE; REMAIN is inferred for the
+observed recording signature because bits10 and80 have not been isolated.
+The native capture checks and dashboard checks passed. The C3 firmware was
+uploaded with flash hash verification. Its live API subsequently reported radio
+recording track1 at73:16 with the REC and inferred REMAIN indicators on, then
+73:10 before the player left that recording state. No remote commands were sent.
+
+## Blank Disc and No Disc
+
+User-labelled captures and the display return line confirm mode01 code1E as
+`Blank Disc` and code05 as `No Disc`, with bytes3..6 zero and bytes7..13 spaces.
+Capture replay verifies both commands, return text, API output and parameter
+guards; the existing Program message replay and full dashboard checks pass.
+The C3 was rebuilt and uploaded with flash hash verification. A post-upload
+API read showed fresh text bus data but neither message was active, so live
+message display was not independently checked. No player commands were sent.
+
+## Timer PLAY and timer REC
+
+User-labelled flashing captures separate byte0 TIMER bit08, PLAY bit04 and REC
+bit02. The capture replay checks all on/off and one-frame transition states;
+the full dashboard checks cover each individual symbol. C3 build and upload
+succeeded with flash verification. The post-flash API was fresh with all three
+symbols off, so the live blinking modes were not present at that spot check.
+No player commands were sent.
+
+## Clock icon candidate
+
+The user-labelled steady TIMER/PLAY and clock-icon capture has byte0 bit10 set
+throughout. This bit is absent from the exported flashing timer captures. The
+clock icon is now exposed as an inferred mapping, pending a same-state
+clock-off reference. Native capture replay and full dashboard checks passed;
+C3 upload and flash verification succeeded. The post-flash bus was fresh, with
+clock, TIMER and PLAY all off, so the live clock-on state was not checked.
+
+## Wake timer On hour
+
+The captured `live-timer-hour` trace identifies the timer On hour layout and
+its byte13 blank phase. The new timer setting decoder requires that numeric
+signature and fresh alphanumeric `On`, and the page shows the retained time
+while hiding the hour digits during the received blank phase. Capture replay,
+clock/timer regressions and full dashboard checks passed. Firmware upload and
+flash verification succeeded. Post-flash live API reported 16:31 and both hour
+blank phases. One sampled API response briefly returned no timer setting; later
+samples showed the expected phases, so occasional capture glitches remain a
+possible cause of a momentary display interruption. No remote commands sent.
+
+## Wake timer On minute
+
+The live minute capture showed the hour fixed at16 and byte14 alternating
+31/AA. The timer decoder now identifies which field is blinking from the
+received blank phase, retaining values between phases. Replay of both hour and
+minute captures, related regressions and the full dashboard checks passed. The
+C3 upload and flash hash verification succeeded; the post-flash API reported
+16:31, editing minute, with both minute blank and lit phases. No player
+commands were sent.
+
+
+## Timer start/stop/volume GUI, 2026-10-30
+
+Passive user-guided Saleae captures established On16:31 and Off17:31 for both
+hour and minute focus, with a new byte2=00 variant. Firmware now accepts it,
+exports timer_setting.phase=on/off, and renders Timer start/Timer stop with
+retained values and actual blink phases. Timer volume uses a separate guarded
+layout/API and is rendered with its blink; captures at21 and23 verify levels.
+A recent space-tail mode05 command is required, preventing source selection
+from being mistaken for volume. Replay tests cover six timer time captures,
+volume blink phases and source-selection/exit guards. All27 prior CTest cases
+passed for the time fix, updated focused regressions passed for volume/guard,
+and the complete browser suite passed with its expected legacy fixture shape.
+The ESP32-C3 was built and uploaded with verified flash hashes. After USB reset
+the port changed from ttyACM0 to ttyACM1; the stable Espressif by-id link was
+used thereafter. Live API samples confirmed volume23 in both blink phases.
+No IR/player commands were sent; the user advanced the physical controls.
+
+## Clock readout / blinking colon
+
+User-labelled passive capture live-clock-colon established steady18:55 with
+colon phases0.5099s each. The new clock_display API confirms a stable clock
+through a full blink cycle before distinguishing it from digit editing.
+Capture replay, negative hour/minute-edit tests, clock/timer/volume regressions
+and focused Chromium rendering checks passed. Firmware build and upload
+succeeded with verified flash hashes. Post-flash samples showed18:59 in all20
+samples, fresh=true, with both colon_on phases; the real page rendered Clock
+and the colon span. Evidence: flashed-api.json and flashed-dom.html alongside
+the Saleae capture. Exact colon bit isolation/polarity remains inferred from
+co-varying signals and is exposed as colon_inferred=true in the API.
+
+## Timer play On-hour regression
+
+The new user-labelled live-timer-on-hour-retained-tracks capture has timer
+On16:31 and hour blanking, with tailFF FF83 rather than000080. The old timer
+matcher rejected it, so pre-fix timer_setting was null. Both captured tails
+are now accepted with the other guards intact. Seven timer-entry captures
+pass replay, and this capture is also explicitly excluded from normal-clock
+classification. Clock readout/editing, timer setting and timer volume tests
+passed. Build and upload succeeded with verified hashes.
+
+Post-flash20 API samples all reported phase on, hour16, minute31, editing hour,
+fresh=true, and both hour_blank phases; clock_display was null throughout.
+Independent live Chromium renders showed Timer start · hour with16:31 in two
+samples and <span class="clock-blank">16</span>:31 in the third, verifying the
+GUI's actual hour blink. API/DOM evidence is retained beside the capture.
+No player commands or timer value changes were sent.
+
+## Armed standby clock and MiniDisc icon
+
+User confirmed standby at19:07 and supplied the solid MiniDisc-graphic image.
+The captured minute was19:08, timer/PLAY steady, source00, disc field07 and
+tail000000. The new standby clock signature exposes standby=true and recognizes
+the solid MiniDisc graphic independently of source selection. GUI shows
+STANDBY / Standby clock, blank text and a static lit disc icon. Replay and
+browser checks passed alongside normal clock and timer-entry cases; build
+and upload succeeded. After a brief initial post-reset network timeout,20 live
+API samples all showed19:11, standby=true, fresh=true and md_disc=solid with
+both colon phases. The real page rendered STANDBY, Standby clock19:11, and
+symbol-md-disc class on disc-solid. Evidence is retained beside the capture.

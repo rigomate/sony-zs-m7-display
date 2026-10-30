@@ -1,0 +1,15 @@
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"captureId\":104}"
+      }
+    ],
+    "structuredContent": {
+      "captureId": 104
+    }
+  }
+}

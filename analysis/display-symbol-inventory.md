@@ -15,8 +15,8 @@ No external fonts, images or scripts are needed by the MCU-hosted page.
 - MD graphic command00 is fully off independently of selected source.
 - MD play/pause and disc visual: observed playback/pause command patterns;
   playback wedge timing is reconstructed, paused wedges are all lit.
-- TIMER / timer PLAY: paired byte0 mask0C; individual bit assignments remain
-  unisolated (raw mask retained).
+- TIMER / timer PLAY / timer REC: numeric byte0 masks08/04/02 respectively;
+  the raw TIMER/PLAY mask is retained.
 - OVER20: inferred numeric byte5 mask04 from20/21-disc comparisons; dashed
   candidate styling and tooltip, no visual confirmation yet.
 - STEP / TRACK labels: numeric byte5 masks80/01, supported by labelled
@@ -27,9 +27,15 @@ No external fonts, images or scripts are needed by the MCU-hosted page.
 - FM: observed numeric C0 pattern (FM/MHz bits not yet individually isolated).
   Radio prefix glyphs identify FM/MW/LW; clock AM/PM stay unmapped.
 - DATE: numeric byte3 bit6, isolated from MD source with paired captures.
+- Clock setting HH:MM: numeric bytes13/14 in the matched DATE setting layout;
+  selected pair blinks toAA and is retained independently from track/time.
 - SLEEP: numeric byte0 bit0 from user-confirmed on/off captures.
+- Sleep timer choices10,20,30,60,90,120: numeric bytes11/12 in the matched
+  timer-setting layout; AA/0A blink blanking is retained independently.
 - Twelve text cells, numeric fields and indicators1–20 retain existing decoding.
   In radio mode the numbered indicators remain visible but dotted/unmapped.
+- Audio-adjustment page: SDI2 command mode06=BASS,07=TRE; byte2 position0..12,
+  with zero padding in bytes3..13. The numeric cursor geometry is unresolved.
 
 Mapped symbols use on/off classes and their signal becomes stale with numeric
 bus freshness. With no recognised mode their state is unknown rather than off.

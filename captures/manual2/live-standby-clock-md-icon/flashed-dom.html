@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0d171a"><title>ZS-M7 · Live display</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%230d171a'/%3E%3Ccircle cx='20' cy='20' r='13' fill='none' stroke='%237ff5dc' stroke-width='3'/%3E%3Ccircle cx='20' cy='20' r='4' fill='%237ff5dc'/%3E%3C/svg%3E">
+<style>
+:root{color-scheme:dark;--bg:#0b1012;--panel:#111b1f;--line:#283438;--muted:#95a6aa;--text:#e6eeed;--mint:#7ff5dc;--amber:#edc57a}
+[hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 5%,#1b3031 0,transparent 65%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,sans-serif;min-height:100vh}main{max-width:960px;margin:auto;padding:48px 24px}header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:42px}.identity{display:flex;gap:13px;align-items:center}.disc{height:37px;width:37px;border:1px solid var(--mint);border-radius:50%;display:grid;place-items:center;color:var(--mint)}.disc:after{content:"";width:11px;height:11px;border:1px solid var(--mint);border-radius:50%}h1{font-size:19px;letter-spacing:.04em;margin:0}.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}.status{font-size:12px;border:1px solid var(--line);padding:7px 12px;border-radius:30px;display:flex;gap:8px;align-items:center;color:var(--muted)}.status:before{content:"";height:6px;width:6px;border-radius:50%;background:currentColor}.status.live{color:var(--mint)}.status.error{color:var(--amber)}.display{padding:32px;background:linear-gradient(135deg,#132326,#101a1d);border:1px solid #344345;border-radius:18px;box-shadow:0 25px 80px #0005;position:relative;overflow:hidden}.display:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(transparent 0 3px,#00000009 3px 4px);pointer-events:none}.display-top{display:flex;justify-content:space-between;position:relative}.chip{color:var(--amber);font-size:11px;border:1px solid #edc57a44;border-radius:4px;padding:2px 7px;letter-spacing:.12em}.window{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;margin:28px 0 14px;font:clamp(18px,5vw,49px)/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--mint);text-shadow:0 0 18px #7ff5dc33;position:relative;min-height:1.3em}.window span{background:#7ff5dc04;text-align:center;border-bottom:1px solid #7ff5dc18;border-radius:3px;white-space:pre}.window.stale{opacity:.35}.title-note{color:var(--muted);font-size:12px;min-height:18px;margin:0 0 26px}.numbers{display:flex;flex-wrap:wrap;gap:55px;padding-top:23px;border-top:1px solid var(--line);position:relative}.number{font:clamp(34px,7vw,57px)/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.02em;margin-top:6px;color:var(--mint);font-variant-numeric:tabular-nums}.numbers.stale .number{opacity:.35}.tracks-label{margin:30px 0 12px;display:flex;justify-content:space-between;gap:10px}.legend{font-size:11px;color:var(--muted);letter-spacing:0;text-transform:none}.tracks{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));gap:5px;position:relative}.track{border:1px solid #354345;color:#66777b;font:12px/31px ui-monospace,monospace;text-align:center;border-radius:4px}.track.on{color:var(--mint);border-color:#7ff5dc66;background:#7ff5dc09}.track.current{color:#10211c;background:var(--mint);border-color:var(--mint);font-weight:800;box-shadow:0 0 15px #7ff5dc22}.tracks.stale{opacity:.35}.tracks.unmapped .track{border-style:dotted}.notice{margin:18px 1px 28px;color:var(--muted);font-size:12px;min-height:18px}.diagnostics{margin-top:30px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#10181b}summary{cursor:pointer;padding:17px 20px;font-size:13px;color:#b9c9ca}summary:hover{color:var(--text)}.diagnostic-content{padding:0 20px 20px}.bus-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.bus-title{font-size:12px;color:var(--amber);margin:8px 0 12px}.stats{display:flex;gap:22px}.stats dt{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.stats dd{margin:4px 0 0;font:17px ui-monospace,monospace}.raw{font:11px/1.8 ui-monospace,monospace;overflow-wrap:anywhere;background:#0b1113;padding:12px;border-radius:6px;color:#a7b9bc;min-height:64px}.drop-row{font-size:12px;color:var(--muted);margin-top:15px}footer{display:flex;justify-content:space-between;gap:10px;margin-top:27px;color:#71878c;font-size:11px}a{color:var(--muted)}:focus-visible{outline:2px solid var(--mint);outline-offset:4px}
+@media(max-width:660px){main{padding:25px 16px}header{margin-bottom:26px;align-items:flex-start}.status{font-size:10px;padding:6px 8px}.display{padding:22px 16px}.window{gap:2px}.numbers{gap:40px}.tracks{grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}.tracks-label{flex-direction:column;gap:3px}.bus-grid{grid-template-columns:1fr}footer{flex-direction:column;gap:4px}.identity{gap:9px}h1{font-size:16px}.disc{width:30px;height:30px}}
+
+/* Original faceplate symbols. Dotted outlines mean the protocol field is unknown. */
+.faceplate{position:relative;margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
+.faceplate-heading{display:flex;justify-content:space-between;gap:12px;margin-bottom:15px;font-size:11px;color:var(--muted)}
+.faceplate-grid{display:grid;grid-template-columns:minmax(160px,1fr) minmax(0,2fr);gap:22px}
+.symbol-bank{display:flex;flex-direction:column;gap:10px}.symbol-row{display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+.symbol{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:25px;padding:2px 6px;color:#71878b;border:1px solid transparent;border-radius:3px;font:600 12px/1.35 ui-monospace,monospace;letter-spacing:.03em;white-space:nowrap}
+.symbol.boxed{border-color:currentColor}.symbol.unmapped{border-bottom:1px dotted #8c9b9e;color:#8c9b9e}.symbol.on{color:var(--mint);text-shadow:0 0 12px #7ff5dc55}.symbol.off{color:#43575b}.symbol.stale{opacity:.4}
+.symbol svg{height:22px;width:38px;fill:none;stroke:currentColor;stroke-width:1.6}.symbol svg.clock-icon{width:23px}.symbol.rec.on{color:var(--amber)}
+.position-scale{margin-top:12px;color:#8c9b9e;border-bottom:1px dotted #8c9b9e;padding-bottom:7px}.position-labels{display:flex;justify-content:space-between;font:11px ui-monospace,monospace}.position-ticks{display:flex;justify-content:space-around;height:15px;align-items:end;font-size:10px}.position-track{height:4px;background:repeating-linear-gradient(90deg,#62777b55 0 4px,transparent 4px 8px);margin:5px 0}
+.unit-symbols{display:inline-flex;flex-direction:column;gap:3px;margin-left:16px;vertical-align:middle}.unit-symbols .symbol{font-size:16px}.numeric-with-units{display:flex;align-items:center}.faceplate-note{font-size:11px;color:var(--muted);margin:14px 0 0}.faceplate.stale .symbol.on{opacity:.4}
+@media(max-width:660px){.faceplate-grid{grid-template-columns:1fr;gap:18px}.faceplate-heading{flex-direction:column;gap:3px}.symbol{font-size:11px}.unit-symbols{margin-left:10px}}
+#symbol-md-disc.off svg{visibility:hidden}
+#symbol-md-disc .wedge{fill:currentColor;stroke:none;opacity:.3}
+#symbol-md-disc.disc-solid .wedge{opacity:1}
+#symbol-md-disc.disc-animated .wedge{animation:md-wedge 1.5s step-end infinite}
+#symbol-md-disc.disc-animated .wedge:nth-of-type(2){animation-delay:-1s}
+#symbol-md-disc.disc-animated .wedge:nth-of-type(3){animation-delay:-.5s}
+#symbol-md-disc.disc-animated-forward-fast .wedge,#symbol-md-disc.disc-animated-reverse-fast .wedge{animation:md-wedge-fast .3s step-end infinite}
+#symbol-md-disc.disc-animated-forward-fast .wedge:nth-of-type(2){animation-delay:-.1s}
+#symbol-md-disc.disc-animated-forward-fast .wedge:nth-of-type(3){animation-delay:-.2s}
+#symbol-md-disc.disc-animated-reverse-fast .wedge:nth-of-type(2){animation-delay:-.2s}
+#symbol-md-disc.disc-animated-reverse-fast .wedge:nth-of-type(3){animation-delay:-.1s}
+#symbol-md-disc.stale .wedge,.faceplate.stale .wedge{animation-play-state:paused}
+#symbol-md-pause.on{color:var(--amber)}
+@keyframes md-wedge{0%{opacity:1}33.333%,100%{opacity:.08}}
+@keyframes md-wedge-fast{0%{opacity:1}33.333%,100%{opacity:.08}}
+.volume-readout{display:flex;align-items:center;gap:15px;margin:0 0 25px;position:relative}.volume-value{min-width:52px;font:16px ui-monospace,monospace;color:var(--mint)}.volume-meter{height:5px;flex:1;max-width:240px;background:#7ff5dc12;border-radius:4px;overflow:hidden}.volume-fill{height:100%;width:0;background:var(--mint)}.volume-readout.stale{opacity:.35}
+.adjustment-readout{display:flex;align-items:center;gap:14px;margin:-13px 0 25px;position:relative;color:var(--muted);font-size:12px}.adjustment-steps{display:flex;gap:4px;align-items:center}.adjustment-steps span{width:12px;height:7px;border:1px solid #52676a;border-radius:2px}.adjustment-steps span.active{background:var(--mint);border-color:var(--mint)}.adjustment-readout.stale{opacity:.35}
+.symbol.candidate{border-bottom:1px dashed var(--amber)}
+#track{min-width:5ch;text-align:right}
+.clock-blank{visibility:hidden}
+</style>
+</head>
+<body>
+<main>
+<header><div class="identity"><div class="disc" aria-hidden="true"></div><div><h1>SONY ZS-M7</h1><div class="eyebrow">Live display receiver</div></div></div><div id="status" class="status live" role="status">Receiving</div></header>
+<section class="display" aria-label="Captured player display">
+<div class="display-top"><div class="eyebrow">Alphanumeric display</div><div><span id="preset" class="chip" hidden="">PRESET</span> <span id="source" class="chip">STANDBY</span></div></div>
+<div id="title" class="window" aria-label="Standby clock"><span> </span><span> </span><span> </span><span> </span><span> </span><span> </span><span> </span><span> </span><span> </span><span> </span><span> </span><span> </span></div>
+<p id="title-note" class="title-note">Standby</p>
+<div id="volume-readout" class="volume-readout stale"><span class="eyebrow">Volume</span><span id="volume-value" class="volume-value">— / 31</span><div id="volume-meter" class="volume-meter" role="meter" aria-label="Volume level" aria-valuemin="0" aria-valuemax="31"><div id="volume-fill" class="volume-fill" style="width: 0%;"></div></div></div>
+<div id="adjustment-readout" class="adjustment-readout stale" hidden=""><span id="adjustment-label">Audio adjustment</span><span class="adjustment-steps" id="adjustment-steps" role="meter" aria-label="Audio adjustment position"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span><span id="adjustment-value">— / 12</span></div>
+<div id="numbers" class="numbers"><div><div id="number-label" class="eyebrow">Standby clock</div><div class="numeric-with-units"><div class="number" id="track" aria-label="Standby clock 19:11">19<span class="clock-colon">:</span>11</div><div class="unit-symbols"><span id="symbol-mhz" class="symbol unmapped" data-symbol="mhz" title="MHz: unmapped" aria-label="MHz: unmapped">MHz</span><span id="symbol-khz" class="symbol unmapped" data-symbol="khz" title="kHz: unmapped" aria-label="kHz: unmapped">kHz</span></div></div></div><div id="elapsed-group" hidden=""><div id="elapsed-group-label" class="eyebrow">Elapsed</div><div class="number" id="time">—:—</div></div></div>
+<div id="tracks-label" class="tracks-label" hidden=""><span class="eyebrow">Track indicators</span><span class="legend">Filled: current track · Outlined: received indicator</span></div>
+<div id="tracks" class="tracks stale" aria-label="Track indicators 1 to 20" hidden=""><span class="track" aria-label="Track 1, indicator off">1</span><span class="track" aria-label="Track 2, indicator off">2</span><span class="track" aria-label="Track 3, indicator off">3</span><span class="track" aria-label="Track 4, indicator off">4</span><span class="track" aria-label="Track 5, indicator off">5</span><span class="track" aria-label="Track 6, indicator off">6</span><span class="track" aria-label="Track 7, indicator off">7</span><span class="track" aria-label="Track 8, indicator off">8</span><span class="track" aria-label="Track 9, indicator off">9</span><span class="track" aria-label="Track 10, indicator off">10</span><span class="track" aria-label="Track 11, indicator off">11</span><span class="track" aria-label="Track 12, indicator off">12</span><span class="track" aria-label="Track 13, indicator off">13</span><span class="track" aria-label="Track 14, indicator off">14</span><span class="track" aria-label="Track 15, indicator off">15</span><span class="track" aria-label="Track 16, indicator off">16</span><span class="track" aria-label="Track 17, indicator off">17</span><span class="track" aria-label="Track 18, indicator off">18</span><span class="track" aria-label="Track 19, indicator off">19</span><span class="track" aria-label="Track 20, indicator off">20</span></div>
+<div id="faceplate" class="faceplate"><div class="faceplate-heading"><span class="eyebrow">Original display symbols</span><span>Glowing: on · Dim: off · Dotted: unmapped · Dashed: inferred</span></div><div class="faceplate-grid"><div class="symbol-bank"><div class="symbol-row"><span id="symbol-md" class="symbol boxed off" data-symbol="md" title="MD: off" aria-label="MD: off">MD</span><span id="symbol-md-play" class="symbol off" data-symbol="md-play" title="▶: off" aria-label="▶: off">▶</span><span id="symbol-md-pause" class="symbol off" data-symbol="md-pause" title="Ⅱ: off" aria-label="Ⅱ: off">Ⅱ</span><span id="symbol-md-disc" class="symbol on disc-solid" data-symbol="md-disc" title=": on" aria-label=": on"><svg viewBox="0 0 44 25" aria-hidden="true"><rect x="2" y="1.5" width="40" height="22" rx="3"></rect><g class="wedge"><polygon points="17,4 27,4 22,10"></polygon><polygon points="17,21 27,21 22,15"></polygon></g><g class="wedge"><polygon points="29,5 38,10 27,11"></polygon><polygon points="6,15 15,20 17,14"></polygon></g><g class="wedge"><polygon points="6,10 15,5 17,11"></polygon><polygon points="29,20 38,15 27,14"></polygon></g></svg></span></div><div class="symbol-row"><span id="symbol-cd" class="symbol boxed off" data-symbol="cd" title="CD: off" aria-label="CD: off">CD</span><span id="symbol-cd-play" class="symbol unmapped " data-symbol="cd-play" title="CD play: protocol field not mapped" aria-label="CD play: unmapped">▶</span><span id="symbol-cd-pause" class="symbol unmapped " data-symbol="cd-pause" title="CD pause: protocol field not mapped" aria-label="CD pause: unmapped">Ⅱ</span><span id="symbol-cd-disc" class="symbol unmapped " data-symbol="cd-disc" title="CD graphic: protocol field not mapped" aria-label="CD graphic: unmapped"><svg viewBox="0 0 44 25" aria-hidden="true"><ellipse cx="22" cy="12.5" rx="20" ry="11"></ellipse><ellipse cx="22" cy="12.5" rx="4" ry="3"></ellipse><path d="M8 5l10 5m8 5l10 5M8 20l10-5m8-5l10-5M2 12.5h16m8 0h16"></path></svg></span><span id="symbol-dub-arrow" class="symbol unmapped " data-symbol="dub-arrow" title="CD to MD arrow: protocol field not mapped" aria-label="CD to MD arrow: unmapped">↰</span></div><div class="symbol-row"><span id="symbol-radio" class="symbol boxed off" data-symbol="radio" title="RADIO: off" aria-label="RADIO: off">RADIO</span><span id="symbol-stereo" class="symbol unmapped " data-symbol="stereo" title="STEREO: protocol field not mapped" aria-label="STEREO: unmapped">STEREO</span><span id="symbol-mono" class="symbol unmapped " data-symbol="mono" title="MONO: protocol field not mapped" aria-label="MONO: unmapped">MONO</span></div><div class="symbol-row"><span id="symbol-line" class="symbol boxed off" data-symbol="line" title="LINE: off" aria-label="LINE: off">LINE</span><span id="symbol-auto" class="symbol unmapped " data-symbol="auto" title="AUTO: protocol field not mapped" aria-label="AUTO: unmapped">AUTO</span><span id="symbol-preset" class="symbol unmapped " data-symbol="preset" title="PRESET: unmapped" aria-label="PRESET: unmapped">PRESET</span></div></div><div class="symbol-bank"><div class="symbol-row"><span id="symbol-digital" class="symbol unmapped " data-symbol="digital" title="DIGITAL: protocol field not mapped" aria-label="DIGITAL: unmapped">DIGITAL</span><span id="symbol-rec" class="symbol boxed rec off" data-symbol="rec" title="REC: off" aria-label="REC: off">REC</span><span id="symbol-toc-edit" class="symbol unmapped boxed" data-symbol="toc-edit" title="TOC EDIT: protocol field not mapped" aria-label="TOC EDIT: unmapped">TOC EDIT</span></div><div class="symbol-row"><span id="symbol-repeat" class="symbol off" data-symbol="repeat" title="REPEAT: off" aria-label="REPEAT: off">REPEAT</span><span id="symbol-repeat-one" class="symbol off" data-symbol="repeat-one" title="1: off" aria-label="1: off">1</span><span id="symbol-shuffle" class="symbol off" data-symbol="shuffle" title="SHUFFLE: off" aria-label="SHUFFLE: off">SHUFFLE</span><span id="symbol-pgm" class="symbol off" data-symbol="pgm" title="PGM: off" aria-label="PGM: off">PGM</span></div><div class="symbol-row"><span id="symbol-clock" class="symbol off candidate" data-symbol="clock" title="Clock: off · inferred from clock-on capture" aria-label="Clock: off · inferred from clock-on capture"><svg class="clock-icon" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11"></circle><path d="M13 5v8H6"></path></svg></span><span id="symbol-timer" class="symbol boxed on" data-symbol="timer" title="TIMER: on" aria-label="TIMER: on">TIMER</span><span id="symbol-timer-rec" class="symbol boxed rec off" data-symbol="timer-rec" title="REC: off" aria-label="REC: off">REC</span><span id="symbol-timer-play" class="symbol boxed on" data-symbol="timer-play" title="PLAY: on" aria-label="PLAY: on">PLAY</span><span id="symbol-sleep" class="symbol off" data-symbol="sleep" title="SLEEP: off" aria-label="SLEEP: off">SLEEP</span></div><div class="symbol-row"><span id="symbol-step" class="symbol off" data-symbol="step" title="STEP: off" aria-label="STEP: off">STEP</span><span id="symbol-fm" class="symbol off" data-symbol="fm" title="FM: off" aria-label="FM: off">FM</span><span id="symbol-am" class="symbol unmapped " data-symbol="am" title="AM: protocol field not mapped" aria-label="AM: unmapped">AM</span><span id="symbol-pm" class="symbol unmapped " data-symbol="pm" title="PM: protocol field not mapped" aria-label="PM: unmapped">PM</span><span id="symbol-tv" class="symbol unmapped " data-symbol="tv" title="TV: protocol field not mapped" aria-label="TV: unmapped">TV</span><span id="symbol-colon" class="symbol unmapped " data-symbol="colon" title="Colon: protocol field not mapped" aria-label="Colon: unmapped">:</span></div><div class="symbol-row"><span id="symbol-track" class="symbol off" data-symbol="track" title="TRACK: off" aria-label="TRACK: off">TRACK</span><span id="symbol-record-date" class="symbol off" data-symbol="record-date" title="REC: off" aria-label="REC: off">REC</span><span id="symbol-date" class="symbol off" data-symbol="date" title="DATE: off" aria-label="DATE: off">DATE</span><span id="symbol-remain" class="symbol unmapped candidate" data-symbol="remain" title="REMAIN: unmapped" aria-label="REMAIN: unmapped">REMAIN</span><span id="symbol-over20" class="symbol off candidate" data-symbol="over20" title="OVER 20: off · inferred from 20/21-track comparison; not visually confirmed" aria-label="OVER 20: off · inferred from 20/21-track comparison; not visually confirmed">OVER 20</span></div></div></div><div class="position-scale" title="Position scale and marker fields not mapped" aria-label="Position scale: unmapped"><div class="position-labels"><span>POSITION</span><span>0%</span><span>100%</span></div><div class="position-track"></div><div class="position-ticks"><span>▲</span><span>▲</span><span>▲</span><span>▲</span></div></div><p class="faceplate-note">Unmapped symbols stay visible for comparison with the Sony display. Their illumination is not yet decoded.</p></div>
+</section>
+<p id="notice" class="notice" role="status">Standby. Receiver queue drops detected; some frames were lost.</p>
+<details class="diagnostics"><summary>Signal diagnostics</summary><div class="diagnostic-content"><div class="bus-grid" id="buses"><section><h2 class="bus-title">SPI-1 · Numbers &amp; indicators</h2><dl class="stats"><div><dt>Frames</dt><dd id="frames-0">297</dd></div><div><dt>Rejected</dt><dd id="rejected-0">17</dd></div><div><dt>Last seen</dt><dd id="age-0">11 ms</dd></div></dl><div class="raw" id="raw-0">8C 00 07 00 00 02 0A 00 00 00 AA AA 0A 19 11 30</div><div class="drop-row" id="receiver-0">Last transaction: 128 bits · Clock edges: 76496 · Empty selects: 0 · Wrong lengths: 17</div></section><section><h2 class="bus-title">SPI-2 · Text</h2><dl class="stats"><div><dt>Frames</dt><dd id="frames-1">297</dd></div><div><dt>Rejected</dt><dd id="rejected-1">23</dd></div><div><dt>Last seen</dt><dd id="age-1">11 ms</dd></div></dl><div class="raw" id="raw-1">80 01 00 00 00 00 00 00 00 00 00 00 00 00 83</div><div class="drop-row" id="receiver-1">Last transaction: 120 bits · Clock edges: 71707 · Empty selects: 0 · Wrong lengths: 23</div></section></div><div class="drop-row">Receiver queue drops: <span id="drops">4</span> · <span id="uptime">9 s</span> uptime</div></div></details>
+<footer><span>Direct bus capture · 250 ms refresh</span><a href="/api/state">View JSON data</a></footer>
+</main>
+<script>
+'use strict';
+const byId=id=>document.getElementById(id);
+const setText=(id,text)=>{if(byId(id).textContent!==text)byId(id).textContent=text;};
+const titleCells=Array.from({length:12},()=>{const el=document.createElement('span');el.textContent=' ';byId('title').append(el);return el;});
+const indicators=Array.from({length:20},(_,i)=>{const el=document.createElement('span');el.className='track';el.textContent=i+1;byId('tracks').append(el);return el;});
+const adjustmentCells=Array.from({length:12},()=>{const el=document.createElement('span');byId('adjustment-steps').append(el);return el;});
+for(const [i,name] of ['SPI-1 · Numbers & indicators','SPI-2 · Text'].entries()){
+ const el=document.createElement('section');el.innerHTML='<h2 class="bus-title"></h2><dl class="stats"><div><dt>Frames</dt><dd id="frames-'+i+'">0</dd></div><div><dt>Rejected</dt><dd id="rejected-'+i+'">0</dd></div><div><dt>Last seen</dt><dd id="age-'+i+'">—</dd></div></dl><div class="raw" id="raw-'+i+'">No frames received</div><div class="drop-row" id="receiver-'+i+'"></div>';
+ el.querySelector('h2').textContent=name;byId('buses').append(el);
+}
+function setSymbol(key,value,fresh){
+ const el=byId('symbol-'+key);
+ el.classList.toggle('unmapped',value===null);
+ el.classList.toggle('on',value===true);
+ el.classList.toggle('off',value===false);
+ el.classList.toggle('stale',!fresh);
+ const label=key==='mhz'?'MHz':key==='khz'?'kHz':key==='clock'?'Clock':el.textContent.trim();
+ const description=label+': '+(value===null?'unmapped':!fresh?'signal stale':value?'on':'off');
+ el.title=description;el.setAttribute('aria-label',description);
+}
+function render(s){
+ const numericFresh=s.buses[0].fresh, titleFresh=s.buses[1].fresh;
+ const standby=Boolean(s.clock_display?.standby);
+ const volume=s.volume, timerVolume=s.timer_volume_setting, volumeOverlay=Boolean(volume?.overlay)||Boolean(timerVolume);
+ const bandPrefix=s.radio&&s.title?.codes[1]===0x8c&&[0x8a,0x8b].includes(s.title.codes[0])||s.radio&&s.title?.codes[0]===0x8d&&s.title.codes[1]===0x8b;
+ const radioGlyph={138:'L',139:'M',140:'W',141:'F'};
+ setText('volume-value',volume?volume.level+' / 31':'— / 31');
+ byId('volume-readout').classList.toggle('stale',!volume?.fresh);
+ byId('volume-fill').style.width=volume?(volume.level/31*100)+'%':'0%';
+ if(volume)byId('volume-meter').setAttribute('aria-valuenow',volume.level);
+ else byId('volume-meter').removeAttribute('aria-valuenow');
+ const adjustment=s.audio_adjustment;
+ byId('adjustment-readout').hidden=!adjustment;
+ byId('adjustment-readout').classList.toggle('stale',!adjustment?.fresh);
+ if(adjustment){adjustmentCells.forEach((el,i)=>el.classList.toggle('active',i<adjustment.position));setText('adjustment-label',adjustment.setting==='bass'?'BASS adjustment':adjustment.setting==='treble'?'TRE adjustment':'Audio adjustment · setting unknown');setText('adjustment-value',adjustment.position+' / '+adjustment.steps);byId('adjustment-steps').setAttribute('aria-valuenow',adjustment.position);}
+ const program=s.program, isProgram=Boolean(program);
+ const trackDisplay=s.track_display;
+ const radio=s.radio, source=s.source??(radio?'radio':s.numeric||s.md?'md':'unknown'), isRadio=Boolean(radio)||source==='radio', isAM=radio?.band==='AM';
+ byId('preset').hidden=!radio?.preset;
+ const haveMode=source!=='unknown'||isRadio||Boolean(s.numeric)||Boolean(s.md);
+ for(const [key,field] of [['timer','timer'],['timer-play','timer_play'],['timer-rec','timer_rec']])setSymbol(key,s.symbols&&s.symbols[field]!==undefined?Boolean(s.symbols[field]):null,numericFresh);
+ setSymbol('clock',s.symbols&&s.symbols.clock!==undefined?Boolean(s.symbols.clock):null,numericFresh);
+ byId('symbol-clock').classList.toggle('candidate',Boolean(s.symbols?.clock_inferred));
+ if(s.symbols?.clock_inferred){byId('symbol-clock').title+=' · inferred from clock-on capture';byId('symbol-clock').setAttribute('aria-label',byId('symbol-clock').title);}
+ setSymbol('fm',s.symbols&&s.symbols.fm!==undefined?Boolean(s.symbols.fm):null,numericFresh);
+ for(const key of ['step','track'])setSymbol(key,s.symbols&&s.symbols[key]!==undefined?Boolean(s.symbols[key]):null,numericFresh);
+ setSymbol('over20',s.symbols&&s.symbols.over20!==undefined?Boolean(s.symbols.over20):null,numericFresh);
+ byId('symbol-over20').classList.toggle('candidate',Boolean(s.symbols?.over20_inferred));
+ if(s.symbols?.over20_inferred){byId('symbol-over20').title+=' · inferred from 20/21-track comparison; not visually confirmed';byId('symbol-over20').setAttribute('aria-label',byId('symbol-over20').title);}
+ setSymbol('rec',s.symbols&&s.symbols.rec!==undefined?Boolean(s.symbols.rec):null,numericFresh);
+ setSymbol('pgm',s.symbols&&s.symbols.pgm!==undefined?Boolean(s.symbols.pgm):null,numericFresh);
+ setSymbol('shuffle',s.symbols&&s.symbols.shuffle!==undefined?Boolean(s.symbols.shuffle):null,numericFresh);
+ setSymbol('repeat',s.symbols&&s.symbols.repeat!==undefined?Boolean(s.symbols.repeat):null,numericFresh);
+ setSymbol('repeat-one',s.symbols&&s.symbols.repeat_one!==undefined?Boolean(s.symbols.repeat_one):null,numericFresh);
+ setSymbol('date',s.symbols&&s.symbols.date!==undefined?Boolean(s.symbols.date):null,numericFresh);
+ setSymbol('record-date',s.symbols&&s.symbols.record_date!==undefined?Boolean(s.symbols.record_date):null,numericFresh);
+ setSymbol('remain',s.symbols?.remain??null,numericFresh);
+ byId('symbol-remain').classList.toggle('candidate',Boolean(s.symbols?.remain_inferred));
+ setSymbol('sleep',s.symbols?Boolean(s.symbols.sleep):null,numericFresh);
+ const disc=s.symbols?.md_disc??s.md?.disc??'unknown';
+ setSymbol('md-play',s.symbols?Boolean(s.symbols.md_play):s.md?Boolean(s.md.play):null,numericFresh);
+ setSymbol('md-pause',s.symbols?Boolean(s.symbols.md_pause):s.md?Boolean(s.md.pause):null,numericFresh);
+ setSymbol('md-disc',disc==='unknown'?null:disc!=='off',numericFresh);
+ for(const state of ['solid','animated','animated-forward-fast','animated-reverse-fast'])byId('symbol-md-disc').classList.toggle('disc-'+state,disc===state);
+ setSymbol('mhz',haveMode?Boolean(radio)&&!isAM:null,numericFresh);
+ setSymbol('khz',haveMode?isAM:null,numericFresh);
+ setSymbol('preset',isRadio?Boolean(radio?.preset):null,numericFresh);
+ for(const key of ['md','cd','radio','line'])setSymbol(key,s.symbols?Boolean(s.symbols[key]):haveMode?source===key:null,numericFresh);
+ byId('faceplate').classList.toggle('stale',!numericFresh);
+ setText('source',standby?'STANDBY':isRadio?(radio?(radio.display_band??(isAM?'AM':'FM'))+' RADIO':'RADIO'):source==='cd'?'CD':source==='line'?'LINE IN':source==='md'?(isProgram?'MD PROGRAM':'MINIDISC'):'UNKNOWN');
+ const clockDisplay=s.clock_display, clockLabel=standby?'Standby clock':'Clock';
+ const sleepTimer=s.sleep_timer, timerSetting=s.timer_setting, clockSetting=s.clock_setting??timerSetting, recording=s.radio_recording;
+ const timerLabel=timerSetting?.phase==='off'?'Timer stop':'Timer start';
+ setText('number-label',clockDisplay?clockLabel:timerVolume?'Timer volume':timerSetting?timerLabel+(timerSetting.editing!=='unknown'?' · '+timerSetting.editing:''):clockSetting?'Clock setting'+(clockSetting.editing!=='unknown'?' · '+clockSetting.editing:''):sleepTimer?'Sleep timer':recording?'Track':isRadio?(radio?(isAM?'Frequency · kHz':'Frequency · MHz'):'Frequency'):source==='line'?'Input':isProgram?'Program track':'Track');
+ byId('elapsed-group').hidden=Boolean(clockDisplay||timerVolume||sleepTimer||clockSetting)||(!recording&&(isRadio||source==='line'||isProgram||Boolean(trackDisplay&&!s.numeric)));
+ byId('tracks-label').hidden=Boolean(clockDisplay||timerVolume||sleepTimer||clockSetting);
+ byId('tracks-label').querySelector('.legend').textContent=recording?'Recording · received track indicators':isRadio?'Numbered indicators · radio mapping unknown':isProgram?'Program selection · playlist indicators not yet decoded':'Filled: current track · Outlined: received indicator';
+ byId('tracks').hidden=Boolean(clockDisplay||timerVolume||sleepTimer||clockSetting);
+ byId('tracks').classList.toggle('unmapped',isRadio&&!recording);
+ byId('numbers').classList.toggle('stale',!numericFresh||!(s.numeric||radio||program||trackDisplay||sleepTimer||clockSetting||timerVolume||clockDisplay||recording));
+ byId('tracks').classList.toggle('stale',!numericFresh||!(s.numeric||trackDisplay||recording));
+ byId('title').classList.toggle('stale',!titleFresh||(!s.title&&!volumeOverlay));
+ const n=s.numeric;
+ const trackNumber=recording?.track??trackDisplay?.number??n?.track;
+ const trackMask=recording?.indicators??trackDisplay?.indicators??n?.indicators??0;
+ const playing=recording?false:trackDisplay?trackDisplay.playing:Boolean(n);
+ if(recording)setText('elapsed-group-label','Remaining');
+ else if(trackDisplay&&!trackDisplay.playing)setText('elapsed-group-label','Time');
+ else setText('elapsed-group-label','Elapsed');
+ if(clockDisplay){const h=String(clockDisplay.hour).padStart(2,'0'),m=String(clockDisplay.minute).padStart(2,'0');byId('track').innerHTML=h+'<span class="clock-colon'+(clockDisplay.colon_on?'':' clock-blank')+'">:</span>'+m;byId('track').setAttribute('aria-label',clockLabel+' '+h+':'+m);}else if(timerVolume){byId('track').textContent=timerVolume.blank?' ':timerVolume.level+' / 31';byId('track').setAttribute('aria-label','Timer volume '+timerVolume.level+' / 31');}else if(clockSetting){const hour=String(clockSetting.hour??'--').padStart(2,'0'),minute=String(clockSetting.minute??'--').padStart(2,'0');const h=clockSetting.hour_blank&&hour!=='--'?(Number(clockSetting.hour)<10?'0<span class="clock-blank">'+hour[1]+'</span>':'<span class="clock-blank">'+hour+'</span>'):hour;const m=clockSetting.minute_blank&&minute!=='--'?'<span class="clock-blank">'+minute+'</span>':minute;byId('track').innerHTML=h+':'+m;byId('track').setAttribute('aria-label',(clockDisplay?clockLabel:timerVolume?'Timer volume':timerSetting?timerLabel+' ':'Clock setting ')+hour+':'+minute+', editing '+clockSetting.editing);}else{byId('track').textContent=sleepTimer?(sleepTimer.minutes===null?'—':sleepTimer.minutes+' min'):program?(program.track_blank?' ':program.selected_track===null?'—':String(program.selected_track).padStart(3,'0')):radio?(isAM?String(radio.frequency_khz):(radio.frequency_khz/1000).toFixed(2)):trackNumber!==undefined?String(trackNumber).padStart(2,'0'):'—';byId('track').removeAttribute('aria-label');}
+ const shownTime=recording??n;
+ byId('time').textContent=s.md?.time_blank&&!recording?' ':shownTime?String(shownTime.minutes).padStart(2,'0')+':'+String(shownTime.seconds).padStart(2,'0'):'—:—';
+ indicators.forEach((el,i)=>{el.classList.toggle('on',Boolean((trackMask>>>i)&1));el.classList.toggle('current',Boolean(playing&&trackNumber===i+1));el.setAttribute('aria-label','Track '+(i+1)+(playing&&trackNumber===i+1?', current':((trackMask>>>i)&1)?', indicator on':', indicator off'));if(isRadio&&!recording)el.setAttribute('aria-label','Indicator '+(i+1)+': unmapped in radio mode');});
+ titleCells.forEach((el,i)=>{const c=standby?32:timerVolume?.blank?32:volumeOverlay?('VOLUME '+String(volume.level).padStart(2,'0')).padEnd(12,' ').charCodeAt(i):s.title?.codes[i];el.textContent=bandPrefix&&!volumeOverlay&&(c===0||radioGlyph[c])?(radioGlyph[c]??' '):c===undefined||c===255?' ':c>=32&&c<=126?String.fromCharCode(c):'·';});
+ byId('title').setAttribute('aria-label',standby?'Standby clock':volumeOverlay?'Volume: '+volume.level:bandPrefix?'Radio band: '+(s.radio.display_band??s.radio.band):'Title: '+(s.title?.text??'transition or unavailable'));
+ byId('title-note').textContent=standby?'Standby':volumeOverlay?(titleFresh?'Volume display · '+volume.level+' / 31':'Last received volume · signal stale'):!s.title?'Waiting for a complete text frame':!titleFresh?'Last received title · signal stale':s.message?'Player message':bandPrefix?'Radio band display · '+(s.radio.display_band??s.radio.band):s.title.text===null?'Display transition · unknown cells shown as dots':'12-character display window';
+ let label='Receiving',cls='status live',notice=radio?(isAM?'AM frequency · experimental mapping.':'FM frequency · experimental mapping.'):'Displaying captured values using the MD playback mapping.';
+ if(s.receiver?.some(r=>r.paused)){label='Capture paused';cls='status error';notice='Receiver paused for input diagnostics. Restart the device to resume.';}
+ else if(s.capture_error){label='Capture error';cls='status error';notice='Receiver initialization failed: '+s.capture_error;}
+ else if(!numericFresh||!titleFresh){label='Waiting for signals';cls='status error';notice='Missing or stale '+(!numericFresh&&!titleFresh?'numeric and text buses':!numericFresh?'numeric bus':'text bus')+'. Check signal diagnostics.';}
+ else if(!clockDisplay&&!n&&!radio&&!s.md&&!['md','cd','radio','line'].includes(source)){label='Check numeric data';cls='status error';notice='Numeric frame does not match the known MD, FM or AM fields.';}
+ if(isProgram)notice='Program track selection · received blank phases preserved.';
+ else if(source==='line')notice='Line input selected.';
+ else if(recording)notice='Recording radio to MiniDisc · remaining time and track indicators follow the player.';
+ else if(!radio&&!n&&haveMode)notice='Source selected · numeric fields are blank or not yet decoded.';
+ if(trackDisplay&&!n&&!isProgram)notice='Track number received · time digits are blank on the player.';
+ if(disc==='animated')notice+=' Disc animation timing is approximate.';
+ if(clockDisplay)notice=standby?'Standby.':'Clock display.';
+ if(s.dropped_frames)notice+=' Receiver queue drops detected; some frames were lost.';
+ setText('status',label);byId('status').className=cls;setText('notice',notice);
+ s.buses.forEach((b,i)=>{byId('frames-'+i).textContent=b.frames.toLocaleString();byId('rejected-'+i).textContent=b.rejected.toLocaleString();byId('age-'+i).textContent=b.age_ms===null?'—':b.age_ms<1000?b.age_ms+' ms':(b.age_ms/1000).toFixed(1)+' s';byId('raw-'+i).textContent=b.raw_hex||'No frames received';});
+ s.receiver?.forEach((r,i)=>{byId('receiver-'+i).textContent='Last transaction: '+r.last_bits+' bits · Clock edges: '+(r.rising_edges??'—')+' · Empty selects: '+r.zero_bits+' · Wrong lengths: '+r.wrong_bits;});
+ byId('drops').textContent=s.dropped_frames;byId('uptime').textContent=Math.floor(s.uptime_ms/1000)+' s';
+}
+async function poll(){
+ try{
+  const response=await fetch('/api/state',{cache:'no-store',signal:AbortSignal.timeout(2500)});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  render(await response.json());
+ }catch(error){
+  setText('status','Device disconnected');byId('status').className='status error';
+  setText('notice','Cannot reach the receiver. Check your Wi-Fi connection.');
+  for(const id of ['title','numbers','tracks','faceplate','volume-readout'])byId(id).classList.add('stale');
+  document.querySelectorAll('.symbol.on').forEach(el=>el.classList.add('stale'));
+ }finally{setTimeout(poll,250);}
+}
+poll();
+</script>
+
+</body></html>

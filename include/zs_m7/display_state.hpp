@@ -10,9 +10,125 @@ struct NumericDisplay {
     // Instantaneous indicator bits; current and later tracks are set in this run.
     std::uint32_t track_indicators;
 };
+struct RadioRecordingDisplay {
+    unsigned track, minutes, seconds;
+    std::uint32_t indicators;
+};
 inline std::optional<unsigned> decode_bcd(std::uint8_t byte) {
     if ((byte & 15) > 9 || (byte >> 4) > 9) return std::nullopt;
     return (byte >> 4) * 10U + (byte & 15);
+}
+// Observed while recording FM radio onto an MD, with REC and REMAIN displayed.
+inline std::optional<RadioRecordingDisplay> decode_radio_recording_display(const SpiFrame& f) {
+    if (f.bus!=SpiBus::Display1 || !f.complete()) return std::nullopt;
+    const auto& b=f.mosi;
+    if (b[1]!=0x60 || b[2]!=0x41 || b[3]!=0xb4 || b[4]!=0 ||
+        !(b[5]&1) || (b[5]&0x80) || b[10]!=0xaa || b[12]!=0) return std::nullopt;
+    const auto track=decode_bcd(b[11]), minutes=decode_bcd(b[13]), seconds=decode_bcd(b[14]);
+    if (!track || *track==0 || !minutes || !seconds || *seconds>59) return std::nullopt;
+    return RadioRecordingDisplay{*track,*minutes,*seconds,static_cast<std::uint32_t>(b[7]) |
+        (static_cast<std::uint32_t>(b[8])<<8) | (static_cast<std::uint32_t>(b[9]&15)<<16)};
+}
+struct SleepTimerDisplay { std::optional<unsigned> minutes; };
+inline std::optional<SleepTimerDisplay> decode_sleep_timer_display(const SpiFrame& f) {
+    if (f.bus != SpiBus::Display1 || !f.complete()) return std::nullopt;
+    const auto& b=f.mosi;
+    // Observed while editing the sleep duration during MD playback. The timer
+    // number blinks through AA/0A blank phases independently of SLEEP itself.
+    const bool md_layout=(b[0]&0x7e)==0x0c && b[1]==0x20 && b[2]==1 &&
+        (b[3]&15)==1 && b[4]==0 && b[5]==0 && b[6]==0x0c &&
+        b[7]==0xff && b[8]==0xff && b[9]==0x83 && b[10]==0xaa;
+    const bool radio_layout=(b[0]&0x7e)==0 && b[1]==0 && b[2]==0 && b[3]==4 &&
+        b[4]==2 && b[5]==0 && b[6]==0x0a && b[7]==4 && b[8]==0 &&
+        b[9]==0x80 && b[10]==0xaa;
+    if ((!md_layout && !radio_layout) || b[13]!=0xaa || b[14]!=0xaa)
+        return std::nullopt;
+    if (b[11]==0xaa && b[12]==0x0a) return SleepTimerDisplay{std::nullopt};
+    const auto low=decode_bcd(b[11]);
+    if (!low) return std::nullopt;
+    unsigned minutes=*low;
+    if (b[12]==0x01) minutes+=100;
+    else if (b[12]!=0x0a) return std::nullopt;
+    switch(minutes){case 10:case 20:case 30:case 60:case 90:case 120:
+        return SleepTimerDisplay{minutes};default:return std::nullopt;}
+}
+struct TimerVolumeSetting { unsigned level; bool blank; };
+inline std::optional<TimerVolumeSetting> decode_timer_volume_setting(const SpiFrame& f) {
+    if(f.bus!=SpiBus::Display1 || !f.complete())return std::nullopt;
+    const auto& b=f.mosi;
+    if(((b[0]&0x7f)!=4 && (b[0]&0x7f)!=12) || b[1]!=0 || b[2]!=0 ||
+       b[3]!=1 || b[4]!=0 || b[5]!=0 || (b[6]&0xc0)!=0 || b[7]!=0 ||
+       b[8]!=0 || b[9]!=0x80 || b[10]!=0xaa || b[11]!=0xaa ||
+       b[12]!=0x0a || b[13]!=0xaa || b[14]!=0xaa)return std::nullopt;
+    return TimerVolumeSetting{static_cast<unsigned>(b[6]&31),(b[6]&0x20)==0};
+}
+struct ClockReadout { unsigned hour,minute; bool colon_on; bool standby; };
+inline std::optional<ClockReadout> decode_clock_readout(const SpiFrame& f){
+ if(f.bus!=SpiBus::Display1 || !f.complete())return std::nullopt;
+ const auto& b=f.mosi;
+ const bool date_layout=(b[0]&0x7f)==0 && b[3]==0x41 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
+ const bool standby_layout=(b[0]&0x7f)==0x0c && b[3]==0 && b[7]==0 && b[8]==0 && b[9]==0;
+ if((!date_layout && !standby_layout) || b[1]!=0 || b[2]!=7 || b[4]!=0 ||
+    (b[5]!=0 && b[5]!=2) || b[6]>31 || b[10]!=0xaa || b[11]!=0xaa || b[12]!=0x0a)return std::nullopt;
+ auto h=decode_bcd(b[13]),m=decode_bcd(b[14]);
+ if(!h||*h>23||!m||*m>59)return std::nullopt;
+ return ClockReadout{*h,*m,(b[5]&2)!=0,standby_layout};
+}
+struct ClockSettingDisplay {
+    std::optional<unsigned> hour;
+    std::optional<unsigned> minute;
+    bool hour_blank=false;
+    bool minute_blank=false;
+};
+// Numeric layout for timer time entry. The caller must confirm On/Off text.
+inline std::optional<ClockSettingDisplay> decode_timer_on_setting(const SpiFrame& f) {
+    if (f.bus!=SpiBus::Display1 || !f.complete()) return std::nullopt;
+    const auto& b=f.mosi;
+    const bool blank_tracks=b[7]==0 && b[8]==0 && b[9]==0x80;
+    const bool retained_tracks=b[7]==0xff && b[8]==0xff && b[9]==0x83;
+    if (((b[0]&0x7f)!=0x04 && (b[0]&0x7f)!=0x0c) ||
+        b[1]!=0 || (b[2]!=7 && b[2]!=0) || b[3]!=1 || b[4]!=0 || b[5]!=2 ||
+        (!blank_tracks && !retained_tracks) || b[10]!=0xaa ||
+        b[11]!=0xaa || b[12]!=0x0a) return std::nullopt;
+    ClockSettingDisplay result;
+    result.hour_blank=b[13]==0xaa;
+    result.minute_blank=b[14]==0xaa;
+    if(result.hour_blank && result.minute_blank) return std::nullopt;
+    if (!result.hour_blank) {
+        if ((b[13]>>4)==0x0a && (b[13]&15)<=9) result.hour=b[13]&15;
+        else result.hour=decode_bcd(b[13]);
+        if (!result.hour || *result.hour>23) return std::nullopt;
+    }
+    if(!result.minute_blank){
+        result.minute=decode_bcd(b[14]);
+        if (!result.minute || *result.minute>59) return std::nullopt;
+    }
+    return result;
+}
+inline std::optional<ClockSettingDisplay> decode_clock_setting_display(const SpiFrame& f) {
+    if (f.bus!=SpiBus::Display1 || !f.complete()) return std::nullopt;
+    const auto& b=f.mosi;
+    const bool stopped_layout=b[1]==0 && b[2]==7;
+    const bool playing_layout=b[1]==0x20 && b[2]==1;
+    const bool stopped_tail=b[7]==3 && b[8]==0 && b[9]==0x80;
+    const bool playing_tail=b[7]==0xff && b[8]==0xff && b[9]==0x83;
+    if ((b[0]!=0 && b[0]!=0x80) || (!stopped_layout && !playing_layout) ||
+        (b[3]!=1 && b[3]!=0x41) || b[4]!=0 || (b[5]!=0 && b[5]!=2) || b[6]!=0x0a ||
+        (!stopped_tail && !playing_tail) || b[10]!=0xaa ||
+        b[11]!=0xaa || b[12]!=0x0a) return std::nullopt;
+    ClockSettingDisplay result;
+    result.hour_blank=b[13]==0xaa;
+    result.minute_blank=b[14]==0xaa;
+    if (!result.hour_blank) {
+        if ((b[13]>>4)==0x0a && (b[13]&15)<=9) result.hour=b[13]&15;
+        else result.hour=decode_bcd(b[13]);
+        if (!result.hour || *result.hour>23) return std::nullopt;
+    }
+    if (!result.minute_blank) {
+        result.minute=decode_bcd(b[14]);
+        if (!result.minute || *result.minute>59) return std::nullopt;
+    }
+    return result;
 }
 // Source text logos are independent of disc graphics and numeric content.
 inline const char* decode_source_name(const SpiFrame& f) {
@@ -91,7 +207,8 @@ inline std::optional<MdTransport> decode_md_transport(const SpiFrame& f) {
     if (f.bus != SpiBus::Display1 || !f.complete()) return std::nullopt;
     const auto& b=f.mosi;
     if (b[3]!=1 || b[4]!=0 || (b[1]!=0x20 && b[1]!=0x30) ||
-        (b[2]!=1 && b[2]!=7)) return std::nullopt;
+        (b[1]==0x20 && b[2]!=1 && b[2]!=2 && b[2]!=3) ||
+        (b[1]==0x30 && b[2]!=7)) return std::nullopt;
     return MdTransport{true, (b[1]&0x10)!=0,
                        b[13]==0xaa && b[14]==0xaa};
 }

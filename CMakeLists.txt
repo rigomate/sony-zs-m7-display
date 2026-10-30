@@ -17,6 +17,17 @@ target_link_libraries(display_replay PRIVATE display_protocol)
 
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(clock_readout_test tests/clock_readout_test.cpp)
+    target_link_libraries(clock_readout_test PRIVATE display_protocol)
+    add_test(NAME captured_clock_readout COMMAND clock_readout_test
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-clock-colon/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/DATE-blinking-4numerical-hour-from-0-to-24-and-0-raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/DATE-blinking-4numerical-minute-from-0-to-59-to-0-again-raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-timer-on-hour-retained-tracks/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-standby-clock-md-icon/raw/digital.csv)
+    add_executable(timer_volume_test tests/timer_volume_test.cpp)
+    target_link_libraries(timer_volume_test PRIVATE display_protocol)
+    add_test(NAME captured_timer_volume COMMAND timer_volume_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-timer-volume/raw/digital.csv)
     add_executable(rec_display_test tests/rec_display_test.cpp)
     target_link_libraries(rec_display_test PRIVATE display_protocol)
     add_test(NAME captured_rec_display COMMAND rec_display_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual/rec-on/raw/digital.csv)
@@ -26,6 +37,11 @@ if(BUILD_TESTING)
     add_executable(program_message_test tests/program_message_test.cpp)
     target_link_libraries(program_message_test PRIVATE display_protocol)
     add_test(NAME captured_program_messages COMMAND program_message_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual)
+    add_executable(disc_message_test tests/disc_message_test.cpp)
+    target_link_libraries(disc_message_test PRIVATE display_protocol)
+    add_test(NAME captured_disc_messages COMMAND disc_message_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/Blank Disc-on-alphanumeric/raw/digital.csv"
+        "${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/No Disc-on-alphanumeric/raw/digital.csv")
     add_executable(program_track_test tests/program_track_test.cpp)
     target_link_libraries(program_track_test PRIVATE display_protocol)
     add_test(NAME captured_program_track COMMAND program_track_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual/program-track-01-to-20-to-01-raw/digital.csv)
@@ -43,7 +59,11 @@ if(BUILD_TESTING)
     add_test(NAME captured_date_display COMMAND date_display_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual)
     add_executable(timer_display_test tests/timer_display_test.cpp)
     target_link_libraries(timer_display_test PRIVATE display_protocol)
-    add_test(NAME captured_timer_display COMMAND timer_display_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual/timer-play-blinking-raw/digital.csv)
+    add_test(NAME captured_timer_display COMMAND timer_display_test
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual/timer-play-blinking-raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/timer-and-play-flashing/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/timer-and-rec-flashing/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/TIMER-PLAY-is-lit-also-CLOCK-icon-is-lit/raw/digital.csv)
     add_executable(sleep_display_test tests/sleep_display_test.cpp)
     target_link_libraries(sleep_display_test PRIVATE display_protocol)
     add_test(NAME captured_sleep_display COMMAND sleep_display_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual)
@@ -53,9 +73,46 @@ if(BUILD_TESTING)
     add_executable(volume_display_test tests/volume_display_test.cpp)
     target_link_libraries(volume_display_test PRIVATE display_protocol)
     add_test(NAME captured_volume_display COMMAND volume_display_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual/volume-from-min-to-max-raw/digital.csv)
+    add_executable(audio_adjustment_test tests/audio_adjustment_test.cpp)
+    target_link_libraries(audio_adjustment_test PRIVATE display_protocol)
+    add_test(NAME captured_audio_adjustment COMMAND audio_adjustment_test
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/BASS-setting-goting-from-min-to-max/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/TRE-setting-goting-from-min-to-max/raw/digital.csv)
+    add_executable(sleep_timer_test tests/sleep_timer_test.cpp)
+    target_link_libraries(sleep_timer_test PRIVATE display_protocol)
+    add_test(NAME captured_sleep_timer COMMAND sleep_timer_test
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/SLEEP-blinking-with-10-20-30-60-90-120-on-display/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-sleep-debug/raw/digital.csv)
     add_executable(md_animation_test tests/md_animation_test.cpp)
     target_link_libraries(md_animation_test PRIVATE display_protocol)
     add_test(NAME captured_md_animation COMMAND md_animation_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/md-animation)
+    add_executable(fast_disc_test tests/fast_disc_test.cpp)
+    target_link_libraries(fast_disc_test PRIVATE display_protocol)
+    add_test(NAME captured_fast_disc_direction COMMAND fast_disc_test
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/playback-disc-icon-spinning-backwards-fast-raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/playback-disc-icon-spinning-forward-fast-raw/digital.csv)
+    add_executable(clock_setting_test tests/clock_setting_test.cpp)
+    target_link_libraries(clock_setting_test PRIVATE display_protocol)
+    add_test(NAME captured_clock_setting COMMAND clock_setting_test
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/DATE-blinking-4numerical-hour-from-0-to-24-and-0-raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/DATE-blinking-4numerical-minute-from-0-to-59-to-0-again-raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-clock-debug/raw/digital.csv)
+    add_executable(timer_setting_test tests/timer_setting_test.cpp)
+    target_link_libraries(timer_setting_test PRIVATE display_protocol)
+    add_test(NAME captured_timer_setting_hour COMMAND timer_setting_test
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-timer-hour/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-timer-minute/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-timer-hour-layout0/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-timer-off-hour/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-timer-off-minute/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-timer-on-minute-layout0/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-timer-on-hour-retained-tracks/raw/digital.csv)
+    add_executable(radio_recording_test tests/radio_recording_test.cpp)
+    target_link_libraries(radio_recording_test PRIVATE display_protocol)
+    add_test(NAME captured_radio_recording COMMAND radio_recording_test
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/REC-is-going-on-timer-counting-back-REMAIN-icon-on-REC-icon-next-to-REMAIN-also-on-track1-is-blinking/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/REC-is-going-on-timer-counting-back-REMAIN-icon-on-REC-icon-next-to-REMAIN-also-on-track2-is-blinking-track1-is-on/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/REC-DATE-icons-lit-itstheREC-next-to-DATE/raw/digital.csv)
     add_executable(radio_display_test tests/radio_display_test.cpp)
     target_link_libraries(radio_display_test PRIVATE display_protocol)
     add_test(NAME captured_radio_display COMMAND radio_display_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/radio)

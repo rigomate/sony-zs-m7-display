@@ -1,5 +1,146 @@
 # Handoff: Sony ZS-M7 replacement display
 
+## Standby clock with solid MiniDisc graphic
+
+User-labelled capture manual2/live-standby-clock-md-icon shows19:08 in standby,
+steady TIMER/PLAY, source00, byte2=07 and tail000000. It now decodes as
+clock_display.standby=true and md_disc=solid independently of MD source. GUI
+shows STANDBY/Standby clock with a static disc graphic and blank text window.
+See analysis/clock-readout-findings.md for exact guards and replay coverage.
+
+
+## Timer On-hour regression fixed
+
+New capture manual2/live-timer-on-hour-retained-tracks shows timer On16:31
+with track tailFF FF83. Previous timer decoder only accepted000080 and sent
+null, so no hour blink reached the GUI. Both tails are now recognized with
+existing timer/text guards. Timer replay covers this seventh capture, and
+normal-clock detection has a negative regression for this actual timer entry.
+See analysis/timer-setting-hour-findings.md appended section.
+
+
+## Normal clock readout / colon
+
+User-labelled capture manual2/live-clock-colon shows steady18:55 and colon
+phases0.5099s each. API clock_display is separate from clock_setting, with
+hour/minute, colon_on, colon_inferred and fresh. A full stable-digit blink
+cycle confirms normal readout so hour/minute editors are not mistaken for it.
+The webpage shows Clock and blanks only the colon span. See
+analysis/clock-readout-findings.md for exact signature and inference limits.
+
+
+## Timer start/stop and volume GUI fix
+
+New user-guided passive captures cover On16:31, Off17:31, both selected digit
+pairs, and timer volume21. Byte2=00 is another valid timer time layout; old
+code only accepted07 and dropped the state. API timer_setting now includes
+phase on/off from fresh exact text, clears retained values on phase change,
+and the page labels Timer start/Timer stop. timer_volume_setting separately
+reports the captured numeric level and actual blank phase. See the appended
+2026-10-30 section in analysis/timer-setting-hour-findings.md. Captures under
+manual2/live-timer-* include raw Saleae and simultaneous API samples.
+
+
+## Wake timer On hour measurement
+
+Live capture `captures/manual2/live-timer-hour/` shows alphanumeric `On`,
+numeric 16:31, hour byte13 alternating `16`/`AA` and TIMER bit08 following
+the hour edge about one 31.87ms frame later. Each hour phase lasts about
+0.510s. Timer PLAY stays on. The C3 now decodes this observed timer On hour
+layout with fresh `On` text, and the webpage follows the hour blank phase.
+The later `live-timer-minute` capture confirms byte14 alternates `31`/`AA`
+while editing minutes; the page follows the minute phase as well. Timer Off
+settings still need a capture. See
+`analysis/timer-setting-hour-findings.md`.
+
+## Timer symbols
+
+The user-labelled TIMER/PLAY and TIMER/REC blink captures isolate numeric
+byte0 bits `08` = TIMER, `04` = timer PLAY, `02` = timer REC. They transition
+one frame apart; API and webpage follow each bit independently. Byte0 bit
+`10` is displayed as an inferred clock-icon candidate from a third capture;
+the individual clock bit remains unconfirmed.
+See `analysis/timer-play-findings.md`.
+
+## Blank Disc and No Disc text
+
+User-labelled captures and the display return line confirm text mode01,
+code1E means `Blank Disc`, and code05 means `No Disc`. Their input parameters
+are bytes3..6 zero and bytes7..13 spaces. The decoder recognizes those exact
+forms, keeps the original message code in the API and renders the text through
+the existing title display. See `analysis/disc-message-findings.md`.
+
+## Radio recording to MD
+
+User-labelled captures show the countdown in bytes13/14 and the recorded track
+in byte11. In capture 1, indicator byte7 alternates `00/01`; capture 2 alternates
+`01/03`, so the current recording track blinks while prior tracks stay on.
+The separate REC beside DATE is byte3 bit `20`, corroborated by the user's
+REC-DATE capture. REMAIN is lit in the recording captures but byte3 bits `10`
+and `80` are correlated; the UI marks REMAIN inferred for this recording frame
+signature only. The C3 page displays recording track, remaining time and the
+received indicator phases. See `analysis/radio-recording-findings.md`.
+
+## Clock setting hour/minute
+
+User captures show numeric byte13 stepping through hours00..23 (then wrapping
+to00), byte14 fixed00; the minute sweep holds byte13=A0 (00 with leading tens
+blank) while byte14 advances00..59 then00. The selected digit pair blinks toAA.
+The page/API now show retained HH:MM and hour/minute edit focus separately
+from MD track and elapsed time. A live hour-change capture during MD playback
+revealed a second packet layout (`b1=20,b2=01`, trailer `FF FF 83`); the prior
+decoder only recognized the stopped-player layout, which caused the missing
+GUI hour. A live frame then showed the hybrid combination `b1=00,b2=07` with
+trailer `FF FF 83`, so header and trailer variants are now accepted
+independently. Capture replay passed, and the physical post-flash API now shows
+fresh `clock_setting` data at 06:54 with hour editing. The API exposes each
+field's actual blank phase and the page follows it, rather than restarting a
+CSS animation on every refresh. Live minute setting showed the minute blanking
+in step with the DATE indicator. See
+`analysis/clock-setting-findings.md` and the latest C3 validation.
+
+## Fast MD disc animation direction
+
+User-labelled fast playback captures show numeric byte2=`02` for reverse and
+`03` for forward, both with the MD play flag. Decoder/API now preserve those
+states; the faceplate MiniDisc SVG rotates its wedge sequence in the matching
+direction at an approximate faster rate. Existing normal play and pause remain
+unchanged. Native and browser checks pass. See `analysis/md-fast-directions.md`.
+
+## Sleep timer choices
+
+`captures/manual2/SLEEP-blinking-with-10-20-30-60-90-120-on-display.sal`
+cycles the numeric display through10,20,30,60,90,120 minutes. Bytes11/12 are
+packed BCD with `0A` blanking the hundreds position and `01` introducing the
+hundreds digit for120. The timer digits have `AA/0A` blink blanking, separate
+from SLEEP lamp blinking. Firmware exposes a separate `sleep_timer` state and
+shows it in place of track/time while the setting layout is active. A passive
+live capture after the user reported missing values found the player in RADIO
+mode: digits were present in a different numeric-frame layout. The decoder now
+accepts both MD and RADIO timer layouts. The C3 was rebuilt and flashed; native
+replay covers both recordings and the browser has a radio-mode case. A post-
+flash API spot check was after the short selection view ended (SLEEP remained
+on, timer field null). No countdown or power-off timing is inferred.
+See `analysis/sleep-timer-findings.md`.
+
+## Audio emphasis adjustment capture (BASS/TRE)
+
+User-labelled BASS and TRE min-to-max sweeps are stored under
+`captures/manual2/`; each has exported raw Saleae CSV and paired frame JSON in
+its `raw/` directory. SDI2 mode06=BASS and mode07=TRE, byte2 position0..12,
+bytes3..13 zero. Firmware publishes the name and a twelve-block position meter
+without converting positions to dB. Numeric marker geometry remains unknown.
+See `analysis/audio-adjustment-findings.md`.
+
+## Main REC lamp confirmed
+
+The user confirmed the lamp in `captures/manual/rec-on` is the main boxed REC
+directly below DIGITAL. Numeric byte1 bit6 (`0x40`) is mapped to that visual;
+the adjacent timer REC and REC prefix beside DATE remain unknown. A lit REC
+lamp does not establish whether media is currently being written. See
+`analysis/rec-findings.md` and the latest C3 validation entry.
+
+
 ## Stopped digits / track21 time / inferred OVER20
 
 User explicitly requested remote play and track21 tests. captures/track21 has
@@ -98,7 +239,7 @@ AM-radio mode. See analysis/remote-radio-indicators.md for limits and evidence.
 
 Paired user-labelled captures/manual/date-on and date-off isolate numeric
 byte3 bit6(40):41 with MD+DATE,01 with MD only. API symbols.date and the separate
-DATE visual now follow that flag; the adjacent REC prefix remains unmapped.
+DATE visual now follow that flag; the adjacent REC prefix was later mapped to bit20.
 On-state text is26y10m29d (spaced) and numeric time21/04, but parsing a new
 clock/date numeric mode is outside this change. Source masking stays low4bits.
 See analysis/date-findings.md and physical validation entry.
@@ -106,10 +247,10 @@ See analysis/date-findings.md and physical validation entry.
 ## TIMER/PLAY blinking pair
 
 User-labelled timer-play-blinking.sal isolates byte0 mask0C. Values04/08
-occur for one frame at edges;00/0C are main dark/lit phases. Individual TIMER
-versus PLAY bit roles remain unisolated. API symbols.timer_play_raw preserves
-the mask and timer_play is either bit set; the UI follows that observed pair
-without an independent blink timer. Timer REC and clock remain unmapped.
+occur for one frame at edges;00/0C are main dark/lit phases. The newer TIMER/REC
+capture resolves the individual bits as described in the Timer symbols section
+above. API symbols.timer_play_raw preserves the original mask; clock remains
+unconfirmed.
 See analysis/timer-play-findings.md and latest validation entry.
 
 ## SLEEP visual decoded

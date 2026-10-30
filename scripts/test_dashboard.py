@@ -87,9 +87,24 @@ try:
     active = copy.deepcopy(base)
     active['md'] = {'play': True, 'pause': False, 'disc': 'animated', 'time_blank': False}
     render('MD animation', ['disc-animated', 'id="symbol-md-play" class="symbol on"',
+                            'disc-animated .wedge:nth-of-type(2){animation-delay:-1s}',
+                            'disc-animated .wedge:nth-of-type(3){animation-delay:-.5s}',
                             'id="symbol-md-pause" class="symbol off"'])
     active['md'] = {'play': True, 'pause': True, 'disc': 'solid', 'time_blank': True}
     render('MD paused', ['disc-solid', 'id="symbol-md-pause" class="symbol on"'], ['class="symbol on disc-animated"'])
+    active = copy.deepcopy(base)
+    active['source'] = 'md'
+    active['symbols'] = copy.deepcopy(base.get('symbols') or {})
+    active['symbols'].update(md_disc='animated-reverse-fast', md_play=True, md_pause=False)
+    active['md'] = {'play': True, 'pause': False, 'disc': 'animated-reverse-fast', 'time_blank': False}
+    render('MD fast reverse disc', ['id="symbol-md-disc" class="symbol on disc-animated-reverse-fast"',
+                                   'disc-animated-reverse-fast .wedge:nth-of-type(2){animation-delay:-.2s}',
+                                   'disc-animated-reverse-fast .wedge:nth-of-type(3){animation-delay:-.1s}'])
+    active['symbols']['md_disc'] = 'animated-forward-fast'
+    active['md']['disc'] = 'animated-forward-fast'
+    render('MD fast forward disc', ['id="symbol-md-disc" class="symbol on disc-animated-forward-fast"',
+                                   'disc-animated-forward-fast .wedge:nth-of-type(2){animation-delay:-.1s}',
+                                   'disc-animated-forward-fast .wedge:nth-of-type(3){animation-delay:-.2s}'])
     active = copy.deepcopy(base)
     active['volume'] = {'level': 0, 'overlay': True, 'fresh': True}
     active['title'] = None
@@ -100,6 +115,86 @@ try:
     active = copy.deepcopy(base)
     active['volume'] = {'level': 31, 'overlay': False, 'fresh': True}
     render('title restored after volume', ['12-character display window', '31 / 31'], ['Volume display ·'])
+    active = copy.deepcopy(base)
+    active['audio_adjustment'] = {'position': 0, 'steps': 12, 'setting': 'bass', 'fresh': True}
+    render('BASS adjustment minimum', ['BASS adjustment', '0 / 12'],
+           ['id="adjustment-readout" class="adjustment-readout stale" hidden'])
+    active['audio_adjustment']['position'] = 12
+    render('BASS adjustment maximum', ['BASS adjustment', '12 / 12'])
+    active['audio_adjustment'] = {'position': 6, 'steps': 12, 'setting': 'treble', 'fresh': True}
+    render('TRE adjustment', ['TRE adjustment', '6 / 12'])
+    active = copy.deepcopy(base)
+    active['audio_adjustment'] = None
+    render('ordinary display without adjustment', ['class="adjustment-readout stale" hidden'])
+    active = copy.deepcopy(base)
+    active['sleep_timer'] = {'minutes': None, 'fresh': True}
+    render('sleep timer blank phase', ['id="number-label" class="eyebrow">Sleep timer',
+                                      'id="track">—', 'id="elapsed-group" hidden=""',
+                                      'id="tracks-label" class="tracks-label" hidden=""'])
+    active['sleep_timer'] = {'minutes': 10, 'fresh': True}
+    render('sleep timer ten minutes', ['Sleep timer', 'id="track">10 min'])
+    active['sleep_timer'] = {'minutes': 120, 'fresh': True}
+    render('sleep timer one hundred twenty minutes', ['id="track">120 min'])
+    active = copy.deepcopy(base)
+    active.update(source='radio', mode='radio', numeric=None, track_display=None,
+                  radio={'frequency_khz': 103900, 'band': 'FM', 'display_band': 'FM', 'preset': False},
+                  sleep_timer={'minutes': 90, 'fresh': True})
+    active['symbols'] = copy.deepcopy(base.get('symbols') or {})
+    active['symbols']['sleep'] = True
+    render('sleep timer on radio source', ['FM RADIO', 'id="number-label" class="eyebrow">Sleep timer',
+                                          'id="track">90 min', 'id="symbol-sleep" class="symbol on"',
+                                          'id="elapsed-group" hidden=""'])
+    active = copy.deepcopy(base)
+    active['sleep_timer'] = None
+    render('sleep timer mode ended', ['id="number-label" class="eyebrow">Track'],
+           ['id="number-label" class="eyebrow">Sleep timer'])
+    active = copy.deepcopy(base)
+    active['clock_setting'] = {'hour': 7, 'minute': 0, 'editing': 'hour', 'fresh': True}
+    render('clock hour setting', ['id="number-label" class="eyebrow">Clock setting · hour',
+                                 'aria-label="Clock setting 07:00, editing hour">07:00', 'id="elapsed-group" hidden=""',
+                                 'id="tracks-label" class="tracks-label" hidden=""'])
+    active['clock_setting'] = {'hour': 6, 'minute': 52, 'editing': 'hour', 'fresh': True}
+    render('clock hour setting during playback', ['Clock setting · hour', 'aria-label="Clock setting 06:52, editing hour">06:52'])
+    active['clock_setting']['hour_blank'] = True
+    render('clock hour blank phase', ['aria-label="Clock setting 06:52, editing hour">0<span class="clock-blank">6</span>:52'])
+    active['clock_setting'] = {'hour': 23, 'minute': 59, 'editing': 'minute', 'fresh': True}
+    render('clock minute setting', ['Clock setting · minute', 'aria-label="Clock setting 23:59, editing minute">23:59'])
+    active['clock_setting']['minute_blank'] = True
+    render('clock minute blank phase', ['aria-label="Clock setting 23:59, editing minute">23:<span class="clock-blank">59</span>'])
+    active['clock_setting'] = None
+    render('clock setting ended', ['id="number-label" class="eyebrow">Track'],
+           ['Clock setting · minute'])
+    active['timer_setting'] = {'hour': 16, 'minute': 31, 'editing': 'hour', 'hour_blank': False, 'minute_blank': False, 'fresh': True}
+    render('timer on hour visible', ['Timer start · hour', 'aria-label="Timer start 16:31, editing hour">16:31',
+           'id="elapsed-group" hidden=""'])
+    active['timer_setting']['hour_blank'] = True
+    render('timer on hour blank phase', ['Timer start · hour',
+           'aria-label="Timer start 16:31, editing hour"><span class="clock-blank">16</span>:31'])
+    active['timer_setting'].update(editing='minute',hour_blank=False,minute_blank=False)
+    render('timer on minute visible', ['Timer start · minute', 'aria-label="Timer start 16:31, editing minute">16:31'])
+    active['timer_setting']['minute_blank'] = True
+    render('timer on minute blank phase', ['Timer start · minute',
+           'aria-label="Timer start 16:31, editing minute">16:<span class="clock-blank">31</span>'])
+    active['timer_setting']['phase'] = 'off'
+    render('timer stop minute', ['Timer stop · minute', 'aria-label="Timer stop 16:31, editing minute"'])
+    active['timer_setting'] = None
+    render('timer on setting ended', ['id="number-label" class="eyebrow">Track'], ['Timer start · hour'])
+    active = copy.deepcopy(base)
+    active['timer_volume_setting'] = {'level': 21, 'blank': False, 'fresh': True}
+    active['volume'] = {'level': 21, 'overlay': False, 'fresh': True}
+    render('timer volume visible', ['Timer volume', 'id="track" aria-label="Timer volume 21 / 31">21 / 31', 'id="elapsed-group" hidden=""'])
+    active['timer_volume_setting']['blank'] = True
+    render('timer volume blank', ['id="track" aria-label="Timer volume 21 / 31">&nbsp;'])
+    active = copy.deepcopy(base)
+    active['clock_display'] = {'hour': 18, 'minute': 55, 'colon_on': True, 'fresh': True}
+    render('clock readout colon lit', ['id="number-label" class="eyebrow">Clock', 'aria-label="Clock 18:55">18<span class="clock-colon">:</span>55', 'id="elapsed-group" hidden=""'])
+    active['clock_display']['colon_on'] = False
+    render('clock readout colon dark', ['aria-label="Clock 18:55">18<span class="clock-colon clock-blank">:</span>55'])
+    active = copy.deepcopy(base)
+    active.update(source='unknown',numeric=None,md=None,track_display=None)
+    active['clock_display'] = {'hour': 19, 'minute': 8, 'colon_on': True, 'standby': True, 'fresh': True}
+    active['symbols'] = {'md': False, 'cd': False, 'radio': False, 'line': False, 'md_disc': 'solid', 'timer': True, 'timer_play': True}
+    render('standby clock and MD icon', ['STANDBY', 'Standby clock', 'aria-label="Standby clock 19:08">19<span class="clock-colon">:</span>08', 'id="symbol-md-disc" class="symbol on disc-solid"', 'class="status live"'], ['disc-animated"', 'Check numeric data'])
     for source,label in [('md','MINIDISC'),('cd','CD'),('radio','RADIO'),('line','LINE IN')]:
         active = copy.deepcopy(base)
         active.update(source=source, numeric=None, radio=None, md=None)
@@ -117,12 +212,30 @@ try:
     render('sleep steady on', ['id="symbol-sleep" class="symbol on"'])
     active['symbols']['sleep']=False
     render('sleep off', ['id="symbol-sleep" class="symbol off"'])
-    active['symbols']['timer_play']=True
+    active['symbols'].update(timer=True,timer_play=True,timer_rec=False)
     render('timer play lit phase', ['id="symbol-timer" class="symbol boxed on"',
-                                    'id="symbol-timer-play" class="symbol boxed on"'])
-    active['symbols']['timer_play']=False
+                                    'id="symbol-timer-play" class="symbol boxed on"',
+                                    'id="symbol-timer-rec" class="symbol boxed rec off"'])
+    active['symbols'].update(timer=False,timer_play=False)
     render('timer play dark phase', ['id="symbol-timer" class="symbol boxed off"',
                                      'id="symbol-timer-play" class="symbol boxed off"'])
+    active['symbols'].update(timer=True,timer_play=False,timer_rec=True)
+    render('timer rec lit phase', ['id="symbol-timer" class="symbol boxed on"',
+           'id="symbol-timer-rec" class="symbol boxed rec on"',
+           'id="symbol-timer-play" class="symbol boxed off"'])
+    active['symbols'].update(timer=False,timer_rec=False)
+    render('timer rec dark phase', ['id="symbol-timer" class="symbol boxed off"',
+           'id="symbol-timer-rec" class="symbol boxed rec off"'])
+    active['symbols'].update(timer=True,timer_play=False,timer_rec=False)
+    render('timer edge phase', ['id="symbol-timer" class="symbol boxed on"',
+           'id="symbol-timer-play" class="symbol boxed off"',
+           'id="symbol-timer-rec" class="symbol boxed rec off"'])
+    active['symbols'].update(timer=True,timer_play=True,clock=True,clock_inferred=True)
+    render('timer play and clock on', ['id="symbol-timer" class="symbol boxed on"',
+           'id="symbol-timer-play" class="symbol boxed on"',
+           'id="symbol-clock" class="symbol on candidate"', 'Clock: on · inferred from clock-on capture'])
+    active['symbols']['clock']=False
+    render('clock candidate off', ['id="symbol-clock" class="symbol off candidate"'])
     active['symbols']['date']=True
     render('date on', ['id="symbol-date" class="symbol on"'])
     active['symbols']['date']=False
@@ -192,6 +305,12 @@ try:
     active['message']['code']=133
     active['title']={'text':'Program Off','codes':list(b'Program Off')+[255]}
     render('Program Off message', ['Title: Program Off', 'Player message'], ['Display transition'])
+    active['message']['code']=30
+    active['title']={'text':'Blank Disc','codes':list(b'Blank Disc')+[255]*2}
+    render('Blank Disc message', ['Title: Blank Disc', 'Player message'], ['Display transition'])
+    active['message']['code']=5
+    active['title']={'text':'No Disc','codes':list(b'No Disc')+[255]*5}
+    render('No Disc message', ['Title: No Disc', 'Player message'], ['Display transition'])
     active = copy.deepcopy(base)
     render('ordinary title after message', ['12-character display window'], ['Player message'])
     active = copy.deepcopy(base)
@@ -216,6 +335,18 @@ try:
     render('main REC on', ['id="symbol-rec" class="symbol boxed rec on"'])
     active['symbols']['rec']=False
     render('main REC off', ['id="symbol-rec" class="symbol boxed rec off"'])
+    active = copy.deepcopy(base)
+    active.update(source='radio', mode='radio', radio=None, numeric=None, track_display=None,
+                  radio_recording={'track':2,'minutes':70,'seconds':19,'indicators':3},
+                  symbols={'radio':True,'rec':True,'record_date':True,'remain':True,'remain_inferred':True})
+    render('radio recording track 2 lit', ['id="track">02', 'id="time">70:19',
+           'id="elapsed-group-label" class="eyebrow">Remaining',
+           'id="symbol-record-date" class="symbol on"', 'id="symbol-remain" class="symbol on candidate"',
+           'aria-label="Track 1, indicator on"', 'aria-label="Track 2, indicator on"'],
+           ['id="elapsed-group" hidden=""', 'unmapped in radio mode'])
+    active['radio_recording']['indicators']=1
+    render('radio recording track 2 blank phase', ['aria-label="Track 1, indicator on"',
+           'aria-label="Track 2, indicator off"', 'id="time">70:19'])
     offline = True
     render('device disconnected', ['Device disconnected', 'class="numbers stale"'],
                                  ['class="status live"'])

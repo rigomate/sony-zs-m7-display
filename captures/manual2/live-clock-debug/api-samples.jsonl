@@ -1,0 +1,54 @@
+{"elapsed_s": 0.031, "clock_setting": null, "source": "md", "date": false, "raw": "80 20 01 01 00 03 0A FF FF 83 AA 01 00 03 07 92"}
+{"elapsed_s": 0.258, "clock_setting": null, "source": "md", "date": false, "raw": "80 20 01 01 00 03 0A FF FF 83 AA 01 00 03 07 E9"}
+{"elapsed_s": 0.485, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 03 0A FF FF 83 AA 01 00 03 07 70"}
+{"elapsed_s": 0.708, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 03 0A FF FF 83 AA 01 00 03 08 F7"}
+{"elapsed_s": 0.937, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 03 0A FF FF 83 AA 01 00 03 08 6E"}
+{"elapsed_s": 1.173, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 56"}
+{"elapsed_s": 1.397, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 AD"}
+{"elapsed_s": 1.624, "clock_setting": null, "source": "md", "date": true, "raw": "00 20 01 41 00 00 0A FF FF 83 AA AA 0A A6 52 54"}
+{"elapsed_s": 1.846, "clock_setting": null, "source": "md", "date": true, "raw": "00 20 01 41 00 00 0A FF FF 83 AA AA 0A A6 52 EB"}
+{"elapsed_s": 2.068, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 92"}
+{"elapsed_s": 2.297, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 E9"}
+{"elapsed_s": 2.522, "clock_setting": null, "source": "md", "date": true, "raw": "00 20 01 41 00 00 0A FF FF 83 AA AA 0A A6 52 90"}
+{"elapsed_s": 2.749, "clock_setting": null, "source": "md", "date": true, "raw": "00 20 01 41 00 00 0A FF FF 83 AA AA 0A A6 52 27"}
+{"elapsed_s": 2.97, "clock_setting": null, "source": "md", "date": true, "raw": "00 20 01 41 00 00 0A FF FF 83 AA AA 0A A6 52 BE"}
+{"elapsed_s": 3.199, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 56"}
+{"elapsed_s": 3.425, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 AD"}
+{"elapsed_s": 3.65, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 34"}
+{"elapsed_s": 3.875, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 85 FF FF 41 55 55 05 53 A9"}
+{"elapsed_s": 4.096, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 92"}
+{"elapsed_s": 4.336, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 E9"}
+{"elapsed_s": 4.56, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 70"}
+{"elapsed_s": 4.786, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 47"}
+{"elapsed_s": 5.015, "clock_setting": null, "source": "md", "date": false, "raw": "80 20 01 41 00 02 85 FF FF 41 55 55 05 53 A9"}
+{"elapsed_s": 5.242, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 56"}
+{"elapsed_s": 5.476, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 AD"}
+{"elapsed_s": 5.701, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 34"}
+{"elapsed_s": 5.926, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 0B"}
+{"elapsed_s": 6.153, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 92"}
+{"elapsed_s": 6.375, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 E9"}
+{"elapsed_s": 6.602, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 70"}
+{"elapsed_s": 6.827, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 47"}
+{"elapsed_s": 7.052, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 DE"}
+{"elapsed_s": 7.275, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 25"}
+{"elapsed_s": 7.496, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 85 FF FF 41 55 55 05 53 29"}
+{"elapsed_s": 7.731, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 34"}
+{"elapsed_s": 7.958, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 0B"}
+{"elapsed_s": 8.181, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 92"}
+{"elapsed_s": 8.405, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 E9"}
+{"elapsed_s": 8.632, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 70"}
+{"elapsed_s": 8.867, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 47"}
+{"elapsed_s": 9.093, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 DE"}
+{"elapsed_s": 9.318, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 56"}
+{"elapsed_s": 9.543, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 AD"}
+{"elapsed_s": 9.772, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 34"}
+{"elapsed_s": 9.999, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 0B"}
+{"elapsed_s": 10.224, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 92"}
+{"elapsed_s": 10.449, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 E9"}
+{"elapsed_s": 10.676, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 70"}
+{"elapsed_s": 10.899, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A AA 52 07"}
+{"elapsed_s": 11.122, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A A6 52 DE"}
+{"elapsed_s": 11.352, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 25"}
+{"elapsed_s": 11.575, "clock_setting": null, "source": "md", "date": true, "raw": "80 20 01 41 00 02 0A FF FF 83 AA AA 0A A6 52 BC"}
+{"elapsed_s": 11.798, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 01 85 FF FF 41 55 55 05 55 A9"}
+{"elapsed_s": 12.024, "clock_setting": null, "source": "md", "date": false, "raw": "00 20 01 01 00 02 0A FF FF 83 AA AA 0A AA 52 5A"}
