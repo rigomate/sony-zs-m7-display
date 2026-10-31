@@ -74,5 +74,23 @@ int main(){try{run(TimerMode::play);run(TimerMode::rec);
   text=text_frame("");text.mosi[1]=5;text.mosi[2]=20;live.consume(text,120);
   check(live.timer_workflow(120),TimerStage::volume,TimerMode::rec,name);
  }
+ // Timer source selection follows the selected mode and source blink, not
+ // unrelated MD/CD disc indicators, track fields, volume, or upper flags.
+ for(auto source:{1,2,4,8})for(auto disc:{0,1,7,0x38,0xff}){
+  SpiFrame f;f.bus=SpiBus::Display1;f.ended_by_enable=true;
+  f.mosi={0x9c,0x20,static_cast<std::uint8_t>(disc),static_cast<std::uint8_t>(0x40|source),0xc0,0x40,0xa5,0x12,0x34,0x56,0x78,0x91,0x23,0x45,0x56,0};
+  LiveDisplay live;live.consume(f,0);f.mosi[0]=0x14;f.mosi[3]=0x40;live.consume(f,500);
+  const char* name=source==1?"md":source==2?"cd":source==4?"radio":"line";
+  check(live.timer_workflow(500),TimerStage::select_source,TimerMode::play,name);
+  f.mosi[0]=0x9c;f.mosi[3]=0x40|source;live.consume(f,1000);
+  check(live.timer_workflow(1000),TimerStage::select_source,TimerMode::play,name);
+  // A steady source is not a continuing source-selection blink.
+  live.consume(f,2100);
+  if(live.timer_workflow(2100).stage==TimerStage::select_source)
+   throw std::runtime_error("Steady source was retained as flashing selection");
+  f.mosi[3]=0x40|((source==4)?2:4);live.consume(f,2130);
+  if(live.timer_workflow(2130).stage==TimerStage::select_source)
+   throw std::runtime_error("Old blink was reused after a steady-source transition");
+ }
  std::cout<<"Timer PLAY/REC workflow transitions and stale handling passed\n";}
 catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

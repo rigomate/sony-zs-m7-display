@@ -122,7 +122,7 @@ require_phases('live-timer-play-cd-setup','timer_setting',{'phase':'on','hour':1
 require_phases('live-timer-play-cd-setup','timer_setting',{'phase':'off','hour':19,'minute':12,'editing':'minute'},'minute_blank',minimum=1)
 for stem,source in [('live-timer-play-radio-source','radio'),('live-timer-play-cd-confirmed','cd'),
                     ('live-timer-play-md-confirmed','md'),('live-timer-md-source-glitch','md'),
-                    ('live-timer-play-line-source','line')]:
+                    ('live-timer-play-line-source','line'),('live-timer-play-radio-source-no-md','radio')]:
     require_source(stem,'play',source)
 require_source('live-timer-rec-setup','rec','radio')
 require_source('live-timer-rec-line-source','rec','line')

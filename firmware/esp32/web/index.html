@@ -40,6 +40,7 @@
 .symbol.candidate{border-bottom:1px dashed var(--amber)}
 #track{min-width:5ch;text-align:right}
 .clock-blank{visibility:hidden}
+.number.source-choice{font-size:clamp(24px,4vw,38px)}
 </style>
 </head>
 <body>
@@ -97,6 +98,8 @@ function render(s){
  byId('adjustment-readout').classList.toggle('stale',!adjustment?.fresh);
  if(adjustment){adjustmentCells.forEach((el,i)=>el.classList.toggle('active',i<adjustment.position));setText('adjustment-label',adjustment.setting==='bass'?'BASS adjustment':adjustment.setting==='treble'?'TRE adjustment':'Audio adjustment · setting unknown');setText('adjustment-value',adjustment.position+' / '+adjustment.steps);byId('adjustment-steps').setAttribute('aria-valuenow',adjustment.position);}
  const program=s.program, isProgram=Boolean(program);
+ const timerSource=s.timer_workflow?.stage==='select_source'?s.timer_source_selection:null;
+ const mdDisplay=s.md_display, mdDiscRemaining=mdDisplay?.view==='disc_remaining', mdRecordingDate=mdDisplay?.view==='recording_date';
  const trackDisplay=s.track_display;
  const radio=s.radio, source=s.source??(radio?'radio':s.numeric||s.md?'md':'unknown'), isRadio=Boolean(radio)||source==='radio', isAM=radio?.band==='AM';
  byId('preset').hidden=!radio?.preset;
@@ -130,43 +133,48 @@ function render(s){
  setSymbol('preset',isRadio?Boolean(radio?.preset):null,numericFresh);
  for(const key of ['md','cd','radio','line'])setSymbol(key,s.symbols?Boolean(s.symbols[key]):haveMode?source===key:null,numericFresh);
  byId('faceplate').classList.toggle('stale',!numericFresh);
- setText('source',standby?'STANDBY':isRadio?(radio?(radio.display_band??(isAM?'AM':'FM'))+' RADIO':'RADIO'):source==='cd'?'CD':source==='line'?'LINE IN':source==='md'?(isProgram?'MD PROGRAM':'MINIDISC'):'UNKNOWN');
+ setText('source',timerSource?(timerSource.mode==='rec'?'TIMER REC':'TIMER PLAY'):standby?'STANDBY':isRadio?(radio?(radio.display_band??(isAM?'AM':'FM'))+' RADIO':'RADIO'):source==='cd'?'CD':source==='line'?'LINE IN':source==='md'?(isProgram?'MD PROGRAM':'MINIDISC'):'UNKNOWN');
  const clockDisplay=s.clock_display, clockLabel=standby?'Standby clock':'Clock';
  const sleepTimer=s.sleep_timer, timerSetting=s.timer_setting, clockSetting=s.clock_setting??timerSetting, recording=s.radio_recording;
  const timerLabel=timerSetting?.phase==='off'?'Timer stop':'Timer start';
- setText('number-label',clockDisplay?clockLabel:timerVolume?'Timer volume':timerSetting?timerLabel+(timerSetting.editing!=='unknown'?' · '+timerSetting.editing:''):clockSetting?'Clock setting'+(clockSetting.editing!=='unknown'?' · '+clockSetting.editing:''):sleepTimer?'Sleep timer':recording?'Track':isRadio?(radio?(isAM?'Frequency · kHz':'Frequency · MHz'):'Frequency'):source==='line'?'Input':isProgram?'Program track':'Track');
- byId('elapsed-group').hidden=Boolean(clockDisplay||timerVolume||sleepTimer||clockSetting)||(!recording&&(isRadio||source==='line'||isProgram||Boolean(trackDisplay&&!s.numeric)));
+ setText('number-label',timerSource?(timerSource.mode==='rec'?'Recording source':'Wake-up source'):clockDisplay?clockLabel:timerVolume?'Timer volume':timerSetting?timerLabel+(timerSetting.editing!=='unknown'?' · '+timerSetting.editing:''):clockSetting?'Clock setting'+(clockSetting.editing!=='unknown'?' · '+clockSetting.editing:''):sleepTimer?'Sleep timer':mdDiscRemaining?'Tracks left':mdRecordingDate?'Recording time':recording?'Track':isRadio?(radio?(isAM?'Frequency · kHz':'Frequency · MHz'):'Frequency'):source==='line'?'Input':isProgram?'Program track':'Track');
+ byId('elapsed-group').hidden=Boolean(timerSource||clockDisplay||timerVolume||sleepTimer||clockSetting||mdRecordingDate)||(!recording&&!mdDiscRemaining&&(isRadio||source==='line'||isProgram||Boolean(trackDisplay&&!s.numeric)));
  byId('tracks-label').hidden=Boolean(clockDisplay||timerVolume||sleepTimer||clockSetting);
- byId('tracks-label').querySelector('.legend').textContent=recording?'Recording · received track indicators':isRadio?'Numbered indicators · radio mapping unknown':isProgram?'Program selection · playlist indicators not yet decoded':'Filled: current track · Outlined: received indicator';
+ byId('tracks-label').querySelector('.legend').textContent=recording?'Recording · received track indicators':mdDiscRemaining?'Received track indicators · current track not shown':isRadio?'Numbered indicators · radio mapping unknown':isProgram?'Program selection · playlist indicators not yet decoded':'Filled: current track · Outlined: received indicator';
  byId('tracks').hidden=Boolean(clockDisplay||timerVolume||sleepTimer||clockSetting);
  byId('tracks').classList.toggle('unmapped',isRadio&&!recording);
- byId('numbers').classList.toggle('stale',!numericFresh||!(s.numeric||radio||program||trackDisplay||sleepTimer||clockSetting||timerVolume||clockDisplay||recording));
- byId('tracks').classList.toggle('stale',!numericFresh||!(s.numeric||trackDisplay||recording));
+ byId('numbers').classList.toggle('stale',!numericFresh||!(timerSource||mdDisplay||s.numeric||radio||program||trackDisplay||sleepTimer||clockSetting||timerVolume||clockDisplay||recording));
+ byId('tracks').classList.toggle('stale',!numericFresh||!(mdDisplay||s.numeric||trackDisplay||recording));
  byId('title').classList.toggle('stale',!titleFresh||(!s.title&&!volumeOverlay));
  const n=s.numeric;
  const trackNumber=recording?.track??trackDisplay?.number??n?.track;
- const trackMask=recording?.indicators??trackDisplay?.indicators??n?.indicators??0;
- const playing=recording?false:trackDisplay?trackDisplay.playing:Boolean(n);
- if(recording||(source==='md'&&s.symbols?.remain===true))setText('elapsed-group-label','Remaining');
+ const trackMask=recording?.indicators??mdDisplay?.indicators??trackDisplay?.indicators??n?.indicators??0;
+ const playing=recording||mdDiscRemaining||mdRecordingDate?false:trackDisplay?trackDisplay.playing:Boolean(n);
+ if(mdDiscRemaining)setText('elapsed-group-label','Disc remaining');
+ else if(recording||(source==='md'&&s.symbols?.remain===true))setText('elapsed-group-label','Remaining');
  else if(trackDisplay&&!trackDisplay.playing)setText('elapsed-group-label','Time');
  else setText('elapsed-group-label','Elapsed');
- if(clockDisplay){const h=String(clockDisplay.hour).padStart(2,'0'),m=String(clockDisplay.minute).padStart(2,'0');byId('track').innerHTML=h+'<span class="clock-colon'+(clockDisplay.colon_on?'':' clock-blank')+'">:</span>'+m;byId('track').setAttribute('aria-label',clockLabel+' '+h+':'+m);}else if(timerVolume){byId('track').textContent=timerVolume.blank?' ':timerVolume.level+' / 31';byId('track').setAttribute('aria-label','Timer volume '+timerVolume.level+' / 31');}else if(clockSetting){const hour=String(clockSetting.hour??'--').padStart(2,'0'),minute=String(clockSetting.minute??'--').padStart(2,'0');const h=clockSetting.hour_blank&&hour!=='--'?(Number(clockSetting.hour)<10?'0<span class="clock-blank">'+hour[1]+'</span>':'<span class="clock-blank">'+hour+'</span>'):hour;const m=clockSetting.minute_blank&&minute!=='--'?'<span class="clock-blank">'+minute+'</span>':minute;byId('track').innerHTML=h+':'+m;byId('track').setAttribute('aria-label',(clockDisplay?clockLabel:timerVolume?'Timer volume':timerSetting?timerLabel+' ':'Clock setting ')+hour+':'+minute+', editing '+clockSetting.editing);}else{byId('track').textContent=sleepTimer?(sleepTimer.minutes===null?'—':sleepTimer.minutes+' min'):program?(program.track_blank?' ':program.selected_track===null?'—':String(program.selected_track).padStart(3,'0')):radio?(isAM?String(radio.frequency_khz):(radio.frequency_khz/1000).toFixed(2)):trackNumber!==undefined?String(trackNumber).padStart(2,'0'):'—';byId('track').removeAttribute('aria-label');}
- const shownTime=recording??n;
+ byId('track').classList.toggle('source-choice',Boolean(timerSource));
+ if(timerSource){const choice=timerSource.source.toUpperCase();byId('track').textContent=timerSource.source_on?choice:' ';byId('track').setAttribute('aria-label',(timerSource.mode==='rec'?'Recording':'Wake-up')+' source '+choice);}else if(mdDiscRemaining){byId('track').textContent=mdDisplay.tracks_left==null?'—':String(mdDisplay.tracks_left).padStart(2,'0');byId('track').setAttribute('aria-label','Tracks left '+(mdDisplay.tracks_left??'unknown'));}else if(mdRecordingDate){byId('track').textContent=mdDisplay.hour==null||mdDisplay.minute==null?'—:—':String(mdDisplay.hour).padStart(2,'0')+':'+String(mdDisplay.minute).padStart(2,'0');byId('track').setAttribute('aria-label','Recording time '+byId('track').textContent);}else if(clockDisplay){const h=String(clockDisplay.hour).padStart(2,'0'),m=String(clockDisplay.minute).padStart(2,'0');byId('track').innerHTML=h+'<span class="clock-colon'+(clockDisplay.colon_on?'':' clock-blank')+'">:</span>'+m;byId('track').setAttribute('aria-label',clockLabel+' '+h+':'+m);}else if(timerVolume){byId('track').textContent=timerVolume.blank?' ':timerVolume.level+' / 31';byId('track').setAttribute('aria-label','Timer volume '+timerVolume.level+' / 31');}else if(clockSetting){const hour=String(clockSetting.hour??'--').padStart(2,'0'),minute=String(clockSetting.minute??'--').padStart(2,'0');const h=clockSetting.hour_blank&&hour!=='--'?(Number(clockSetting.hour)<10?'0<span class="clock-blank">'+hour[1]+'</span>':'<span class="clock-blank">'+hour+'</span>'):hour;const m=clockSetting.minute_blank&&minute!=='--'?'<span class="clock-blank">'+minute+'</span>':minute;byId('track').innerHTML=h+':'+m;byId('track').setAttribute('aria-label',(clockDisplay?clockLabel:timerVolume?'Timer volume':timerSetting?timerLabel+' ':'Clock setting ')+hour+':'+minute+', editing '+clockSetting.editing);}else{byId('track').textContent=sleepTimer?(sleepTimer.minutes===null?'—':sleepTimer.minutes+' min'):program?(program.track_blank?' ':program.selected_track===null?'—':String(program.selected_track).padStart(3,'0')):radio?(isAM?String(radio.frequency_khz):(radio.frequency_khz/1000).toFixed(2)):trackNumber!==undefined?String(trackNumber).padStart(2,'0'):'—';byId('track').removeAttribute('aria-label');}
+ const shownTime=recording??(mdDiscRemaining&&mdDisplay.minutes!=null&&mdDisplay.seconds!=null?mdDisplay:n);
  byId('time').textContent=s.md?.time_blank&&!recording?' ':shownTime?String(shownTime.minutes).padStart(2,'0')+':'+String(shownTime.seconds).padStart(2,'0'):'—:—';
  indicators.forEach((el,i)=>{el.classList.toggle('on',Boolean((trackMask>>>i)&1));el.classList.toggle('current',Boolean(playing&&trackNumber===i+1));el.setAttribute('aria-label','Track '+(i+1)+(playing&&trackNumber===i+1?', current':((trackMask>>>i)&1)?', indicator on':', indicator off'));if(isRadio&&!recording)el.setAttribute('aria-label','Indicator '+(i+1)+': unmapped in radio mode');});
- titleCells.forEach((el,i)=>{const c=standby?32:timerVolume?.blank?32:volumeOverlay?('VOLUME '+String(volume.level).padStart(2,'0')).padEnd(12,' ').charCodeAt(i):s.title?.codes[i];el.textContent=bandPrefix&&!volumeOverlay&&(c===0||radioGlyph[c])?(radioGlyph[c]??' '):c===undefined||c===255?' ':c>=32&&c<=126?String.fromCharCode(c):'·';});
- byId('title').setAttribute('aria-label',standby?'Standby clock':volumeOverlay?'Volume: '+volume.level:bandPrefix?'Radio band: '+(s.radio.display_band??s.radio.band):'Title: '+(s.title?.text??'transition or unavailable'));
- byId('title-note').textContent=standby?'Standby':volumeOverlay?(titleFresh?'Volume display · '+volume.level+' / 31':'Last received volume · signal stale'):!s.title?'Waiting for a complete text frame':!titleFresh?'Last received title · signal stale':s.message?'Player message':bandPrefix?'Radio band display · '+(s.radio.display_band??s.radio.band):s.title.text===null?'Display transition · unknown cells shown as dots':'12-character display window';
+ titleCells.forEach((el,i)=>{const c=standby?32:timerVolume?.blank?32:volumeOverlay?('VOLUME '+String(volume.level).padStart(2,'0')).padEnd(12,' ').charCodeAt(i):mdRecordingDate&&mdDisplay.date_text?mdDisplay.date_text.charCodeAt(i):s.title?.codes[i];el.textContent=bandPrefix&&!volumeOverlay&&(c===0||radioGlyph[c])?(radioGlyph[c]??' '):c===undefined||c===255?' ':c>=32&&c<=126?String.fromCharCode(c):'·';});
+ byId('title').setAttribute('aria-label',standby?'Standby clock':volumeOverlay?'Volume: '+volume.level:mdRecordingDate?'Recording date: '+(mdDisplay.date_text??'unavailable'):bandPrefix?'Radio band: '+(s.radio.display_band??s.radio.band):'Title: '+(s.title?.text??'transition or unavailable'));
+ byId('title-note').textContent=standby?'Standby':volumeOverlay?(titleFresh?'Volume display · '+volume.level+' / 31':'Last received volume · signal stale'):mdRecordingDate?'Recording date':!s.title?'Waiting for a complete text frame':!titleFresh?'Last received title · signal stale':s.message?'Player message':bandPrefix?'Radio band display · '+(s.radio.display_band??s.radio.band):s.title.text===null?'Display transition · unknown cells shown as dots':'12-character display window';
  let label='Receiving',cls='status live',notice=radio?(isAM?'AM frequency · experimental mapping.':'FM frequency · experimental mapping.'):'Displaying captured values using the MD playback mapping.';
  if(s.receiver?.some(r=>r.paused)){label='Capture paused';cls='status error';notice='Receiver paused for input diagnostics. Restart the device to resume.';}
  else if(s.capture_error){label='Capture error';cls='status error';notice='Receiver initialization failed: '+s.capture_error;}
  else if(!numericFresh||!titleFresh){label='Waiting for signals';cls='status error';notice='Missing or stale '+(!numericFresh&&!titleFresh?'numeric and text buses':!numericFresh?'numeric bus':'text bus')+'. Check signal diagnostics.';}
- else if(!clockDisplay&&!n&&!radio&&!s.md&&!['md','cd','radio','line'].includes(source)){label='Check numeric data';cls='status error';notice='Numeric frame does not match the known MD, FM or AM fields.';}
+ else if(!timerSource&&!clockDisplay&&!n&&!radio&&!s.md&&!['md','cd','radio','line'].includes(source)){label='Check numeric data';cls='status error';notice='Numeric frame does not match the known MD, FM or AM fields.';}
  if(isProgram)notice='Program track selection · received blank phases preserved.';
  else if(source==='line')notice='Line input selected.';
  else if(recording)notice='Recording radio to MiniDisc · remaining time and track indicators follow the player.';
+ else if(mdDiscRemaining)notice='MiniDisc remaining time and tracks left.';
+ else if(mdRecordingDate)notice='MiniDisc recording date and time.';
  else if(!radio&&!n&&haveMode)notice='Source selected · numeric fields are blank or not yet decoded.';
  if(trackDisplay&&!n&&!isProgram)notice='Track number received · time digits are blank on the player.';
+ if(timerSource)notice=(timerSource.mode==='rec'?'Recording':'Wake-up')+' source selection · '+timerSource.source.toUpperCase()+'.';
  if(disc==='animated')notice+=' Disc animation timing is approximate.';
  if(clockDisplay)notice=standby?'Standby.':'Clock display.';
  if(s.dropped_frames)notice+=' Receiver queue drops detected; some frames were lost.';

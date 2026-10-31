@@ -105,16 +105,13 @@ struct TimerSourceSelection { bool recording; std::uint8_t source_mask; };
 inline std::optional<TimerSourceSelection> decode_timer_source_selection(const SpiFrame& f){
  if(f.bus!=SpiBus::Display1 || !f.complete())return std::nullopt;
  const auto& b=f.mosi;
- const bool retained_tracks=b[7]==0xff && b[8]==0xff && b[9]==0x83;
- const bool no_tracks=b[7]==0 && b[8]==0 && b[9]==0;
- const bool rec=(b[0]&0x06)==0x02 && (retained_tracks || no_tracks);
- const bool play=(b[0]&0x06)==0x04 && (no_tracks || retained_tracks);
- if((b[0]&0x70)!=0 || (!rec && !play) || b[1]!=0 || b[2]!=7 ||
-    (rec ? (b[3]!=0 && b[3]!=4 && b[3]!=8) : (b[3]!=0 && b[3]!=1 && b[3]!=2 && b[3]!=4 && b[3]!=8)) ||
-    b[4]!=0 || b[5]!=0 || b[6]>31 ||
-    b[10]!=0xaa || b[11]!=0xaa || b[12]!=0x0a || b[13]!=0xaa || b[14]!=0xaa)
+ const bool rec=(b[0]&0x06)==0x02;
+ const bool play=(b[0]&0x06)==0x04;
+ const auto source=static_cast<std::uint8_t>(b[3]&0x0f);
+ if((!rec && !play) ||
+    (rec ? (source!=0 && source!=4 && source!=8) : (source!=0 && source!=1 && source!=2 && source!=4 && source!=8)))
   return std::nullopt;
- return TimerSourceSelection{rec,b[3]};
+ return TimerSourceSelection{rec,source};
 }
 inline std::optional<ClockReadout> decode_clock_readout(const SpiFrame& f){
  if(f.bus!=SpiBus::Display1 || !f.complete())return std::nullopt;
@@ -287,11 +284,42 @@ inline std::optional<MdTransport> decode_md_transport(const SpiFrame& f) {
     const auto& b=f.mosi;
     // 0x91 is the user-confirmed playback REMAIN signature. Individual
     // meanings of its 0x10 and 0x80 flags are not yet isolated.
-    if ((b[3]!=1 && b[3]!=0x91) || b[4]!=0 || (b[1]!=0x20 && b[1]!=0x30) ||
+    if ((b[3]!=1 && b[3]!=0x91 && b[3]!=0x61) ||
+        (b[4]!=0 && !(b[3]==0x91 && b[4]==0x10)) || (b[1]!=0x20 && b[1]!=0x30) ||
         (b[1]==0x20 && b[2]!=1 && b[2]!=2 && b[2]!=3) ||
         (b[1]==0x30 && b[2]!=7)) return std::nullopt;
     return MdTransport{true, (b[1]&0x10)!=0,
                        b[13]==0xaa && b[14]==0xaa};
+}
+enum class MdPlaybackView { elapsed, track_remaining, disc_remaining, recording_date };
+struct MdPlaybackDisplay {
+    MdPlaybackView view;
+    std::optional<unsigned> tracks_left, minutes, seconds, hour, minute;
+    std::uint32_t indicators;
+};
+inline std::optional<MdPlaybackDisplay> decode_md_playback_display(const SpiFrame& f) {
+    if(!decode_md_transport(f))return std::nullopt;
+    const auto& b=f.mosi;
+    MdPlaybackView view;
+    if(b[3]==1 && b[4]==0)view=MdPlaybackView::elapsed;
+    else if(b[3]==0x91 && b[4]==0)view=MdPlaybackView::track_remaining;
+    else if(b[3]==0x91 && b[4]==0x10)view=MdPlaybackView::disc_remaining;
+    else if(b[3]==0x61 && b[4]==0)view=MdPlaybackView::recording_date;
+    else return std::nullopt;
+    MdPlaybackDisplay result{view,std::nullopt,std::nullopt,std::nullopt,std::nullopt,std::nullopt,
+        static_cast<std::uint32_t>(b[7]) | (static_cast<std::uint32_t>(b[8])<<8) |
+        (static_cast<std::uint32_t>(b[9]&15)<<16)};
+    if(view==MdPlaybackView::disc_remaining && b[12]==0)result.tracks_left=decode_bcd(b[11]);
+    if(view==MdPlaybackView::disc_remaining){
+        result.minutes=decode_bcd(b[13]);result.seconds=decode_bcd(b[14]);
+        if(result.seconds && *result.seconds>59)result.seconds.reset();
+    }
+    if(view==MdPlaybackView::recording_date){
+        result.hour=decode_bcd(b[13]);result.minute=decode_bcd(b[14]);
+        if(result.hour && *result.hour>23)result.hour.reset();
+        if(result.minute && *result.minute>59)result.minute.reset();
+    }
+    return result;
 }
 // Numeric time in the observed MD layout, including track21. Higher digits unknown.
 inline std::optional<NumericDisplay> decode_numeric_display(const SpiFrame& f) {

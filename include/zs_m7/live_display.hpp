@@ -56,10 +56,17 @@ public:
         if (frame.bus == SpiBus::Display1) {
             const auto timer_source=decode_timer_source_selection(frame);
             if(timer_source){
+                if(timer_source_seen_ && static_cast<std::uint32_t>(now_ms-timer_source_transition_ms_)>1000){
+                    timer_source_on_=false;timer_source_seen_=false;timer_source_dark_seen_=false;timer_source_choice_.clear();
+                }
                 if(timer_source_recording_!=timer_source->recording){
                     timer_source_seen_=false;timer_source_dark_seen_=false;timer_source_choice_.clear();
                 }
                 timer_source_recording_=timer_source->recording;
+                if(timer_source_on_!=(timer_source->source_mask!=0) ||
+                   (timer_source->source_mask!=0 && timer_source_seen_ &&
+                    timer_source_choice_!=(timer_source->source_mask==1?"md":timer_source->source_mask==2?"cd":timer_source->source_mask==4?"radio":"line")))
+                    timer_source_transition_ms_=now_ms;
                 timer_source_on_=timer_source->source_mask!=0;
                 timer_source_last_ms_=now_ms;
                 if(timer_source_on_){
@@ -147,14 +154,19 @@ public:
             radio_ = decode_radio_display(frame);
             radio_recording_ = decode_radio_recording_display(frame);
             md_ = decode_md_transport(frame);
+            md_playback_display_ = decode_md_playback_display(frame);
             md_remain_ = md_ && frame.mosi[3]==0x91;
             program_ = decode_program_display(frame);
             track_display_ = decode_track_display(frame);
+            const bool nontrack_view=md_playback_display_ &&
+                (md_playback_display_->view==MdPlaybackView::disc_remaining ||
+                 md_playback_display_->view==MdPlaybackView::recording_date);
+            if(nontrack_view)track_display_.reset();
             over20_ = (frame.mosi[5] & 4) != 0;
             if (source_ != "unknown" || radio_ || md_ || decode_numeric_display(frame))
                 numeric_volume_ = frame.mosi[6] & 0x1f;
             else numeric_volume_.reset();
-            auto next = !program_ && (source_ == "md" || source_ == "unknown") ? decode_numeric_display(frame) : std::nullopt;
+            auto next = !program_ && !nontrack_view && (source_ == "md" || source_ == "unknown") ? decode_numeric_display(frame) : std::nullopt;
             // Paused time digits deliberately blink to AA/AA. Retain the last
             // value for this track; expose blanking separately for the UI.
             if (!(!program_ && md_ && md_->time_blank && numeric_ &&
@@ -200,26 +212,27 @@ public:
         result.fresh=fresh(buses_[0],now_ms);
         if(!result.fresh)return result;
         const bool source_active=timer_source_seen_ && timer_source_dark_seen_ &&
-            static_cast<std::uint32_t>(now_ms-timer_source_last_ms_)<=200;
+            static_cast<std::uint32_t>(now_ms-timer_source_last_ms_)<=200 &&
+            static_cast<std::uint32_t>(now_ms-timer_source_transition_ms_)<=1000;
         const bool mode_active=timer_mode_dark_seen_ && !timer_mode_choice_.empty();
         const bool volume_active=timer_volume_setting_ && timer_volume_text_seen_ &&
             static_cast<std::uint32_t>(now_ms-timer_volume_text_ms_)<=stale_after_ms;
         const bool time_active=timer_on_active_ && !timer_title_phase_.empty() && fresh(buses_[1],now_ms);
         const auto current_mode=timer_rec_?TimerMode::rec:(timer_play_mask_&4)?TimerMode::play:TimerMode::unknown;
-        if(source_active){
+        if(time_active){
+            result.stage=timer_title_phase_=="off"?TimerStage::stop:TimerStage::start;
+            result.mode=current_mode;result.source=source_;result.editing=timer_on_edit_field_;
+        }else if(volume_active){
+            result.stage=TimerStage::volume;result.mode=current_mode;result.source=source_;
+        }else if(clock_readout_active_ && clock_readout_ && clock_readout_->standby && current_mode!=TimerMode::unknown){
+            result.stage=TimerStage::standby;result.mode=current_mode;
+        }else if(source_active){
             result.stage=TimerStage::select_source;
             result.mode=timer_source_recording_?TimerMode::rec:TimerMode::play;
             result.source=timer_source_choice_;
         }else if(mode_active){
             result.stage=TimerStage::select_mode;
             result.mode=timer_mode_choice_=="rec"?TimerMode::rec:TimerMode::play;
-        }else if(volume_active){
-            result.stage=TimerStage::volume;result.mode=current_mode;result.source=source_;
-        }else if(time_active){
-            result.stage=timer_title_phase_=="off"?TimerStage::stop:TimerStage::start;
-            result.mode=current_mode;result.source=source_;result.editing=timer_on_edit_field_;
-        }else if(clock_readout_active_ && clock_readout_ && clock_readout_->standby && current_mode!=TimerMode::unknown){
-            result.stage=TimerStage::standby;result.mode=current_mode;
         }
         return result;
     }
@@ -287,7 +300,7 @@ public:
                 << ",\"repeat_one\":" << (repeat_one_ ? "true" : "false")
                 << ",\"date\":" << (date_ ? "true" : "false")
                 << ",\"record_date\":" << (record_date_ ? "true" : "false")
-                << ",\"remain\":" << (radio_recording_ || md_remain_ ? "true" : md_ ? "false" : "null")
+                << ",\"remain\":" << (radio_recording_ || md_remain_ ? "true" : md_playback_display_ && md_playback_display_->view==MdPlaybackView::elapsed ? "false" : "null")
                 << ",\"remain_inferred\":true"
                 << ",\"md_disc\":"; quote(out, disc_); out << '}';
         } else out << "null";
@@ -313,6 +326,26 @@ public:
                      << ",\"disc\":\"" << disc_
                      << "\",\"animation_timing_approximate\":true}";
         else out << "null";
+        out << ",\"md_display\":";
+        if(md_playback_display_){
+            const auto& v=*md_playback_display_;
+            const char* name=v.view==MdPlaybackView::elapsed?"elapsed":v.view==MdPlaybackView::track_remaining?"track_remaining":
+                             v.view==MdPlaybackView::disc_remaining?"disc_remaining":"recording_date";
+            out << "{\"view\":\"" << name << "\",\"tracks_left\":";
+            if(v.tracks_left)out<<*v.tracks_left;else out<<"null";
+            out << ",\"minutes\":";if(v.minutes)out<<*v.minutes;else out<<"null";
+            out << ",\"seconds\":";if(v.seconds)out<<*v.seconds;else out<<"null";
+            out << ",\"hour\":";if(v.hour)out<<*v.hour;else out<<"null";
+            out << ",\"minute\":";if(v.minute)out<<*v.minute;else out<<"null";
+            out << ",\"indicators\":" << v.indicators << ",\"date_text\":";
+            std::string date;
+            if(v.view==MdPlaybackView::recording_date && title_ && fresh(buses_[1],now_ms)){
+                for(auto c:title_->codes){if(c==0)date+=' ';else if(c>=32 && c<=126)date+=static_cast<char>(c);else{date.clear();break;}}
+                if(date.size()!=12 || date[2]!='y' || date[6]!='m' || date[10]!='d')date.clear();
+            }
+            if(date.empty())out<<"null";else quote(out,date);
+            out << '}';
+        }else out<<"null";
         out << ",\"track_display\":";
         if (track_display_) out << "{\"number\":" << track_display_->number
                                << ",\"indicators\":" << track_display_->indicators
@@ -349,7 +382,7 @@ public:
         quote(out,workflow.source);out << ",\"editing\":";quote(out,workflow.editing);
         out << ",\"fresh\":" << (workflow.fresh?"true":"false") << '}';
         out << ",\"timer_source_selection\":";
-        if(timer_source_seen_ && timer_source_dark_seen_ &&
+        if(workflow.stage==TimerStage::select_source && timer_source_seen_ && timer_source_dark_seen_ &&
            static_cast<std::uint32_t>(now_ms-timer_source_last_ms_)<=200){
             out << "{\"mode\":\"" << (timer_source_recording_?"rec":"play")
                 << "\",\"source\":\"" << timer_source_choice_ << "\",\"source_on\":"
@@ -423,7 +456,7 @@ private:
     std::array<Bus, 2> buses_{};
     bool timer_source_on_=false,timer_source_seen_=false,timer_source_dark_seen_=false,timer_source_recording_=false;
     std::string timer_source_choice_;
-    std::uint32_t timer_source_last_ms_=0;
+    std::uint32_t timer_source_last_ms_=0,timer_source_transition_ms_=0;
     std::string timer_mode_choice_;
     bool timer_mode_dark_seen_=false,timer_mode_timer_on_=false,timer_mode_choice_on_=false;
     std::optional<NumericDisplay> numeric_;
@@ -440,6 +473,7 @@ private:
     bool md_play_ = false, md_pause_ = false, sleep_ = false, date_ = false, record_date_ = false, timer_rec_ = false, clock_icon_ = false, fm_ = false, repeat_ = false, repeat_one_ = false, shuffle_ = false, pgm_ = false, step_ = false, track_label_ = false, over20_ = false, rec_ = false;
     std::optional<RadioDisplay> radio_;
     std::optional<MdTransport> md_;
+    std::optional<MdPlaybackDisplay> md_playback_display_;
     std::optional<RadioRecordingDisplay> radio_recording_;
     std::optional<ProgramDisplay> program_;
     std::optional<TitleWindow> title_;

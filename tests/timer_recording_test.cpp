@@ -66,7 +66,7 @@ int main(){try{
  require(wake.json(270).find("\"mode\":\"play\",\"source\":\"md\",\"source_on\":false")!=std::string::npos,"Wake retained-track blank phase lost");
  f.mosi[6]=0;f.mosi[7]=0;f.mosi[8]=0;f.mosi[9]=0;f.mosi[0]=0x8c;
  f.mosi[3]=4;wake.consume(f,300);
- auto damaged=f;damaged.mosi[9]=0x80;wake.consume(damaged,310);
+ auto damaged=f;damaged.mosi[3]=3;wake.consume(damaged,310);
  require(wake.json(310).find("\"mode\":\"play\",\"source\":\"radio\"")!=std::string::npos,"One bad frame erased the source screen");
  require(wake.json(501).find("\"timer_source_selection\":null")!=std::string::npos,"Old source selection did not expire");
  // Switching directly to the REC layout must require a new blink cycle.

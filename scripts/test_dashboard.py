@@ -85,10 +85,24 @@ try:
     active = copy.deepcopy(base)
     render('return to MD', ['MINIDISC', 'id="track">20', 'id="time">00:14'])
     active = copy.deepcopy(base)
+    active.update(source='radio',numeric=None,track_display=None,md=None,radio=None,
+                  symbols={'timer_play':True,'radio':True,'md':False,'md_disc':'off'},
+                  timer_workflow={'stage':'select_source','mode':'play','source':'radio','fresh':True},
+                  timer_source_selection={'mode':'play','source':'radio','source_on':True,'fresh':True})
+    render('wake source RADIO no MD lit', ['TIMER PLAY','Wake-up source','Wake-up source RADIO','>RADIO</div>'], ['Check numeric data'])
+    active['source']='unknown';active['symbols']['radio']=False;active['timer_source_selection']['source_on']=False
+    render('wake source RADIO no MD blank', ['TIMER PLAY','Wake-up source','Wake-up source RADIO'], ['Check numeric data','>RADIO</div>'])
+    active = copy.deepcopy(base)
     active.setdefault('symbols',{})['remain'] = True
     render('MD remaining playback', ['id="elapsed-group-label" class="eyebrow">Remaining', 'id="time">00:14'])
     active['symbols']['remain'] = False
     render('MD elapsed playback', ['id="elapsed-group-label" class="eyebrow">Elapsed', 'id="time">00:14'])
+    active = copy.deepcopy(base)
+    active.update(numeric=None,track_display=None,
+                  md_display={'view':'disc_remaining','tracks_left':17,'minutes':73,'seconds':23,'indicators':262143})
+    render('MD disc remaining', ['Tracks left','Disc remaining','>17</div>','id="time">73:23'], ['class="track on current"'])
+    active['md_display']={'view':'recording_date','date_text':'--y --m --d ','hour':None,'minute':None,'indicators':262143}
+    render('MD recording date unavailable', ['Recording date','Recording time','aria-label="Recording time —:—"'], ['Disc remaining'])
     active = copy.deepcopy(base)
     active['md'] = {'play': True, 'pause': False, 'disc': 'animated', 'time_blank': False}
     render('MD animation', ['disc-animated', 'id="symbol-md-play" class="symbol on"',

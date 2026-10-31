@@ -215,7 +215,7 @@ The status frame has no mode byte. The screen type is recognised from constant c
 | **Sleep timer edit** | `b13=b14=0xAA`; one of: MD play (`(b0&0x7E)=0x0C, b1=0x20, b2=1, (b3&15)=1, b4=b5=0, b6=0x0C, b7=b8=0xFF, b9=0x83, b10=0xAA`), MD stopped (`b1=0, b2=7, b3=1, b6≤31, b7=b8=0xFF, b9=0x83, b10=0xAA`), radio (`(b0&0x7E)=0, b1=b2=0, b3=4, b4=2, b6=0x0A, b7=4, b8=0, b9=0x80, b10=0xAA`) |
 | **Timer volume setting** | `b1=0`, `b4=b5=0`, `(b6&0xC0)=0`, `b10=b11=0xAA`, `b12=0x0A`, `b13=b14=0xAA`; `b0&0x7F ∈ {4,12}` (PLAY) or `{2,10}` (REC) |
 | **Timer mode selection (blank)** | `(b0&0x70)=0`, `(b0&0x06)≠0x06`, `b1=0`, `b2=7`, `b3=0`, `b4=b5=0`, `b6≤31`, `b7=b8=0xFF`, `b9=0x83`, `b10=b11=0xAA`, `b12=0x0A`, `b13=b14=0xAA` |
-| **Timer source selection** | `b1=0`, `b2=7`, `b5=b4=0`, `b3 ∈ {0,4,8}` for REC or `{0,1,2,4,8}` for PLAY, `b10=b11=0xAA`, `b12=0x0A`, `b13=b14=0xAA` |
+| **Timer source selection** | `(b0&0x06)=2` for REC or `4` for PLAY; `(b3&0x0F)∈{0,4,8}` for REC or `{0,1,2,4,8}` for PLAY. A source must be observed on and off with a recent transition; confirmed timer time, volume and standby take priority. Disc indicators, track bytes and other flags are independent. No-MD RADIO capture: `b2=00`, `b7..b9=00 00 80`. |
 | **Clock readout** | `b1=0`, `b2=7`, `b4=0`, `b5∈{0,2}`, `b6≤31`, `b10=b11=0xAA`, `b12=0x0A`; date layout `(b0&0x7F)=0, b3=0x41, b7=b8=0xFF, b9=0x83`; timer-date `b0&0x7F∈{0x0C,0x0A}, b3=0x40, b7=b8=b9=0`; standby `b0&0x7F∈{0x0C,0x0A}, b3=0, b7=b8=b9=0` |
 | **Clock/timer time entry** | like the clock readout but `b5=2` (colon on); either `b9=0x80`/`b7=b8=0` or retained tracks `b7=b8=0xFF,b9=0x83` |
 | **Radio tuner** | `b3=0x04`, band from `b4` (§2.5), `b10=b11=0xAA`, `b12=0x0A`, `b14>>4 ≤ 9` |
@@ -331,9 +331,15 @@ Verified on two different titles (one with `0xFF` padding), so the `+ 2` does no
 
 - SPI-1 byte 15; whether SPI-1 also has a counter/checksum; SPI-2 byte 0/14 semantics beyond §3.5 (checksum candidate unconfirmed).
 - SPI-1 `b0` bits 3 and 7, `b3` bits 4/6/7, `b9` bits 4–7, `b2` value meanings, `b6` bit 5 outside timer-volume.
-- Remaining/total time, minutes beyond 02 in long captures, track numbers above 20, tuner/CD time fields beyond the signatures above.
+- Playback REMAIN is recognized for an observed MD signature, but current-track
+  versus whole-disc remaining and stopped-disc totals are not fully classified.
+  Track 21 is captured; the hundreds digit for tracks 100+ is unverified. CD
+  time fields beyond the signatures above need captures.
 - Date fields of the clock screen (`98y 2m 14d` in the manual), and the **AM/PM** marker (the manual says the clock is a 12-hour system, while the repo decoder accepts hours 0-23).
-- Indicator bits not located yet: PGM, SHUFFLE, REPEAT, REPEAT 1, STEP, STEREO, MONO, TOC EDIT (flashing), REC, REMAIN (partly via `b3=0x91`), position-pointer segments.
+- Captured indicator mappings used by the decoder: `b5` bits `08` PGM, `10`
+  SHUFFLE, `20` REPEAT 1, `40` REPEAT and `80` STEP; `b1` bit `40` is the
+  main REC. STEREO, MONO, TOC EDIT, individual REMAIN bit and position-pointer
+  segments remain unisolated. `OVER 20` (`b5` bit `04`) is inferred only.
 - Message codes for: Track Erase, All Erase, Disc Name, Erase OK?, Complete, Divide, Divide OK?, Combine, Combine OK?, Cannot Edit, Sorry, Track Move, Protected, TOC Reading, PGM Check, CD>MD OK?, AUTO PRESET.
 - Control/animation text codes, full long-title scroll behaviour, and what `SDO2` carries.
 - CD, edit, record-menu and other modes beyond those listed in §2.10.
@@ -394,9 +400,9 @@ These are inferences, not captured facts. Each can be tested with one action on 
 | `SLEEP` | SPI-1 `b0` bit 0 | decoder comment |
 | `REC` / `PLAY` inside `TIMER` | SPI-1 `b0` bits 1 / 2 | decoder constants |
 | `MD` play / pause icons | SPI-1 `b1` bits 5 / 4 | decoder constants |
-| `CD` play / pause icons, disc symbols, record arrow, `DIGITAL REC`, `TOC EDIT`, `REPEAT`/`1`/`SHUFFLE`/`PGM`, `STEREO`/`MONO`, `AM`, `AUTO`, `OVER 20`, `TV` | **unassigned**; candidates are the unknown bits in `b0`, `b1`, `b2`, `b4`, `b5`, `b6` bit 7, `b9` bits 4–6, `b15` | no decoder uses them |
+| `CD` play / pause icons, disc symbols, record arrow, `DIGITAL REC`, `TOC EDIT`, `STEREO`/`MONO`, `AM`, `AUTO`, `TV` | **unassigned**; candidates include unknown bits in the numeric frame | These still need isolated captures. REPEAT, 1, SHUFFLE and PGM are decoded from `b5`; OVER 20 is an inferred `b5` bit, not confirmed. |
 | Radio band bits in `b4` | possibly `b4` bit 7 = `FM`, bit 6 = `MHz`, bit 5 = `kHz` (FM = `0xC0`, AM = `0x20`), bit 1 = `PRESET` | the FM/AM decode constants and the `MHz`/`kHz` units on the glass; the `AM` label is not located |
-| Position pointer | drawn by **special glyph codes in the text cells** (the scale `POSITION 0%..100%` sits under the 12 cells, and the manual shows the bar in the text row) | explains non-ASCII codes in text frames; capture a playing MD with `DISPLAY` set to the position view |
+| Position pointer | May use special glyph codes in the text cells, but this is **unverified**; it may use another representation. | The scale sits under the text cells. Capture a playing MD with DISPLAY set to the position view and compare both buses. |
 
 ### 8.3 Single-action tests (each isolates one bit by diffing consecutive frames)
 

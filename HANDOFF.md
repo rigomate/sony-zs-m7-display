@@ -1,5 +1,23 @@
 # Handoff: Sony ZS-M7 replacement display
 
+## MD DISPLAY cycle
+
+`md-playback-display-cycling.sal` captures elapsed, track remaining, disc
+remaining (17 tracks left and 73 minutes), unset recording date, and return
+to elapsed. `md_display` distinguishes these; the disc count is not exposed as
+the playing track. The raw capture is tested by `captured_md_display_cycle`.
+Position graphics and a populated recording date/time remain unconfirmed. See
+`analysis/md-playback-display-cycling.md`.
+
+## Timer source selection without a MiniDisc
+
+The user-confirmed `live-timer-play-radio-source-no-md` capture has disc byte2
+`00` and track bytes `00 00 80`. Timer source selection now follows the
+selected PLAY/REC bit and source-nibble blink instead of requiring specific
+disc, track or unrelated indicator values. A recent source transition is
+required, and confirmed timer time, volume and standby screens take priority.
+The no-MD capture is replayed; tests vary other display bits synthetically.
+
 ## MD playback remaining time
 
 The user confirmed REMAIN lit while `live-md-playback-remain/state.jsonl`

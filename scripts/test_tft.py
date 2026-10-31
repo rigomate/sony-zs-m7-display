@@ -64,6 +64,16 @@ try:
  check('MD remaining playback','/tft',['MINIDISC','Remaining','02:37'],['>Elapsed<'])
  active['symbols']['remain']=False
  check('MD elapsed playback','/tft',['MINIDISC','Elapsed','02:37'],['>Remaining<'])
+ active=copy.deepcopy(base);active.update(numeric=None,track_display=None,
+     md_display={'view':'disc_remaining','tracks_left':17,'minutes':73,'seconds':23,'indicators':262143})
+ check('MD disc remaining','/tft',['MINIDISC','Tracks left','17','Disc remaining','73:23'],['class="current"'])
+ active['symbols']['md_pause']=True;active['md']['pause']=True
+ check('MD disc remaining paused','/tft',['Ⅱ PAUSE','Tracks left','73:23'])
+ active['symbols']['md_pause']=False;active['md']['pause']=False
+ active['md_display']={'view':'recording_date','date_text':'--y --m --d ','hour':None,'minute':None,'indicators':262143}
+ check('MD recording date unavailable','/tft',['Recording date','--y --m --d','Time unavailable'],['Tracks left'])
+ active['md_display'].update(date_text='26y 10m 31d ',hour=10,minute=41)
+ check('MD recording date and time','/tft',['Recording date','26y 10m 31d','10:41'])
  active=copy.deepcopy(base);active['clock_setting']={'hour':0,'minute':0,'editing':'hour','hour_blank':False,'minute_blank':False,'fresh':True}
  check('clock setting midnight hour lit','/tft',['Set clock','Adjust hour','<span class="">00</span>'])
  active['clock_setting']['hour_blank']=True
@@ -108,6 +118,12 @@ try:
  check('wake timer radio source lit','/tft',['TIMER PLAY','Wake-up source','class="message ">RADIO'],['Waiting for frequency'])
  active['timer_source_selection']['source_on']=False
  check('wake timer radio source blank','/tft',['TIMER PLAY','Wake-up source','class="message blank">RADIO'],['Waiting for display'])
+ active['symbols']={'timer_play':True,'md':False,'md_disc':'off','radio':False}
+ active['timer_workflow']={'stage':'select_source','mode':'play','source':'radio','editing':'unknown','fresh':True}
+ check('wake timer radio without MD blank','/tft',['TIMER PLAY','Wake-up source','class="message blank">RADIO'],['Waiting for display','Waiting for frequency'])
+ active['timer_source_selection']['source_on']=True;active['symbols']['radio']=True
+ check('wake timer radio without MD lit','/tft',['TIMER PLAY','Wake-up source','class="message ">RADIO'],['Waiting for display','Waiting for frequency'])
+ active.pop('timer_workflow')
  active['timer_source_selection'].update(source='cd',source_on=True)
  check('wake timer CD source lit','/tft',['TIMER PLAY','Wake-up source','class="message ">CD'],['Waiting for display'])
  active['timer_source_selection']['source_on']=False

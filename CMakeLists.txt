@@ -99,6 +99,10 @@ if(BUILD_TESTING)
     add_executable(md_animation_test tests/md_animation_test.cpp)
     target_link_libraries(md_animation_test PRIVATE display_protocol)
     add_test(NAME captured_md_animation COMMAND md_animation_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/md-animation)
+    add_executable(md_display_cycle_test tests/md_display_cycle_test.cpp)
+    target_link_libraries(md_display_cycle_test PRIVATE display_protocol)
+    add_test(NAME captured_md_display_cycle COMMAND md_display_cycle_test
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/md-playback-display-cycling/raw/digital.csv)
     add_executable(fast_disc_test tests/fast_disc_test.cpp)
     target_link_libraries(fast_disc_test PRIVATE display_protocol)
     add_test(NAME captured_fast_disc_direction COMMAND fast_disc_test
