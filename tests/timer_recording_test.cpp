@@ -82,7 +82,9 @@ int main(){try{
  f.mosi[0]=4;f.mosi[13]=0xaa;radio_start.consume(f,430);s=radio_start.json(430);
  require(s.find("\"hour\":19,\"minute\":9,\"editing\":\"hour\",\"hour_blank\":true")!=std::string::npos,"RADIO wake start hour blank missing");
  f.mosi[3]=8;
- require(!zs_m7::decode_timer_on_setting(f),"Unobserved LINE wake layout was accepted");
+ require(zs_m7::decode_timer_on_setting(f).has_value(),"LINE zero-track wake layout missing");
+ f.mosi[3]=12;
+ require(!zs_m7::decode_timer_on_setting(f),"Combined wake sources were accepted");
  // Live RADIO wake timer volume: level20 with visible and dark phases.
  zs_m7::LiveDisplay radio_volume;
  text.mosi.assign(15,0x20);text.mosi[0]=0;text.mosi[1]=5;text.mosi[2]=20;text.mosi[14]=0;
@@ -92,7 +94,9 @@ int main(){try{
  f.mosi[0]=4;f.mosi[6]=0x14;radio_volume.consume(f,530);s=radio_volume.json(530);
  require(s.find("\"timer_volume_setting\":{\"level\":20,\"blank\":true")!=std::string::npos,"RADIO wake volume blank phase missing");
  f.mosi[3]=8;
- require(!zs_m7::decode_timer_volume_setting(f),"Unobserved LINE wake volume layout was accepted");
+ require(zs_m7::decode_timer_volume_setting(f).has_value(),"LINE zero-track wake volume missing");
+ f.mosi[3]=12;
+ require(!zs_m7::decode_timer_volume_setting(f),"Combined wake sources accepted for volume");
  // Live CD wake timer volume uses the same levels with the CD source bit.
  zs_m7::LiveDisplay cd_volume;
  f.mosi={0x8c,0,7,2,0,0,0x34,0,0,0,0xaa,0xaa,0x0a,0xaa,0xaa,0xaf};

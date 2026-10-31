@@ -20,10 +20,15 @@ byte3=`61` (MD source `01`, DATE `40`, and REC `20`), corroborating `20` for the
 REC prefix beside DATE. The user confirmed this is the REC beside DATE, not the
 main boxed REC, which remains byte1 bit40.
 
+The later user-confirmed MD playback REMAIN capture has byte3 `91` and counts
+down. Like recording, it has both `10` and `80` set, so it confirms the
+combined signature but still does not isolate either individual bit.
+
 Byte3 in the radio-recording captures is `B4`: RADIO `04`, REC `20`, and two
 additional bits `10` and `80`. REMAIN is visibly lit, but these two bits are
 always on together in the available references, so its individual bit cannot
-be isolated. The UI exposes REMAIN as inferred only for the observed radio
-recording frame signature; it stays unmapped outside that signature. Do not
-assume the two bits both mean REMAIN. No other recording sources or recording
+be isolated. The UI exposes REMAIN as inferred for the observed radio
+recording and MD playback signatures; it stays unmapped outside those and
+confirmed normal MD playback. Do not assume the two bits both mean REMAIN.
+No other recording sources or recording
 layouts have been established.

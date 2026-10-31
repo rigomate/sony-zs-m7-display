@@ -1,5 +1,40 @@
 # Handoff: Sony ZS-M7 replacement display
 
+## MD playback remaining time
+
+The user confirmed REMAIN lit while `live-md-playback-remain/state.jsonl`
+counted down on track 1. Numeric byte3 was `91` (MD plus flags `10` and
+`80`); both flags are also present during radio-to-MD remaining-time
+recording, so the signature is recognized as REMAIN but its individual
+indicator bit remains unisolated. In the user-confirmed elapsed comparison
+`live-md-playback-elapsed-comparison`, byte3 is `01` and time increases;
+byte6 bit `80` also changes. `captured_c3_snapshots` replays both modes and
+the browser tests cover remaining versus elapsed labels.
+
+## TIMER REC standby and CLOCK date
+
+With TIMER REC armed, standby clock uses byte0 `0A/8A`, source byte3 `00`;
+pressing CLOCK changes byte3 to `40` and supplies the date text. Captures
+`live-timer-rec-standby-clock` and `live-timer-rec-clock-date` replay both
+colon phases and check standby workflow/date. Both use track bytes `00 00 00`.
+
+## Wake timer started from standby
+
+TIMER REC RADIO source selection from standby has track bytes `00 00 00`;
+its blink phases are saved in `live-timer-rec-radio-source-from-standby`.
+REC RADIO start-hour with this tail is now confirmed by the user and replayed
+from `live-timer-rec-radio-start-from-standby`. REC LINE source/time and REC
+volume with this tail remain inferred and covered synthetically.
+
+MD timer volume after standby also uses `00 00 00` track bytes. Level 24 and
+both blink phases are captured in `live-timer-play-md-volume-from-standby`.
+The corresponding LINE volume layout is supported by analogy, pending capture.
+
+MD start-hour frames in `live-timer-play-md-start-from-standby` use source
+byte3 `01` and all-zero track bytes `00 00 00`. The decoder handles this and
+existing RADIO/CD zero-track layouts; LINE is supported by analogy and tested
+synthetically, but remains unconfirmed by a LINE capture in this context.
+
 ## Sleep duration with MD stopped
 
 `iterate-sleep-button.sal` records all six sleep durations with MD stopped,

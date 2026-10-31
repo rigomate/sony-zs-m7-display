@@ -52,5 +52,27 @@ static void run(TimerMode mode){
   if(live.timer_workflow(1480).stage!=TimerStage::unknown)throw std::runtime_error("Exited timer was still classified as standby");
  }
 }
-int main(){try{run(TimerMode::play);run(TimerMode::rec);std::cout<<"Timer PLAY/REC workflow transitions and stale handling passed\n";}
+int main(){try{run(TimerMode::play);run(TimerMode::rec);
+ for(auto source:{1,2,4,8}){
+  SpiFrame f;f.bus=SpiBus::Display1;f.ended_by_enable=true;
+  f.mosi={0x8c,0,7,static_cast<std::uint8_t>(source),0,2,11,0,0,0,0xaa,0xaa,0x0a,0xa8,0x50,0};
+  LiveDisplay live;auto text=text_frame("On");live.consume(text,0);live.consume(f,0);
+  f.mosi[0]=4;f.mosi[13]=0xaa;live.consume(f,30);
+  const char* name=source==1?"md":source==2?"cd":source==4?"radio":"line";
+  check(live.timer_workflow(30),TimerStage::start,TimerMode::play,name,"hour");
+ }
+ for(auto source:{4,8}){
+  SpiFrame f;f.bus=SpiBus::Display1;f.ended_by_enable=true;
+  f.mosi={0x8a,0,7,static_cast<std::uint8_t>(source),0,0,11,0,0,0,0xaa,0xaa,0x0a,0xaa,0xaa,0};
+  LiveDisplay live;live.consume(f,0);f.mosi[0]=2;f.mosi[3]=0;live.consume(f,30);
+  const char* name=source==4?"radio":"line";
+  check(live.timer_workflow(30),TimerStage::select_source,TimerMode::rec,name);
+  auto text=text_frame("On");live.consume(text,60);f.mosi[0]=0x8a;f.mosi[3]=source;f.mosi[5]=2;f.mosi[13]=0x19;f.mosi[14]=9;live.consume(f,60);
+  f.mosi[0]=2;f.mosi[13]=0xaa;live.consume(f,90);
+  check(live.timer_workflow(90),TimerStage::start,TimerMode::rec,name,"hour");
+  f.mosi[0]=0x8a;f.mosi[5]=0;f.mosi[6]=0x34;f.mosi[13]=0xaa;f.mosi[14]=0xaa;live.consume(f,120);
+  text=text_frame("");text.mosi[1]=5;text.mosi[2]=20;live.consume(text,120);
+  check(live.timer_workflow(120),TimerStage::volume,TimerMode::rec,name);
+ }
+ std::cout<<"Timer PLAY/REC workflow transitions and stale handling passed\n";}
 catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

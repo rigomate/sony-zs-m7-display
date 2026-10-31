@@ -147,6 +147,7 @@ public:
             radio_ = decode_radio_display(frame);
             radio_recording_ = decode_radio_recording_display(frame);
             md_ = decode_md_transport(frame);
+            md_remain_ = md_ && frame.mosi[3]==0x91;
             program_ = decode_program_display(frame);
             track_display_ = decode_track_display(frame);
             over20_ = (frame.mosi[5] & 4) != 0;
@@ -286,7 +287,7 @@ public:
                 << ",\"repeat_one\":" << (repeat_one_ ? "true" : "false")
                 << ",\"date\":" << (date_ ? "true" : "false")
                 << ",\"record_date\":" << (record_date_ ? "true" : "false")
-                << ",\"remain\":" << (radio_recording_ ? "true" : "null")
+                << ",\"remain\":" << (radio_recording_ || md_remain_ ? "true" : md_ ? "false" : "null")
                 << ",\"remain_inferred\":true"
                 << ",\"md_disc\":"; quote(out, disc_); out << '}';
         } else out << "null";
@@ -430,6 +431,7 @@ private:
     bool clock_readout_seen_=false,clock_readout_active_=false,clock_colon_flipped_=false,clock_colon_last_=false;
     std::uint32_t clock_readout_since_=0;
     std::optional<TimerVolumeSetting> timer_volume_setting_;
+    bool md_remain_=false;
     bool timer_volume_text_seen_=false;
     std::uint32_t timer_volume_text_ms_=0;
     std::optional<TrackDisplay> track_display_;

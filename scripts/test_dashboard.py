@@ -85,6 +85,11 @@ try:
     active = copy.deepcopy(base)
     render('return to MD', ['MINIDISC', 'id="track">20', 'id="time">00:14'])
     active = copy.deepcopy(base)
+    active.setdefault('symbols',{})['remain'] = True
+    render('MD remaining playback', ['id="elapsed-group-label" class="eyebrow">Remaining', 'id="time">00:14'])
+    active['symbols']['remain'] = False
+    render('MD elapsed playback', ['id="elapsed-group-label" class="eyebrow">Elapsed', 'id="time">00:14'])
+    active = copy.deepcopy(base)
     active['md'] = {'play': True, 'pause': False, 'disc': 'animated', 'time_blank': False}
     render('MD animation', ['disc-animated', 'id="symbol-md-play" class="symbol on"',
                             'disc-animated .wedge:nth-of-type(2){animation-delay:-1s}',

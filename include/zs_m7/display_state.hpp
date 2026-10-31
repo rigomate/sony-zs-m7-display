@@ -66,6 +66,9 @@ inline std::optional<TimerVolumeSetting> decode_timer_volume_setting(const SpiFr
                            b[3]==1 && b[7]==0 && b[8]==0 && b[9]==0x80;
     const bool play_radio_cd_layout=((b[0]&0x7f)==4 || (b[0]&0x7f)==12) && b[2]==7 &&
                                     (b[3]==4 || b[3]==2) && b[7]==0 && b[8]==0 && b[9]==0;
+    // MD zero-track volume observed after standby; LINE follows by analogy.
+    const bool play_md_line_no_tracks=((b[0]&0x7f)==4 || (b[0]&0x7f)==12) && b[2]==7 &&
+                                      (b[3]==1 || b[3]==8) && b[7]==0 && b[8]==0 && b[9]==0;
     // MD wake volume with the disc's track indicators retained.
     const bool play_md_retained_layout=((b[0]&0x7f)==4 || (b[0]&0x7f)==12) && b[2]==7 &&
                                        b[3]==1 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
@@ -79,7 +82,10 @@ inline std::optional<TimerVolumeSetting> decode_timer_volume_setting(const SpiFr
                                 b[3]==4 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
     const bool rec_line_layout=((b[0]&0x7f)==2 || (b[0]&0x7f)==10) && b[2]==7 &&
                                b[3]==8 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
-    if((!play_layout && !play_radio_cd_layout && !play_md_retained_layout && !play_line_retained_layout && !play_cd_retained_layout && !play_radio_retained_layout && !rec_radio_layout && !rec_line_layout) || b[1]!=0 ||
+    // Zero-track REC volume variants are inferred from the source selection.
+    const bool rec_no_tracks=((b[0]&0x7f)==2 || (b[0]&0x7f)==10) && b[2]==7 &&
+                             (b[3]==4 || b[3]==8) && b[7]==0 && b[8]==0 && b[9]==0;
+    if((!play_layout && !play_radio_cd_layout && !play_md_line_no_tracks && !play_md_retained_layout && !play_line_retained_layout && !play_cd_retained_layout && !play_radio_retained_layout && !rec_radio_layout && !rec_line_layout && !rec_no_tracks) || b[1]!=0 ||
        b[4]!=0 || b[5]!=0 || (b[6]&0xc0)!=0 || b[10]!=0xaa || b[11]!=0xaa ||
        b[12]!=0x0a || b[13]!=0xaa || b[14]!=0xaa)return std::nullopt;
     return TimerVolumeSetting{static_cast<unsigned>(b[6]&31),(b[6]&0x20)==0};
@@ -101,7 +107,7 @@ inline std::optional<TimerSourceSelection> decode_timer_source_selection(const S
  const auto& b=f.mosi;
  const bool retained_tracks=b[7]==0xff && b[8]==0xff && b[9]==0x83;
  const bool no_tracks=b[7]==0 && b[8]==0 && b[9]==0;
- const bool rec=(b[0]&0x06)==0x02 && retained_tracks;
+ const bool rec=(b[0]&0x06)==0x02 && (retained_tracks || no_tracks);
  const bool play=(b[0]&0x06)==0x04 && (no_tracks || retained_tracks);
  if((b[0]&0x70)!=0 || (!rec && !play) || b[1]!=0 || b[2]!=7 ||
     (rec ? (b[3]!=0 && b[3]!=4 && b[3]!=8) : (b[3]!=0 && b[3]!=1 && b[3]!=2 && b[3]!=4 && b[3]!=8)) ||
@@ -114,9 +120,9 @@ inline std::optional<ClockReadout> decode_clock_readout(const SpiFrame& f){
  if(f.bus!=SpiBus::Display1 || !f.complete())return std::nullopt;
  const auto& b=f.mosi;
  const bool date_layout=(b[0]&0x7f)==0 && b[3]==0x41 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
- // CLOCK date screen with TIMER PLAY armed and no selected source.
- const bool timer_date_layout=(b[0]&0x7f)==0x0c && b[3]==0x40 && b[7]==0 && b[8]==0 && b[9]==0;
- const bool standby_layout=(b[0]&0x7f)==0x0c && b[3]==0 && b[7]==0 && b[8]==0 && b[9]==0;
+ // CLOCK date screen with TIMER PLAY or REC armed and no selected source.
+ const bool timer_date_layout=((b[0]&0x7f)==0x0c || (b[0]&0x7f)==0x0a) && b[3]==0x40 && b[7]==0 && b[8]==0 && b[9]==0;
+ const bool standby_layout=((b[0]&0x7f)==0x0c || (b[0]&0x7f)==0x0a) && b[3]==0 && b[7]==0 && b[8]==0 && b[9]==0;
  if((!date_layout && !timer_date_layout && !standby_layout) || b[1]!=0 || b[2]!=7 || b[4]!=0 ||
     (b[5]!=0 && b[5]!=2) || b[6]>31 || b[10]!=0xaa || b[11]!=0xaa || b[12]!=0x0a)return std::nullopt;
  auto h=(b[13]>>4)==0x0a && (b[13]&15)<=9
@@ -142,6 +148,10 @@ inline std::optional<ClockSettingDisplay> decode_timer_on_setting(const SpiFrame
                            (b[2]==7 || b[2]==0) && b[3]==1;
     const bool play_radio_cd_layout=((b[0]&0x7f)==0x04 || (b[0]&0x7f)==0x0c) &&
                                     b[2]==7 && (b[3]==4 || b[3]==2) && no_tracks;
+    // MD was observed after standby. LINE follows the same source-field
+    // encoding, but its all-zero track variant is not yet capture-confirmed.
+    const bool play_md_line_no_tracks=((b[0]&0x7f)==0x04 || (b[0]&0x7f)==0x0c) &&
+                                      b[2]==7 && (b[3]==1 || b[3]==8) && no_tracks;
     const bool play_line_retained_layout=((b[0]&0x7f)==0x04 || (b[0]&0x7f)==0x0c) &&
                                          b[2]==7 && b[3]==8 && retained_tracks;
     const bool play_cd_retained_layout=((b[0]&0x7f)==0x04 || (b[0]&0x7f)==0x0c) &&
@@ -152,9 +162,12 @@ inline std::optional<ClockSettingDisplay> decode_timer_on_setting(const SpiFrame
                                 b[2]==7 && b[3]==4 && retained_tracks;
     const bool rec_line_layout=((b[0]&0x7f)==0x02 || (b[0]&0x7f)==0x0a) &&
                                b[2]==7 && b[3]==8 && retained_tracks;
-    if ((!play_layout && !play_radio_cd_layout && !play_line_retained_layout && !play_cd_retained_layout && !play_radio_retained_layout && !rec_radio_layout && !rec_line_layout) ||
+    // Zero-track REC RADIO time is captured; LINE follows by analogy.
+    const bool rec_no_tracks=((b[0]&0x7f)==0x02 || (b[0]&0x7f)==0x0a) &&
+                             b[2]==7 && (b[3]==4 || b[3]==8) && no_tracks;
+    if ((!play_layout && !play_radio_cd_layout && !play_md_line_no_tracks && !play_line_retained_layout && !play_cd_retained_layout && !play_radio_retained_layout && !rec_radio_layout && !rec_line_layout && !rec_no_tracks) ||
         b[1]!=0 || b[4]!=0 || b[5]!=2 ||
-        (!blank_tracks && !retained_tracks && !play_radio_cd_layout) || b[10]!=0xaa ||
+        (!blank_tracks && !retained_tracks && !play_radio_cd_layout && !play_md_line_no_tracks && !rec_no_tracks) || b[10]!=0xaa ||
         b[11]!=0xaa || b[12]!=0x0a) return std::nullopt;
     ClockSettingDisplay result;
     result.hour_blank=b[13]==0xaa;
@@ -272,7 +285,9 @@ struct MdTransport { bool play; bool pause; bool time_blank; };
 inline std::optional<MdTransport> decode_md_transport(const SpiFrame& f) {
     if (f.bus != SpiBus::Display1 || !f.complete()) return std::nullopt;
     const auto& b=f.mosi;
-    if (b[3]!=1 || b[4]!=0 || (b[1]!=0x20 && b[1]!=0x30) ||
+    // 0x91 is the user-confirmed playback REMAIN signature. Individual
+    // meanings of its 0x10 and 0x80 flags are not yet isolated.
+    if ((b[3]!=1 && b[3]!=0x91) || b[4]!=0 || (b[1]!=0x20 && b[1]!=0x30) ||
         (b[1]==0x20 && b[2]!=1 && b[2]!=2 && b[2]!=3) ||
         (b[1]==0x30 && b[2]!=7)) return std::nullopt;
     return MdTransport{true, (b[1]&0x10)!=0,

@@ -87,9 +87,26 @@ if not any(c['colon_on'] for c in clocks) or not any(not c['colon_on'] for c in 
 if not any(s.get('title') and s['title'].get('text','').strip()=='26y 10m 31d' for s in clock_states):
     raise AssertionError('live-clock-date-and-time: date title missing')
 print('PASS live-clock-date-and-time: date and 09:04 clock with colon phases',flush=True)
+rec_standby=replay('live-timer-rec-standby-clock')
+rec_clocks=[s for s in rec_standby if s.get('clock_display') and s['clock_display']['standby'] and
+            s['clock_display']['hour']==10 and s['clock_display']['minute']==40]
+if not any(s['clock_display']['colon_on'] for s in rec_clocks) or not any(not s['clock_display']['colon_on'] for s in rec_clocks):
+    raise AssertionError('live-timer-rec-standby-clock: clock or colon phases missing')
+if any(s['timer_workflow']['stage']!='standby' or s['timer_workflow']['mode']!='rec' for s in rec_clocks):
+    raise AssertionError('live-timer-rec-standby-clock: incorrect timer workflow')
+print('PASS live-timer-rec-standby-clock: 10:40 with colon phases and REC standby',flush=True)
+rec_date=replay('live-timer-rec-clock-date')
+rec_date_clocks=[s for s in rec_date if s.get('clock_display') and not s['clock_display']['standby'] and
+                 s['clock_display']['hour']==10 and s['clock_display']['minute']==41 and s['symbols']['date']]
+if not any(s['clock_display']['colon_on'] for s in rec_date_clocks) or not any(not s['clock_display']['colon_on'] for s in rec_date_clocks):
+    raise AssertionError('live-timer-rec-clock-date: clock or colon phases missing')
+if not any(s.get('title') and s['title'].get('text','').strip()=='26y 10m 31d' for s in rec_date_clocks):
+    raise AssertionError('live-timer-rec-clock-date: date title missing')
+print('PASS live-timer-rec-clock-date: date and 10:41 with colon phases',flush=True)
 require_phases('live-timer-play-radio-volume','timer_volume_setting',{'level':20},'blank')
 require_phases('live-timer-play-cd-volume','timer_volume_setting',{'level':20},'blank')
 require_phases('live-timer-play-md-volume-retained','timer_volume_setting',{'level':15},'blank')
+require_phases('live-timer-play-md-volume-from-standby','timer_volume_setting',{'level':24},'blank')
 require_phases('live-timer-play-line-volume','timer_volume_setting',{'level':16},'blank')
 require_phases('live-timer-play-cd-volume-retained','timer_volume_setting',{'level':16},'blank')
 require_phases('live-timer-play-radio-volume-retained','timer_volume_setting',{'level':16},'blank')
@@ -97,7 +114,9 @@ require_phases('live-timer-play-radio-start','timer_setting',{'phase':'on','hour
 require_phases('live-timer-play-radio-start-retained','timer_setting',{'phase':'on','hour':8,'minute':50,'editing':'hour'},'hour_blank')
 require_phases('live-timer-play-line-start-hour','timer_setting',{'phase':'on','hour':8,'minute':50,'editing':'hour'},'hour_blank')
 require_phases('live-timer-play-cd-start-retained','timer_setting',{'phase':'on','hour':8,'minute':50,'editing':'hour'},'hour_blank')
+require_phases('live-timer-play-md-start-from-standby','timer_setting',{'phase':'on','hour':8,'minute':50,'editing':'hour'},'hour_blank')
 require_phases('live-timer-rec-line-start-hour','timer_setting',{'phase':'on','hour':8,'minute':50,'editing':'hour'},'hour_blank')
+require_phases('live-timer-rec-radio-start-from-standby','timer_setting',{'phase':'on','hour':8,'minute':50,'editing':'hour'},'hour_blank')
 require_phases('live-timer-play-cd-setup','timer_setting',{'phase':'on','hour':19,'minute':9,'editing':'hour'},'hour_blank')
 # The user advanced quickly: only one retained, visible stop-minute sample.
 require_phases('live-timer-play-cd-setup','timer_setting',{'phase':'off','hour':19,'minute':12,'editing':'minute'},'minute_blank',minimum=1)
@@ -107,6 +126,21 @@ for stem,source in [('live-timer-play-radio-source','radio'),('live-timer-play-c
     require_source(stem,'play',source)
 require_source('live-timer-rec-setup','rec','radio')
 require_source('live-timer-rec-line-source','rec','line')
+require_source('live-timer-rec-radio-source-from-standby','rec','radio')
+md_remain=replay('live-md-playback-remain')
+remaining=[s for s in md_remain if s.get('md') and s['md']['play'] and s.get('numeric') and
+           s.get('symbols',{}).get('remain') is True]
+times=[s['numeric']['minutes']*60+s['numeric']['seconds'] for s in remaining]
+if len(times)<20 or times[0]<=times[-1] or any(b>a for a,b in zip(times,times[1:])):
+    raise AssertionError('live-md-playback-remain: missing playback/countdown or REMAIN')
+print(f'PASS live-md-playback-remain: {times[0]} to {times[-1]} seconds, REMAIN and play',flush=True)
+md_elapsed=replay('live-md-playback-elapsed-comparison')
+elapsed=[s for s in md_elapsed if s.get('md') and s['md']['play'] and s.get('numeric') and
+         s.get('symbols',{}).get('remain') is False]
+elapsed_times=[s['numeric']['minutes']*60+s['numeric']['seconds'] for s in elapsed]
+if len(elapsed_times)<20 or elapsed_times[0]>=elapsed_times[-1] or any(b<a for a,b in zip(elapsed_times,elapsed_times[1:])):
+    raise AssertionError('live-md-playback-elapsed-comparison: missing elapsed playback or REMAIN off')
+print(f'PASS live-md-playback-elapsed-comparison: {elapsed_times[0]} to {elapsed_times[-1]} seconds, REMAIN off',flush=True)
 for stem,phase,hour,minute,field in [
     ('live-timer-rec-start','on',19,9,'hour'),('live-timer-rec-start-minute','on',19,9,'minute'),
     ('live-timer-rec-stop','off',19,12,'hour'),('live-timer-rec-stop-minute','off',19,12,'minute')]:

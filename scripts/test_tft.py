@@ -60,6 +60,10 @@ try:
         'bass':['Bass','/ 12'], 'offline':['No signal']}
  for name,expected in cases.items():check(name,'/tft?demo='+name,expected)
  check('live MD','/tft',['Midnight Drive','02:37','Live · 320 × 240'])
+ active=copy.deepcopy(base);active['symbols']['remain']=True
+ check('MD remaining playback','/tft',['MINIDISC','Remaining','02:37'],['>Elapsed<'])
+ active['symbols']['remain']=False
+ check('MD elapsed playback','/tft',['MINIDISC','Elapsed','02:37'],['>Remaining<'])
  active=copy.deepcopy(base);active['clock_setting']={'hour':0,'minute':0,'editing':'hour','hour_blank':False,'minute_blank':False,'fresh':True}
  check('clock setting midnight hour lit','/tft',['Set clock','Adjust hour','<span class="">00</span>'])
  active['clock_setting']['hour_blank']=True
@@ -72,12 +76,16 @@ try:
  check('live standby midnight with MD','/tft',['STANDBY','Standby clock','00','12','class="md-icon"','TIMER','PLAY','MiniDisc indicator on'])
  active['symbols']['md_disc']='off'
  check('live standby MD icon off','/tft',['STANDBY','Standby clock'],['class="md-icon"'])
+ active['symbols'].update(timer_play=False,timer_rec=True)
+ check('live TIMER REC standby clock','/tft',['STANDBY','Standby clock','00','12','TIMER','REC'],['Waiting for display'])
  active=copy.deepcopy(base);active.update(source='unknown',numeric=None,track_display=None,md=None,
      title={'text':'26y 10m 31d '},symbols={'date':True,'timer':True,'timer_play':True},
      clock_display={'hour':9,'minute':4,'colon_on':True,'standby':False,'fresh':True})
  check('clock date and time','/tft',['CLOCK','<span class="">09</span>','<span class="">04</span>','26y 10m 31d'])
  active['clock_display']['colon_on']=False
  check('clock date and blinking colon','/tft',['26y 10m 31d','<span class="blank">:</span>'])
+ active['symbols'].update(timer_play=False,timer_rec=True)
+ check('TIMER REC clock date and time','/tft',['CLOCK','09','04','26y 10m 31d','TIMER','REC'],['Waiting for display'])
  active=copy.deepcopy(base);active.update(source='unknown',numeric=None,track_display=None,md=None,title=None,
      symbols={'timer':True,'timer_play':True},timer_mode_selection={'choice':'play','timer_on':True,'choice_on':True,'fresh':True})
  check('live timer play lit','/tft',['Timer setup','<span class="">TIMER</span> <span class="">PLAY</span>','Turn dial · Press ENTER'],['Waiting for display'])
