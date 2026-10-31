@@ -160,7 +160,7 @@ The source logo is independent of disc graphics and the numeric content. Note th
 
 | Bits | Meaning |
 |---|---|
-| bits 0–4 | Value 0–31. In the timer-volume setting screen this is the **volume level**; in other screens a value ≤ 31 is required (e.g. `0x0C` and `0x0A` are seen in sleep layouts). That it tracks the current volume everywhere is **[I]** |
+| bits 0–4 | Value 0–31. In the timer-volume setting screen this is the **volume level**; sleep-timer edit also accepts any value in that range (captures happened to show 12, 10 and 11). That it tracks the current volume everywhere is **[I]** |
 | bit 5 (`0x20`) | Volume digits visible (clear = blank phase) in the timer-volume screen |
 | bit 6 (`0x40`) | **Radio frequency leading "1"**: FM → +100 MHz (i.e. 1xx.xx), AM → +1000 kHz |
 | bit 7 | 0 in decoded screens |
@@ -212,7 +212,7 @@ The status frame has no mode byte. The screen type is recognised from constant c
 | **MD track display** | `(b3&0x0F)=1`, `b5.bit0=1`, `b5.bit7=0`, `b12=0`, `BCD(b11)≥1` |
 | **MD program entry** | `(b3&0x0F)=1`, `b4=0`, `b5.bit7=1` |
 | **Radio recording (REC+REMAIN)** | `b1=0x60`, `b2=0x41`, `b3=0xB4`, `b4=0`, `b5.bit0=1`, `b5.bit7=0`, `b10=0xAA`, `b12=0` |
-| **Sleep timer edit** | `b13=b14=0xAA`; one of: MD play (`(b0&0x7E)=0x0C, b1=0x20, b2=1, (b3&15)=1, b4=b5=0, b6=0x0C, b7=b8=0xFF, b9=0x83, b10=0xAA`), MD stopped (`b1=0, b2=7, b3=1, b6≤31, b7=b8=0xFF, b9=0x83, b10=0xAA`), radio (`(b0&0x7E)=0, b1=b2=0, b3=4, b4=2, b6=0x0A, b7=4, b8=0, b9=0x80, b10=0xAA`) |
+| **Sleep timer edit** | `(b0&0x70)=0`, `b5=0`, `b6≤31` (volume, not a layout constant), `b10=b13=b14=0xAA`; one of: MD play (`b1=0x20, b2=1, (b3&15)=1, b4=0`), MD stopped (`b1=0, b2=7, b3=1, b4=0, b7=b8=0xFF, b9=0x83`; blank digits require SLEEP lit), radio (`b1=b2=0, b3=4, (b4&~0x02)=0`). CD/LINE envelopes are not captured. |
 | **Timer volume setting** | `b1=0`, `b4=b5=0`, `(b6&0xC0)=0`, `b10=b11=0xAA`, `b12=0x0A`, `b13=b14=0xAA`; `b0&0x7F ∈ {4,12}` (PLAY) or `{2,10}` (REC) |
 | **Timer mode selection (blank)** | `(b0&0x70)=0`, `(b0&0x06)≠0x06`, `b1=0`, `b2=7`, `b3=0`, `b4=b5=0`, `b6≤31`, `b7=b8=0xFF`, `b9=0x83`, `b10=b11=0xAA`, `b12=0x0A`, `b13=b14=0xAA` |
 | **Timer source selection** | `(b0&0x06)=2` for REC or `4` for PLAY; `(b3&0x0F)∈{0,4,8}` for REC or `{0,1,2,4,8}` for PLAY. A source must be observed on and off with a recent transition; confirmed timer time, volume and standby take priority. Disc indicators, track bytes and other flags are independent. No-MD RADIO capture: `b2=00`, `b7..b9=00 00 80`. |

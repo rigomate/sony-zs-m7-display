@@ -33,21 +33,21 @@ struct SleepTimerDisplay { std::optional<unsigned> minutes; };
 inline std::optional<SleepTimerDisplay> decode_sleep_timer_display(const SpiFrame& f) {
     if (f.bus != SpiBus::Display1 || !f.complete()) return std::nullopt;
     const auto& b=f.mosi;
+    // Duration uses the track digits; time digits stay blank. Byte6 is volume
+    // (0–31) on every captured source, and TIMER PLAY / PRESET are independent
+    // of this menu. CD and LINE still need their own captured envelopes.
+    if ((b[0]&0x70)!=0 || b[5]!=0 || b[6]>31 || b[10]!=0xaa || b[13]!=0xaa || b[14]!=0xaa)
+        return std::nullopt;
     // Observed while editing the sleep duration during MD playback. The timer
     // number blinks through AA/0A blank phases independently of SLEEP itself.
-    const bool md_layout=(b[0]&0x7e)==0x0c && b[1]==0x20 && b[2]==1 &&
-        (b[3]&15)==1 && b[4]==0 && b[5]==0 && b[6]==0x0c &&
-        b[7]==0xff && b[8]==0xff && b[9]==0x83 && b[10]==0xaa;
-    // Stopped MD with TIMER PLAY armed; an all-blank frame is ambiguous
-    // with source selection unless the SLEEP indicator is lit.
-    const bool stopped_md_layout=(b[0]&0x7e)==0x0c && b[1]==0 && b[2]==7 &&
-        b[3]==1 && b[4]==0 && b[5]==0 && b[6]<=31 && b[7]==0xff &&
-        b[8]==0xff && b[9]==0x83 && b[10]==0xaa &&
+    const bool md_layout=b[1]==0x20 && b[2]==1 && (b[3]&15)==1 && b[4]==0;
+    // Stopped MD; an all-blank frame is ambiguous with source selection unless
+    // the SLEEP indicator is lit.
+    const bool stopped_md_layout=b[1]==0 && b[2]==7 && b[3]==1 && b[4]==0 &&
+        b[7]==0xff && b[8]==0xff && b[9]==0x83 &&
         ((b[0]&1)!=0 || b[11]!=0xaa);
-    const bool radio_layout=(b[0]&0x7e)==0 && b[1]==0 && b[2]==0 && b[3]==4 &&
-        b[4]==2 && b[5]==0 && b[6]==0x0a && b[7]==4 && b[8]==0 &&
-        b[9]==0x80 && b[10]==0xaa;
-    if ((!md_layout && !stopped_md_layout && !radio_layout) || b[13]!=0xaa || b[14]!=0xaa)
+    const bool radio_layout=b[1]==0 && b[2]==0 && b[3]==4 && (b[4]&~0x02U)==0;
+    if (!md_layout && !stopped_md_layout && !radio_layout)
         return std::nullopt;
     if (b[11]==0xaa && b[12]==0x0a) return SleepTimerDisplay{std::nullopt};
     const auto low=decode_bcd(b[11]);
