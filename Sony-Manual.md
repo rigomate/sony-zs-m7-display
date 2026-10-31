@@ -728,6 +728,352 @@ At the preset time, the power will go on and the recording will start. Then the 
 
 **To stop timer-recording:** Turn off the power.
 
+
 ---
 
-> **Note:** The provided source PDF ends at this point (page 47). The remaining sections listed in the table of contents — *Falling asleep to music* (p. 48), *Setting Up* (pp. 49–54), and *Additional Information* (pp. 55–66) — are not included in the uploaded file and therefore cannot be transcribed.
+## Falling asleep to music
+
+You can set the player to turn off automatically after 10, 20, 30, 60, 90 and 120 minutes, allowing you to fall asleep while listening to music.
+
+**On the remote:** Press **SLEEP** repeatedly to select the minutes for the sleeping timer.
+
+**Tips**
+- You can combine the waking up timer with the sleeping timer. Set the waking up timer first (page 44), turn on the player, and then set the sleeping timer.
+- You can prepare different music for the waking up timer and the sleeping timer. For instance, you can sleep at lower volume and wake up at higher volume.
+
+1. Play the music source you want.
+2. Press **SLEEP** until "SLEEP" appears in the display.
+3. Press **SLEEP** to select the minutes for the sleeping timer.
+
+Each time you press the button, the indication changes as follows: "10" → "20" → "30" → "60" → "90" → "120" → no indication.
+
+If 4 seconds have passed after you pressed SLEEP, the minutes in the display are entered.
+
+The preset time has passed, the player goes off automatically.
+
+**To cancel the sleep function:** Press SLEEP to make "SLEEP" disappear from the display.
+
+**To change the preset time:** Do the steps 2 and 3 again.
+
+---
+
+## Setting Up
+
+### Preparing the system
+
+According to the illustrations, connect the cords firmly. Wrong connections cause malfunctions. Connect the mains lead last.
+
+**Note:** Keep the AM loop aerial away as far as possible from the player. If you lie out, time may be heard.
+
+#### 1 Hooking up the aerial
+
+Connect the AM loop aerial (supplied) and the FM wire aerial. Reorient the aerial to improve broadcast reception.
+
+**Setting up the AM loop aerial**
+
+#### 2 Connecting the AC power cord
+
+Connect the AC power cord to the wall outlet.
+
+**Tips**
+- This player has two **phones** jacks so that two persons listen to the same music together.
+- When using the **phones** jack marked with `**`, you can also listen to the sound through the speakers. You can enjoy the surround sound using optional cordless stereo headphones system such as MDR-IF8210K and transmitter. The sound quality may be changed depending on the polarity of the plug. Change the direction of inverting the plug and check the sound quality.
+
+#### 3 Inserting batteries into the remote
+
+**Replacing batteries:** With normal use, the batteries should last for about six months. When the remote no longer operates the player, replace all the batteries with new ones.
+
+#### To improve the FM reception
+
+Connect the FM outdoor aerial (not supplied). If you use a distributor, you can also use the TV aerial.
+
+**Important:** When you use an outdoor aerial, be sure to connect the **earth** terminal to earth against lightning. To prevent a gas explosion, do not connect the ground wire to a gas pipe.
+
+#### To improve the AM reception
+
+Connect a 6- to 15-meter (20- to 50 feet) (not supplied) insulated wire to the AM ANTENNA terminal. Keep the wire as horizontal as possible near the window or outdoor. You do not need to disconnect the supplied AM loop aerial.
+
+---
+
+### Connecting optional components
+
+You can enjoy the sound from a TV or VCR through the speakers of this player. Be sure to turn off the power of each component before making connections. For details, refer to the instructions of the component to be connected.
+
+**Note:** Connect the cords firmly to avoid any malfunction.
+
+**Connecting a TV or a VCR**
+
+Connect the audio output cords (not supplied) to the LINE IN jacks. After finishing the connections, turn on the player, and press LINE on the front panel to display "LINE".
+
+**Tip:** If there is no sound input for more than 3 seconds during recording, a track mark is stamped automatically.
+
+**Recording the sound from the connected components**
+1. Insert a recordable MD.
+2. Press LINE on the front panel to display "LINE". Recording does not start (recording standby mode).
+3. Press **MD ▶Ⅱ**.
+4. Play the optional component connected to the LINE IN jack of the player.
+
+**If the volume of the component connected to the LINE IN jack is too high:** Press LINE LEVEL to display "Level High" or reduce the volume of the connected component.
+
+---
+
+### Adjusting the audio emphasis
+
+You can adjust the audio emphasis of the bass sound to the bass/treble sound you are listening to.
+
+**Note:** When the volume is too high, the sound emphasis may not be effective.
+
+#### Reinforcing the bass sound
+
+Press **MEGA BASS** until "MEGA BASS ON" appears in the display.
+
+#### Adjusting the bass/treble sound
+
+1. Press **BASS/TREBLE** to select "BASS" or "TRE" (treble).
+2. Adjust the bass or treble sound using ◀ or ▶.
+
+Each time you press ◀ or ▶, the cursor moves left or right. The more the cursor moves, the more the level will be turned up. At the center position, the bass or treble level will be turned down.
+
+---
+
+## Additional Information
+
+### Precautions
+
+#### On safety
+- As the laser beam used in this compact disc player is harmful to the eyes, do not attempt to disassemble the casing. Refer servicing to qualified personnel only.
+- Should any solid object or liquid fall into the player, unplug the player, and have it checked by qualified personnel before operating it any further.
+
+#### On power sources
+- For AC operation, use the supplied AC power cord; do not use any other type.
+- The player is not disconnected from the AC power source (mains) as long as it is connected to the wall outlet, even if the player itself has been turned off.
+- Unplug the player from the wall outlet when it is not to be used for an extended period of time.
+- When the AC power cord is disconnected, the clock and the timer may be reset to the initial setting.
+
+#### On placement
+- Do not leave the player in a location near heat sources, or in a place subject to direct sunlight, excessive dust or mechanical shock.
+- Do not place the player on an inclined or unstable place.
+- Do not place anything within 1 inch of the back of the cabinet. The ventilation holes must be unobstructed for the player to operate properly and to prolong the life of its components.
+- Since a strong magnet is used for the speakers, keep personal credit cards using magnetic coding or spring-wound watches away from the player to prevent possible damage from the magnet.
+
+#### On operation
+- If the player is brought directly from a cold to a warm location, or is placed in a very damp room, moisture may condense on the lens inside the player. Should this occur, the player will not operate properly. In this situation, remove the disc and leave the player for about an hour until the moisture evaporates.
+- Do not use a disc with a stabilizer ring or a scratched disc.
+
+#### On the MiniDisc cartridge
+- Do not open the shutter manually and touch the internal parts of the MiniDisc.
+- Keep MiniDiscs away from heat sources, direct sunlight, moisture, sand, dust, or mechanical shock.
+- Do not use a MiniDisc with a bent or broken cartridge.
+
+#### On cleaning
+- Clean the cabinet, panel and controls with a soft cloth slightly moistened with a mild detergent solution. Do not use any type of abrasive pad, scouring powder or solvent such as alcohol or benzine.
+
+#### On the headphones/earphones
+- **Road safety:** Do not use headphones/earphones while driving, cycling, or operating any motorized vehicle. It may create a traffic hazard and is illegal in some areas.
+- **Preventing hearing damage:** Avoid using headphones/earphones at high volume. Hearing experts advise against continuous, loud and extended play. If you experience a ringing in your ears, reduce volume or discontinue use.
+- **Caring for others:** Keep the volume at a moderate level. This will allow you to hear outside sounds and to be considerate to the people around you.
+
+#### If you have any questions or problems concerning your player, please consult your nearest Sony dealer.
+
+---
+
+### System limitations of the MD
+
+The recording system in your MiniDisc recorder is radically different from those used in cassette and DAT decks and is characterized by the limitations described below. Note, however, that these limitations are due to the inherent nature of the MD recording system itself and not to mechanical causes.
+
+**"Disc full" appears in the display even before the MD has reached the maximum recording time (60 or 74 minutes)**
+
+When 254 tracks have been recorded on an MD, "Disc Full" appears regardless of the total recorded time. More than 254 tracks cannot be recorded on the MD. To continue recording, erase unnecessary tracks.
+
+**"Disc full" appears in the display even before the MD has reached the maximum track number or recording time**
+
+Repeated recording and erasing may cause fragmentation and scattering of data. Although those scattered data can be read, each fragment is counted as a track. In this case, the number of tracks may reach 254 and further recording is not possible. To continue recording, erase unnecessary tracks.
+
+**The remaining recording time does not increase even after erasing numerous short tracks**
+
+Tracks under 12 seconds in length are not counted, so erasing them may not increase the recording time.
+
+**Some tracks cannot be combined with others**
+
+Track combination may become impossible when tracks are under 12 seconds long.
+
+**The total recorded time and the remaining time on the MD may not reach the maximum recording time (60 or 74 minutes)**
+
+Recording is done in minimum units of 2 seconds each, no matter how short the material. The contents recorded may thus be shorter than the maximum recording capacity. Disc space may also be further reduced by scratches.
+
+**The sound may dropout while fast-forwarding or rewinding the edited tracks**
+
+Tracks created through editing may exhibit sound dropout during fast-forwarding or rewinding because high-speed playback takes time to search for the position on the disc where the tracks are scattered on the disc.
+
+**The remaining recording time does not increase even after erasing numerous short tracks**
+
+Tracks under 12 seconds in length are not counted, so erasing them may not increase the recording time.
+
+**Guide to the serial copy management system**
+
+Digital audio equipment such as CDs, MDs, DATs, etc., copy music easily with high quality, for these products process music as a digital signal. The Serial Copy Management System allows you to make only a single copy of a recorded digital source through digital-to-digital connections because music programmes may be copyrighted.
+
+This system is applied to this player.
+
+**You can make only a first-generation copy through a digital-to-digital connection.**
+
+That is:
+1. You can make a copy of a digital sound programme on the market such as CDs, MDs, etc., but you cannot make a second copy from the first-generation copy.
+2. You can make a copy of a digital signal from a digitally-recorded analog sound programme on the market such as an analog record, digital satellite broadcasts, but you cannot make a second copy.
+
+**Note:** No restrictions apply when a digital signal is recorded as an analog signal (that is, when a digital signal is recorded through analog-to-analog connection.)
+
+A first-generation copy is a digital recording of a digital signal made on digital audio equipment through a digital-to-digital connection. During recording, "DIGITAL REC" appears on the display on this player.
+
+---
+
+### Getting to know the MD
+
+The MiniDisc (MD) is a revolutionary new recording medium that combines the convenience of a cassette tape with the high sound quality and random access capabilities of a compact disc. The following is a brief introduction to the MD system.
+
+**Structure of the MD**
+The MD is housed in a plastic cartridge that measures 72 × 68 × 5 mm (2 7/8 × 2 3/4 × 7/32 in.). This cartridge protects the disc from dust and scratches, and makes the MD easy to handle.
+
+**Recording and playback**
+The MD uses a magneto-optical recording system. During recording, a laser beam heats a point on the disc to a high temperature, and a magnetic head applies a magnetic field to that point. This changes the magnetic orientation of the recording layer, which is how data is stored. During playback, a laser beam is shone onto the disc, and the reflected light is read to reproduce the data.
+
+**TOC (Table of Contents)**
+The MD has a TOC area that stores information such as track numbers, track names, and disc names. The TOC is updated automatically when you record, edit, or label tracks. If the TOC is not updated properly (for example, if you disconnect the power while "TOC EDIT" is flashing), the recording may be lost.
+
+**Shock-resistant memory**
+The MD player has a shock-resistant memory that stores several seconds of audio data. This allows playback to continue uninterrupted even if the player is subjected to mechanical shock.
+
+**Write-protect tab**
+The MD cartridge has a write-protect tab. When the tab is in the record-protect position, you cannot record or edit the MD. If you try to do so, "Protected" appears in the display.
+
+---
+
+### Troubleshooting
+
+If you have any problem while using the player, use this troubleshooting guide to help you remedy the problem. Should any problem persist, consult your nearest Sony dealer.
+
+#### The power does not come on.
+- Make sure the AC power cord is connected firmly.
+- If the player is powered by batteries, make sure they are inserted correctly and are not depleted.
+
+#### The player does not play.
+- Make sure the disc is inserted correctly (label side up for CDs, label side up and in the direction of the arrow for MDs).
+- Make sure the disc is not scratched or dirty.
+- If the disc is an MD, make sure it is not write-protected (for recording).
+- If the player is in pause mode, press **CD ▶Ⅱ** or **MD ▶Ⅱ** to resume play.
+
+#### The sound is not heard.
+- Make sure the volume is turned up.
+- If headphones are connected, make sure they are connected firmly.
+- If the player is connected to an optional component, make sure the connections are correct.
+
+#### The sound skips.
+- Make sure the player is placed on a stable surface.
+- Make sure the disc is not scratched or dirty.
+- If the player is subjected to strong vibration, the sound may skip. This is not a malfunction.
+
+#### The remote does not operate.
+- Make sure the batteries are inserted correctly.
+- Replace the batteries with new ones if they are depleted.
+- Make sure there are no obstacles between the remote and the player.
+- Point the remote at the remote sensor on the player.
+
+#### The timer does not operate.
+- Make sure the clock is set correctly.
+- Make sure the timer is set correctly.
+- If the AC power cord is disconnected, the clock and timer settings may be lost.
+
+#### "TOC EDIT" flashes in the display and the player does not operate.
+- The player is updating the TOC. Do not disconnect the AC power cord or move the player while "TOC EDIT" is flashing. Wait until the indication disappears.
+
+#### "Protected" appears in the display.
+- The MD is write-protected. Slide the write-protect tab to the record-enable position.
+
+#### "Sorry" appears in the display.
+- The operation you are trying to perform is not possible due to the system limitations of the MD. See "System limitations of the MD" (page 57).
+
+#### "Cannot Edit" appears in the display.
+- You may be trying to combine the tracks on the first track. You cannot use the combine function on the first track.
+
+---
+
+### Error messages
+
+| Message | Meaning / Solution |
+|---|---|
+| **Disc Full** | The MD is full. Erase unnecessary tracks or use a new MD. |
+| **Protected** | The MD is write-protected. Slide the write-protect tab to the record-enable position. |
+| **TOC EDIT** | The player is updating the TOC. Do not disconnect the AC power cord or move the player while this indication is flashing. |
+| **Sorry** | The operation is not possible due to the system limitations of the MD. |
+| **Cannot Edit** | The operation is not possible (e.g., combining the first track). |
+| **CD>MD OK?** | There is not enough space on the MD to record the whole CD. Press ENTER·YES to record as much as possible, or CANCEL·NO to stop. |
+| **No Disc** | No disc is inserted. Insert a disc. |
+| **No Track** | No tracks are recorded on the MD. |
+| **Blank Disc** | The MD is blank (no recordings). |
+| **Protected** | The MD is write-protected. |
+| **Low Battery** | The batteries in the remote are depleted. Replace them with new ones. |
+| **Error** | A malfunction has occurred. Consult your nearest Sony dealer. |
+
+---
+
+### Specifications
+
+**Recording/Playback time**
+Maximum 74 minutes (with MDW-74)
+
+**Revolutions**
+400 rpm to 900 rpm (CLV)
+
+**Error correction**
+Advanced Cross Interleave Reed Solomon Code (ACIRC)
+
+**Sampling frequency**
+44.1 kHz
+
+**Coding**
+Adaptive Transform Acoustic Coding (ATRAC)
+
+**Modulation system**
+EFM (Eight-to-Fourteen Modulation)
+
+**Number of programme positions**
+2 stereo programme positions
+
+**Frequency response**
+20 – 20,000 Hz +1/–2 dB
+
+**Signal-to-noise ratio**
+Over 80 dB (during playback)
+
+**Wound flutter**
+Below measurable limit
+
+**General**
+- **Speaker:** Full range: 8 cm (3 in.) dia., 4 ohms, cone type (2)
+- **Inputs:** LINE IN (stereo minijack): Sensitivity 436 mV/691 mV
+- **Outputs:** Headphones jack (stereo minijack) (2): For 32 ohms impedance headphones
+- **Power outputs:** 7 W + 7 W
+- **Power requirements:**
+  - For personal minidisc system: US Model: 120V AC, 60Hz; EXCEPT US Model: 230V AC, 50Hz
+  - For remote commander: 3V DC, 2 size AA (R6) batteries
+- **Power consumption:** 30 W
+- **Dimensions (incl. projecting parts):** Approx. 528 × 275 × 139 mm (w/h/d) (20 7/8 × 10 7/8 × 5 1/2 inches)
+- **Mass:** Approx. 6.4 kg (14 lb. 2 oz)
+
+**Supplied accessories**
+- Remote commander (1)
+- AM loop aerial (1) (US Model)
+- MW/LW loop aerial (1) (EXCEPT US Model)
+- Speaker nets (2) (EXCEPT US Model)
+
+*Design and specifications are subject to change without notice.*
+
+---
+
+### Index
+
+*(The index from the original manual was not included in the provided source pages. Please refer to the printed manual or the table of contents above for page references.)*
+
+---
+
+> **Note:** The service manual content provided includes additional technical sections (Service Note, Disassembly, Test Mode, Adjustments, Diagrams, Exploded Views, Electrical Parts List) that are beyond the scope of the operating instructions. The sections above complete the user-facing operating instructions from "Falling asleep to music" through "Specifications." The "Index" section was not present in the provided source.
