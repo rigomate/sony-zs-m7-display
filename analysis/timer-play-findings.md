@@ -52,3 +52,23 @@ state also differs from the flashing captures, so the bit has not been
 independently isolated. The API and UI expose it as an inferred clock icon,
 with dashed candidate styling. A same-state clock-off reference is still needed
 to confirm it.
+
+## Timer setup mode selection
+
+A later live user-labelled TIMER PLAY selection screen had no source selected,
+blank alphanumeric text and numeric frames with byte2=`07`, byte3=`00`,
+byte5=`00`, bytes7..9=`FF FF 83`, and bytes10..14=`AA AA 0A AA AA`.
+Byte0 alternated through `00`, `04`, `08` and `0C` as TIMER and PLAY blinked.
+The earlier `timer-and-rec-flashing` capture has the same numeric layout and
+uses `00`, `02`, `08`, `0A` for TIMER and REC. The firmware exposes
+`timer_mode_selection` after it has seen both a completely dark phase and the
+PLAY or REC flag. It remembers the chosen option through the dark phase and
+reports the instantaneous TIMER and option bits separately. A continuously
+lit timer does not qualify as this blinking selection screen.
+
+The 320×240 view shows Timer setup and the selected TIMER PLAY/REC wording,
+with each word following the received blink, plus the manual's instruction to
+turn the dial and press ENTER. The following source-selection step has not yet
+been identified by this capture. Tests replay both labelled selections and
+check the steady-timer exclusion and the TFT's visible/dark rendering. No
+player commands were sent.

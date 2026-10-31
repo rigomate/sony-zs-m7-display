@@ -49,3 +49,15 @@ In a later live minute edit at06:48, byte14 alternated between `48` and `AA`
 in step with the DATE indicator. The API now reports `hour_blank` and
 `minute_blank`, and the webpage hides the corresponding digits for the actual
 received blank phase while retaining the numeric value for the lit phase.
+
+## Clock hour edit with volume 11
+
+The user showed clock hour setting after entering the date. C3 snapshots in
+`captures/manual2/live-clock-hour-volume11/state.jsonl` showed text
+`26y 10m 31d `, numeric byte6 `0B` (volume11), and byte13 alternating `A0`
+(hour0) and `AA` (blank) while byte14 remained `00`. The earlier clock-setting
+decoder incorrectly required byte6=`0A` (volume10), so it did not recognize
+this valid edit screen. It now permits volume values0..31 while retaining the
+other layout guards. An exact-frame regression covers both blink phases and
+several volume levels. This is based on C3 API snapshots, not a new Saleae
+capture.

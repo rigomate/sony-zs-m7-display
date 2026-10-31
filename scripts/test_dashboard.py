@@ -157,6 +157,8 @@ try:
     render('clock hour setting during playback', ['Clock setting · hour', 'aria-label="Clock setting 06:52, editing hour">06:52'])
     active['clock_setting']['hour_blank'] = True
     render('clock hour blank phase', ['aria-label="Clock setting 06:52, editing hour">0<span class="clock-blank">6</span>:52'])
+    active['clock_setting']={'hour':0,'minute':0,'editing':'hour','hour_blank':True,'minute_blank':False,'fresh':True}
+    render('clock midnight hour blank', ['aria-label="Clock setting 00:00, editing hour">0<span class="clock-blank">0</span>:00'])
     active['clock_setting'] = {'hour': 23, 'minute': 59, 'editing': 'minute', 'fresh': True}
     render('clock minute setting', ['Clock setting · minute', 'aria-label="Clock setting 23:59, editing minute">23:59'])
     active['clock_setting']['minute_blank'] = True
@@ -179,12 +181,33 @@ try:
     render('timer stop minute', ['Timer stop · minute', 'aria-label="Timer stop 16:31, editing minute"'])
     active['timer_setting'] = None
     render('timer on setting ended', ['id="number-label" class="eyebrow">Track'], ['Timer start · hour'])
+    active=copy.deepcopy(base)
+    active.update(source='radio',radio=None,numeric=None,track_display=None,md=None,
+                  symbols={'radio':True,'timer_play':True},
+                  timer_setting={'phase':'on','hour':19,'minute':9,'editing':'hour','hour_blank':False,'minute_blank':False,'fresh':True})
+    render('radio wake start hour lit', ['Timer start · hour', 'aria-label="Timer start 19:09, editing hour">19:09'])
+    active['timer_setting']['hour_blank']=True
+    render('radio wake start hour blank', ['Timer start · hour',
+           'aria-label="Timer start 19:09, editing hour"><span class="clock-blank">19</span>:09'])
     active = copy.deepcopy(base)
     active['timer_volume_setting'] = {'level': 21, 'blank': False, 'fresh': True}
     active['volume'] = {'level': 21, 'overlay': False, 'fresh': True}
     render('timer volume visible', ['Timer volume', 'id="track" aria-label="Timer volume 21 / 31">21 / 31', 'id="elapsed-group" hidden=""'])
     active['timer_volume_setting']['blank'] = True
     render('timer volume blank', ['id="track" aria-label="Timer volume 21 / 31">&nbsp;'])
+    active=copy.deepcopy(base)
+    active.update(source='radio',radio=None,numeric=None,track_display=None,md=None,
+                  symbols={'radio':True,'timer_play':True},
+                  timer_volume_setting={'level':20,'blank':False,'fresh':True},
+                  volume={'level':20,'overlay':False,'fresh':True})
+    render('radio wake volume visible', ['Timer volume', 'id="track" aria-label="Timer volume 20 / 31">20 / 31'])
+    active['timer_volume_setting']['blank']=True
+    render('radio wake volume blank', ['id="track" aria-label="Timer volume 20 / 31">&nbsp;'])
+    active.update(source='cd',symbols={'cd':True,'timer_play':True})
+    active['timer_volume_setting']['blank']=False
+    render('CD wake volume visible', ['Timer volume','id="track" aria-label="Timer volume 20 / 31">20 / 31'])
+    active['timer_volume_setting']['blank']=True
+    render('CD wake volume blank', ['id="track" aria-label="Timer volume 20 / 31">&nbsp;'])
     active = copy.deepcopy(base)
     active['clock_display'] = {'hour': 18, 'minute': 55, 'colon_on': True, 'fresh': True}
     render('clock readout colon lit', ['id="number-label" class="eyebrow">Clock', 'aria-label="Clock 18:55">18<span class="clock-colon">:</span>55', 'id="elapsed-group" hidden=""'])
@@ -195,6 +218,10 @@ try:
     active['clock_display'] = {'hour': 19, 'minute': 8, 'colon_on': True, 'standby': True, 'fresh': True}
     active['symbols'] = {'md': False, 'cd': False, 'radio': False, 'line': False, 'md_disc': 'solid', 'timer': True, 'timer_play': True}
     render('standby clock and MD icon', ['STANDBY', 'Standby clock', 'aria-label="Standby clock 19:08">19<span class="clock-colon">:</span>08', 'id="symbol-md-disc" class="symbol on disc-solid"', 'class="status live"'], ['disc-animated"', 'Check numeric data'])
+    active['clock_display'].update(hour=0,minute=12)
+    render('standby single-digit clock and MD icon', ['STANDBY', 'aria-label="Standby clock 00:12">00<span class="clock-colon">:</span>12',
+           'id="symbol-md-disc" class="symbol on disc-solid"', 'id="symbol-timer" class="symbol boxed on"',
+           'id="symbol-timer-play" class="symbol boxed on"'])
     for source,label in [('md','MINIDISC'),('cd','CD'),('radio','RADIO'),('line','LINE IN')]:
         active = copy.deepcopy(base)
         active.update(source=source, numeric=None, radio=None, md=None)

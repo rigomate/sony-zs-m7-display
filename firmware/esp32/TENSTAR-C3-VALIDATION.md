@@ -665,3 +665,107 @@ and upload succeeded. After a brief initial post-reset network timeout,20 live
 API samples all showed19:11, standby=true, fresh=true and md_disc=solid with
 both colon phases. The real page rendered STANDBY, Standby clock19:11, and
 symbol-md-disc class on disc-solid. Evidence is retained beside the capture.
+
+## 320 × 240 TFT browser prototype
+
+The user manual's table of contents covers MD/CD playback, radio, recording,
+program/repeat/shuffle, editing, clock, timer, sleep and sound adjustments. The
+new `/tft` page provides a native 320 × 240 browser layout for the currently
+decoded API states and labelled preview examples. Unknown fields, including
+unmapped CD playback details, are not fabricated. The full dashboard links to
+the new page; both are embedded in firmware. The Chromium checks cover the
+example modes, live fixture, a live timer blank phase, title escaping, 320 × 240
+dimensions and layout bounds. The C3 build and verified upload succeeded;
+`/tft` returned HTTP 200 and the live API reported both buses fresh. Chromium
+also rendered the page directly from the C3 using live data. This is a browser
+prototype and does not implement a physical TFT driver.
+
+## Standby clock with blank leading hour
+
+A user-reported standby state at 00:12 used numeric hour `A0`, which the
+ordinary BCD decoder rejected. The clock readout now accepts `A0`..`A9` as
+single-digit hours and still rejects `AA`. Because the MD icon is guarded by
+the standby clock signature, this also restores its solid state. The TFT view
+now renders that graphic and the timer PLAY indicator on its standby page.
+Native clock/edit regressions and both full dashboard browser suites passed;
+the C3 build and verified flash upload succeeded. Post-flash API reported
+00:15, standby, MD graphic solid, TIMER and PLAY on, with both colon phases.
+Headless Chromium rendered both live C3 pages at 00:16 with the MD icon. The
+Saleae service was unavailable for a new capture; regression frames came from
+the live C3 API. No player commands were sent.
+
+## Compact timer mode selection screen
+
+The user showed the first timer setup step with TIMER PLAY flashing. The API now
+recognizes the user-labelled blank-numeric timer selection signature, retaining
+PLAY or REC through the dark half only after a dark and selected phase have been
+observed. The compact page displays Timer setup and the received blinking words,
+with dial/ENTER guidance. Native replay checks both labelled PLAY/REC captures,
+their blink phases and a steady-timer negative case; TFT browser checks pass.
+The C3 build and verified upload succeeded. Post-flash live API reported PLAY
+with both lit and dark phases, and Chromium rendered the live `/tft` timer setup
+screen. The subsequent source-selection step still needs a labelled capture.
+No player commands were sent.
+
+## TIMER REC radio setup
+
+User-guided C3 snapshots captured RADIO source selection, On19:09 and Off19:12
+with both selected digit phases, and volume20 with visible and blank phases.
+The observed TIMER REC/RADIO numeric layouts now decode separately from the
+TIMER PLAY layouts. The compact page displays the source, start/stop and volume
+screens, plus TIMER REC during normal MD display. Native regression and full
+compact dashboard tests passed. C3 build and verified flash upload succeeded;
+headless Chromium subsequently rendered the live MD screen with TIMER REC on.
+The standby attempt still presented an MD screen, so recording standby has not
+been confirmed; LINE recording input also remains unverified. No player commands
+were sent. See `analysis/timer-recording-setup-findings.md`.
+
+## Wake timer RADIO source selection
+
+The user showed RADIO blinking while selecting the wake timer source. Live C3
+snapshots show source byte3 `04/00`, PLAY bit04 steady, and calendar tail
+`00 00 00`. The decoder now recognizes that PLAY signature alongside the
+previous REC source signature and retains the source across blank phases and
+up to200ms of nonmatching frames. Native timer/clock regressions and compact
+browser checks passed. Firmware build and verified upload succeeded. The live
+post-flash API showed `mode:play`, `source:radio` and both `source_on` phases;
+headless Chromium rendered the TIMER PLAY / Wake-up source screen from the C3.
+Other source choices remain unverified. No player commands were sent.
+
+## Wake timer CD and MD sources
+
+User-selected CD and MD source screens use the observed wake timer source
+layout, with byte3 `02/00` and `01/00` respectively. The decoder now remembers
+RADIO, CD or MD across the source blink and switches to the newly lit source.
+Timer/clock native regressions and the compact dashboard tests passed for both
+blink phases and source changes. The C3 build and verified upload succeeded;
+post-flash live API showed MD selected in both lit and dark phases. Chromium
+subsequently showed the wake-up source screen when the live player returned to
+RADIO. No player commands were sent.
+
+## RADIO wake timer start time
+
+User-guided C3 samples show `On`, RADIO source and numeric 19:09, with the hour
+alternating `19/AA` in a wake PLAY layout whose track tail is `00 00 00`.
+The timer time decoder now accepts this specifically observed RADIO signature.
+Native timer and clock regressions and both dashboard browser suites passed;
+the C3 build and hash-verified upload succeeded. After flashing, the live API
+reported 19:09 with both hour blink phases, and headless Chromium rendered
+Timer start on both live pages. Other RADIO timer phases were not separately
+captured during this check. No player commands were sent.
+
+## Clock hour at volume11; RADIO/CD wake timer volume
+
+The user-guided clock edit at volume11 had byte6 `0B`, which the previous
+clock-setting guard wrongly required to be `0A`. The guard now accepts levels
+0..31 while retaining the other frame constraints. User-guided RADIO and CD
+wake timer volume snapshots show distinct source bits (`04`/`02`) with the same
+`00 00 00` tail and byte6 visible/blank encoding; both are now decoded. CD
+On/Off time-entry frames were captured and supported as well.
+
+Native clock/timer regressions and both dashboard browser suites passed. The
+C3 build and hash-verified upload succeeded. Post-flash live API showed clock
+00:00, editing hour, in both visible and blank phases; Chromium rendered the
+live compact clock-setting view. RADIO/CD timer volume was captured and replayed
+before upload, but the user had moved to clock setting by the post-flash
+check. No player commands were sent.

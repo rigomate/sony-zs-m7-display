@@ -43,6 +43,14 @@ hold BOOT after upload. No backup is needed per the user's instruction.
 ## Webpage
 
 SSID **ZS-M7-Display**, password **minidisc-test**, URL **http://192.168.4.1/**.
+
+The alternative **http://192.168.4.1/tft** page previews a 320 × 240 display.
+Its Live player mode uses `/api/state`; its example selector shows sample
+states without changing the player. The page is a browser prototype for a
+future TFT and does not drive a physical display. Decoded states include MD,
+radio, radio-to-MD recording, clock, timer, volume, audio adjustment and
+program selection. Source or edit modes without decoded fields are shown
+without invented values.
 The AP has no internet access. The existing optional `config.hpp` router settings
 also work; do not copy the M5-specific pin overrides from `config.example.hpp`.
 Use `config.c3.example.hpp` if C3 wiring overrides are needed.

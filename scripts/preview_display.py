@@ -10,14 +10,18 @@ parser.add_argument('--fixture', type=Path, required=True)
 parser.add_argument('--port', type=int, default=8088)
 args = parser.parse_args()
 page = (Path(__file__).resolve().parents[1] / 'firmware/esp32/web/index.html').read_bytes()
+tft_page = (Path(__file__).resolve().parents[1] / 'firmware/esp32/web/tft.html').read_bytes()
 fixture = args.fixture.read_bytes()
 json.loads(fixture)
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == '/':
+        path = self.path.partition('?')[0]
+        if path == '/':
             content, mime = page, 'text/html; charset=utf-8'
-        elif self.path == '/api/state':
+        elif path in ('/tft', '/tft/'):
+            content, mime = tft_page, 'text/html; charset=utf-8'
+        elif path == '/api/state':
             content, mime = fixture, 'application/json'
         else:
             self.send_error(404)

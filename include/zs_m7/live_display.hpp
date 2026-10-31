@@ -9,6 +9,31 @@
 
 namespace zs_m7 {
 
+enum class TimerStage { unknown, select_mode, select_source, start, stop, volume, standby };
+enum class TimerMode { unknown, play, rec };
+struct TimerWorkflow {
+    TimerStage stage=TimerStage::unknown;
+    TimerMode mode=TimerMode::unknown;
+    std::string source="unknown";
+    std::string editing="unknown";
+    bool fresh=false;
+};
+
+inline const char* timer_stage_name(TimerStage stage) {
+    switch(stage){
+    case TimerStage::select_mode:return "select_mode";
+    case TimerStage::select_source:return "select_source";
+    case TimerStage::start:return "start";
+    case TimerStage::stop:return "stop";
+    case TimerStage::volume:return "volume";
+    case TimerStage::standby:return "standby";
+    default:return "unknown";
+    }
+}
+inline const char* timer_mode_name(TimerMode mode) {
+    return mode==TimerMode::play?"play":mode==TimerMode::rec?"rec":"unknown";
+}
+
 // Owned by the consumer task only. Both CSV replay and the ESP32 feed this.
 class LiveDisplay {
 public:
@@ -29,6 +54,33 @@ public:
             return; // A damaged frame must not erase the last complete display.
         }
         if (frame.bus == SpiBus::Display1) {
+            const auto timer_source=decode_timer_source_selection(frame);
+            if(timer_source){
+                if(timer_source_recording_!=timer_source->recording){
+                    timer_source_seen_=false;timer_source_dark_seen_=false;timer_source_choice_.clear();
+                }
+                timer_source_recording_=timer_source->recording;
+                timer_source_on_=timer_source->source_mask!=0;
+                timer_source_last_ms_=now_ms;
+                if(timer_source_on_){
+                    timer_source_seen_=true;
+                    timer_source_choice_=timer_source->source_mask==1?"md":timer_source->source_mask==2?"cd":timer_source->source_mask==4?"radio":"line";
+                }else if(timer_source_seen_)timer_source_dark_seen_=true;
+            }else if(!timer_source_seen_ || static_cast<std::uint32_t>(now_ms-timer_source_last_ms_)>200){
+                timer_source_on_=false;timer_source_seen_=false;timer_source_dark_seen_=false;timer_source_choice_.clear();
+            }
+            if(is_timer_mode_selection(frame)){
+                const auto bits=frame.mosi[0]&0x0e;
+                if(bits&0x04)timer_mode_choice_="play";
+                else if(bits&0x02)timer_mode_choice_="rec";
+                if(bits==0)timer_mode_dark_seen_=true;
+                timer_mode_timer_on_=(bits&0x08)!=0;
+                timer_mode_choice_on_=timer_mode_choice_=="play"?(bits&0x04)!=0:
+                                      timer_mode_choice_=="rec"?(bits&0x02)!=0:false;
+            }else{
+                timer_mode_choice_.clear();timer_mode_dark_seen_=false;
+                timer_mode_timer_on_=false;timer_mode_choice_on_=false;
+            }
             clock_readout_=decode_clock_readout(frame);
             if(clock_readout_){
                 if(!clock_readout_seen_){clock_readout_since_=now_ms;clock_colon_flipped_=false;clock_colon_last_=clock_readout_->colon_on;}
@@ -134,8 +186,41 @@ public:
                 timer_on_edit_field_="unknown";timer_on_active_=false;
                 timer_title_phase_=phase;
             }
+            if(!phase.empty()){
+                timer_source_on_=false;timer_source_seen_=false;timer_source_dark_seen_=false;timer_source_choice_.clear();
+            }
 
         }
+    }
+
+    // Classify only observed timer screens; navigation is not assumed linear.
+    TimerWorkflow timer_workflow(std::uint32_t now_ms) const {
+        TimerWorkflow result;
+        result.fresh=fresh(buses_[0],now_ms);
+        if(!result.fresh)return result;
+        const bool source_active=timer_source_seen_ && timer_source_dark_seen_ &&
+            static_cast<std::uint32_t>(now_ms-timer_source_last_ms_)<=200;
+        const bool mode_active=timer_mode_dark_seen_ && !timer_mode_choice_.empty();
+        const bool volume_active=timer_volume_setting_ && timer_volume_text_seen_ &&
+            static_cast<std::uint32_t>(now_ms-timer_volume_text_ms_)<=stale_after_ms;
+        const bool time_active=timer_on_active_ && !timer_title_phase_.empty() && fresh(buses_[1],now_ms);
+        const auto current_mode=timer_rec_?TimerMode::rec:(timer_play_mask_&4)?TimerMode::play:TimerMode::unknown;
+        if(source_active){
+            result.stage=TimerStage::select_source;
+            result.mode=timer_source_recording_?TimerMode::rec:TimerMode::play;
+            result.source=timer_source_choice_;
+        }else if(mode_active){
+            result.stage=TimerStage::select_mode;
+            result.mode=timer_mode_choice_=="rec"?TimerMode::rec:TimerMode::play;
+        }else if(volume_active){
+            result.stage=TimerStage::volume;result.mode=current_mode;result.source=source_;
+        }else if(time_active){
+            result.stage=timer_title_phase_=="off"?TimerStage::stop:TimerStage::start;
+            result.mode=current_mode;result.source=source_;result.editing=timer_on_edit_field_;
+        }else if(clock_readout_active_ && clock_readout_ && clock_readout_->standby && current_mode!=TimerMode::unknown){
+            result.stage=TimerStage::standby;result.mode=current_mode;
+        }
+        return result;
     }
 
     std::string json(std::uint32_t now_ms, std::uint32_t dropped = 0,
@@ -257,6 +342,26 @@ public:
             if (sleep_timer_minutes_) out << *sleep_timer_minutes_; else out << "null";
             out << ",\"fresh\":" << (fresh(buses_[0], now_ms) ? "true" : "false") << '}';
         } else out << "null";
+        const auto workflow=timer_workflow(now_ms);
+        out << ",\"timer_workflow\":{\"stage\":\"" << timer_stage_name(workflow.stage)
+            << "\",\"mode\":\"" << timer_mode_name(workflow.mode) << "\",\"source\":";
+        quote(out,workflow.source);out << ",\"editing\":";quote(out,workflow.editing);
+        out << ",\"fresh\":" << (workflow.fresh?"true":"false") << '}';
+        out << ",\"timer_source_selection\":";
+        if(timer_source_seen_ && timer_source_dark_seen_ &&
+           static_cast<std::uint32_t>(now_ms-timer_source_last_ms_)<=200){
+            out << "{\"mode\":\"" << (timer_source_recording_?"rec":"play")
+                << "\",\"source\":\"" << timer_source_choice_ << "\",\"source_on\":"
+                << (timer_source_on_?"true":"false") << ",\"fresh\":"
+                << (fresh(buses_[0],now_ms)?"true":"false") << '}';
+        }else out << "null";
+        out << ",\"timer_mode_selection\":";
+        if(timer_mode_dark_seen_ && !timer_mode_choice_.empty()){
+            out << "{\"choice\":\"" << timer_mode_choice_ << "\",\"timer_on\":"
+                << (timer_mode_timer_on_?"true":"false") << ",\"choice_on\":"
+                << (timer_mode_choice_on_?"true":"false") << ",\"fresh\":"
+                << (fresh(buses_[0],now_ms)?"true":"false") << '}';
+        }else out << "null";
         out << ",\"clock_display\":";
         if(clock_readout_active_ && clock_readout_){
             out << "{\"hour\":" << clock_readout_->hour << ",\"minute\":" << clock_readout_->minute
@@ -315,6 +420,11 @@ private:
         std::vector<std::uint8_t> raw;
     };
     std::array<Bus, 2> buses_{};
+    bool timer_source_on_=false,timer_source_seen_=false,timer_source_dark_seen_=false,timer_source_recording_=false;
+    std::string timer_source_choice_;
+    std::uint32_t timer_source_last_ms_=0;
+    std::string timer_mode_choice_;
+    bool timer_mode_dark_seen_=false,timer_mode_timer_on_=false,timer_mode_choice_on_=false;
     std::optional<NumericDisplay> numeric_;
     std::optional<ClockReadout> clock_readout_;
     bool clock_readout_seen_=false,clock_readout_active_=false,clock_colon_flipped_=false,clock_colon_last_=false;

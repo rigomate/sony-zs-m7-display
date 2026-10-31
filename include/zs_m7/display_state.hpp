@@ -38,10 +38,16 @@ inline std::optional<SleepTimerDisplay> decode_sleep_timer_display(const SpiFram
     const bool md_layout=(b[0]&0x7e)==0x0c && b[1]==0x20 && b[2]==1 &&
         (b[3]&15)==1 && b[4]==0 && b[5]==0 && b[6]==0x0c &&
         b[7]==0xff && b[8]==0xff && b[9]==0x83 && b[10]==0xaa;
+    // Stopped MD with TIMER PLAY armed; an all-blank frame is ambiguous
+    // with source selection unless the SLEEP indicator is lit.
+    const bool stopped_md_layout=(b[0]&0x7e)==0x0c && b[1]==0 && b[2]==7 &&
+        b[3]==1 && b[4]==0 && b[5]==0 && b[6]<=31 && b[7]==0xff &&
+        b[8]==0xff && b[9]==0x83 && b[10]==0xaa &&
+        ((b[0]&1)!=0 || b[11]!=0xaa);
     const bool radio_layout=(b[0]&0x7e)==0 && b[1]==0 && b[2]==0 && b[3]==4 &&
         b[4]==2 && b[5]==0 && b[6]==0x0a && b[7]==4 && b[8]==0 &&
         b[9]==0x80 && b[10]==0xaa;
-    if ((!md_layout && !radio_layout) || b[13]!=0xaa || b[14]!=0xaa)
+    if ((!md_layout && !stopped_md_layout && !radio_layout) || b[13]!=0xaa || b[14]!=0xaa)
         return std::nullopt;
     if (b[11]==0xaa && b[12]==0x0a) return SleepTimerDisplay{std::nullopt};
     const auto low=decode_bcd(b[11]);
@@ -56,21 +62,66 @@ struct TimerVolumeSetting { unsigned level; bool blank; };
 inline std::optional<TimerVolumeSetting> decode_timer_volume_setting(const SpiFrame& f) {
     if(f.bus!=SpiBus::Display1 || !f.complete())return std::nullopt;
     const auto& b=f.mosi;
-    if(((b[0]&0x7f)!=4 && (b[0]&0x7f)!=12) || b[1]!=0 || b[2]!=0 ||
-       b[3]!=1 || b[4]!=0 || b[5]!=0 || (b[6]&0xc0)!=0 || b[7]!=0 ||
-       b[8]!=0 || b[9]!=0x80 || b[10]!=0xaa || b[11]!=0xaa ||
+    const bool play_layout=((b[0]&0x7f)==4 || (b[0]&0x7f)==12) && b[2]==0 &&
+                           b[3]==1 && b[7]==0 && b[8]==0 && b[9]==0x80;
+    const bool play_radio_cd_layout=((b[0]&0x7f)==4 || (b[0]&0x7f)==12) && b[2]==7 &&
+                                    (b[3]==4 || b[3]==2) && b[7]==0 && b[8]==0 && b[9]==0;
+    // MD wake volume with the disc's track indicators retained.
+    const bool play_md_retained_layout=((b[0]&0x7f)==4 || (b[0]&0x7f)==12) && b[2]==7 &&
+                                       b[3]==1 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
+    const bool play_line_retained_layout=((b[0]&0x7f)==4 || (b[0]&0x7f)==12) && b[2]==7 &&
+                                         b[3]==8 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
+    const bool play_cd_retained_layout=((b[0]&0x7f)==4 || (b[0]&0x7f)==12) && b[2]==7 &&
+                                       b[3]==2 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
+    const bool play_radio_retained_layout=((b[0]&0x7f)==4 || (b[0]&0x7f)==12) && b[2]==7 &&
+                                          b[3]==4 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
+    const bool rec_radio_layout=((b[0]&0x7f)==2 || (b[0]&0x7f)==10) && b[2]==7 &&
+                                b[3]==4 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
+    const bool rec_line_layout=((b[0]&0x7f)==2 || (b[0]&0x7f)==10) && b[2]==7 &&
+                               b[3]==8 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
+    if((!play_layout && !play_radio_cd_layout && !play_md_retained_layout && !play_line_retained_layout && !play_cd_retained_layout && !play_radio_retained_layout && !rec_radio_layout && !rec_line_layout) || b[1]!=0 ||
+       b[4]!=0 || b[5]!=0 || (b[6]&0xc0)!=0 || b[10]!=0xaa || b[11]!=0xaa ||
        b[12]!=0x0a || b[13]!=0xaa || b[14]!=0xaa)return std::nullopt;
     return TimerVolumeSetting{static_cast<unsigned>(b[6]&31),(b[6]&0x20)==0};
 }
 struct ClockReadout { unsigned hour,minute; bool colon_on; bool standby; };
+// Captured initial timer selection screen, with the numeric display blank.
+inline bool is_timer_mode_selection(const SpiFrame& f){
+ if(f.bus!=SpiBus::Display1 || !f.complete())return false;
+ const auto& b=f.mosi;
+ return (b[0]&0x70)==0 && (b[0]&0x06)!=0x06 && b[1]==0 && b[2]==7 &&
+        b[3]==0 && b[4]==0 && b[5]==0 && b[6]<=31 && b[7]==0xff &&
+        b[8]==0xff && b[9]==0x83 && b[10]==0xaa && b[11]==0xaa &&
+        b[12]==0x0a && b[13]==0xaa && b[14]==0xaa;
+}
+// Timer source selection: source logos blink while PLAY/REC stays selected.
+struct TimerSourceSelection { bool recording; std::uint8_t source_mask; };
+inline std::optional<TimerSourceSelection> decode_timer_source_selection(const SpiFrame& f){
+ if(f.bus!=SpiBus::Display1 || !f.complete())return std::nullopt;
+ const auto& b=f.mosi;
+ const bool retained_tracks=b[7]==0xff && b[8]==0xff && b[9]==0x83;
+ const bool no_tracks=b[7]==0 && b[8]==0 && b[9]==0;
+ const bool rec=(b[0]&0x06)==0x02 && retained_tracks;
+ const bool play=(b[0]&0x06)==0x04 && (no_tracks || retained_tracks);
+ if((b[0]&0x70)!=0 || (!rec && !play) || b[1]!=0 || b[2]!=7 ||
+    (rec ? (b[3]!=0 && b[3]!=4 && b[3]!=8) : (b[3]!=0 && b[3]!=1 && b[3]!=2 && b[3]!=4 && b[3]!=8)) ||
+    b[4]!=0 || b[5]!=0 || b[6]>31 ||
+    b[10]!=0xaa || b[11]!=0xaa || b[12]!=0x0a || b[13]!=0xaa || b[14]!=0xaa)
+  return std::nullopt;
+ return TimerSourceSelection{rec,b[3]};
+}
 inline std::optional<ClockReadout> decode_clock_readout(const SpiFrame& f){
  if(f.bus!=SpiBus::Display1 || !f.complete())return std::nullopt;
  const auto& b=f.mosi;
  const bool date_layout=(b[0]&0x7f)==0 && b[3]==0x41 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
+ // CLOCK date screen with TIMER PLAY armed and no selected source.
+ const bool timer_date_layout=(b[0]&0x7f)==0x0c && b[3]==0x40 && b[7]==0 && b[8]==0 && b[9]==0;
  const bool standby_layout=(b[0]&0x7f)==0x0c && b[3]==0 && b[7]==0 && b[8]==0 && b[9]==0;
- if((!date_layout && !standby_layout) || b[1]!=0 || b[2]!=7 || b[4]!=0 ||
+ if((!date_layout && !timer_date_layout && !standby_layout) || b[1]!=0 || b[2]!=7 || b[4]!=0 ||
     (b[5]!=0 && b[5]!=2) || b[6]>31 || b[10]!=0xaa || b[11]!=0xaa || b[12]!=0x0a)return std::nullopt;
- auto h=decode_bcd(b[13]),m=decode_bcd(b[14]);
+ auto h=(b[13]>>4)==0x0a && (b[13]&15)<=9
+     ? std::optional<unsigned>(b[13]&15) : decode_bcd(b[13]);
+ auto m=decode_bcd(b[14]);
  if(!h||*h>23||!m||*m>59)return std::nullopt;
  return ClockReadout{*h,*m,(b[5]&2)!=0,standby_layout};
 }
@@ -86,9 +137,24 @@ inline std::optional<ClockSettingDisplay> decode_timer_on_setting(const SpiFrame
     const auto& b=f.mosi;
     const bool blank_tracks=b[7]==0 && b[8]==0 && b[9]==0x80;
     const bool retained_tracks=b[7]==0xff && b[8]==0xff && b[9]==0x83;
-    if (((b[0]&0x7f)!=0x04 && (b[0]&0x7f)!=0x0c) ||
-        b[1]!=0 || (b[2]!=7 && b[2]!=0) || b[3]!=1 || b[4]!=0 || b[5]!=2 ||
-        (!blank_tracks && !retained_tracks) || b[10]!=0xaa ||
+    const bool no_tracks=b[7]==0 && b[8]==0 && b[9]==0;
+    const bool play_layout=((b[0]&0x7f)==0x04 || (b[0]&0x7f)==0x0c) &&
+                           (b[2]==7 || b[2]==0) && b[3]==1;
+    const bool play_radio_cd_layout=((b[0]&0x7f)==0x04 || (b[0]&0x7f)==0x0c) &&
+                                    b[2]==7 && (b[3]==4 || b[3]==2) && no_tracks;
+    const bool play_line_retained_layout=((b[0]&0x7f)==0x04 || (b[0]&0x7f)==0x0c) &&
+                                         b[2]==7 && b[3]==8 && retained_tracks;
+    const bool play_cd_retained_layout=((b[0]&0x7f)==0x04 || (b[0]&0x7f)==0x0c) &&
+                                       b[2]==7 && b[3]==2 && retained_tracks;
+    const bool play_radio_retained_layout=((b[0]&0x7f)==0x04 || (b[0]&0x7f)==0x0c) &&
+                                          b[2]==7 && b[3]==4 && retained_tracks;
+    const bool rec_radio_layout=((b[0]&0x7f)==0x02 || (b[0]&0x7f)==0x0a) &&
+                                b[2]==7 && b[3]==4 && retained_tracks;
+    const bool rec_line_layout=((b[0]&0x7f)==0x02 || (b[0]&0x7f)==0x0a) &&
+                               b[2]==7 && b[3]==8 && retained_tracks;
+    if ((!play_layout && !play_radio_cd_layout && !play_line_retained_layout && !play_cd_retained_layout && !play_radio_retained_layout && !rec_radio_layout && !rec_line_layout) ||
+        b[1]!=0 || b[4]!=0 || b[5]!=2 ||
+        (!blank_tracks && !retained_tracks && !play_radio_cd_layout) || b[10]!=0xaa ||
         b[11]!=0xaa || b[12]!=0x0a) return std::nullopt;
     ClockSettingDisplay result;
     result.hour_blank=b[13]==0xaa;
@@ -113,7 +179,7 @@ inline std::optional<ClockSettingDisplay> decode_clock_setting_display(const Spi
     const bool stopped_tail=b[7]==3 && b[8]==0 && b[9]==0x80;
     const bool playing_tail=b[7]==0xff && b[8]==0xff && b[9]==0x83;
     if ((b[0]!=0 && b[0]!=0x80) || (!stopped_layout && !playing_layout) ||
-        (b[3]!=1 && b[3]!=0x41) || b[4]!=0 || (b[5]!=0 && b[5]!=2) || b[6]!=0x0a ||
+        (b[3]!=1 && b[3]!=0x41) || b[4]!=0 || (b[5]!=0 && b[5]!=2) || b[6]>31 ||
         (!stopped_tail && !playing_tail) || b[10]!=0xaa ||
         b[11]!=0xaa || b[12]!=0x0a) return std::nullopt;
     ClockSettingDisplay result;

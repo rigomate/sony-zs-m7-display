@@ -1,5 +1,160 @@
 # Handoff: Sony ZS-M7 replacement display
 
+## Sleep duration with MD stopped
+
+`iterate-sleep-button.sal` records all six sleep durations with MD stopped,
+TIMER PLAY armed and volume 11. The decoder accepts that captured layout and
+`captured_sleep_timer` replays its blink phases; blank source-selection frames
+with SLEEP off remain excluded. See `analysis/sleep-timer-findings.md`.
+
+## Timer workflow and MD source selection
+
+CLOCK with TIMER PLAY armed was captured showing title `26y 10m 31d` and
+numeric 09:04. Its clock frames use byte0 `0C/8C`, byte3 `40`, and tail
+`00 00 00`; `live-clock-date-and-time` checks both colon phases in replay.
+
+TIMER REC LINE source selection uses source byte3 `08` and retained track
+bytes `FF FF 83`. Both blink phases are captured and replayed from
+`captures/manual2/live-timer-rec-line-source/state.jsonl`.
+
+TIMER REC LINE volume uses source byte3 `08` and retained track bytes
+`FF FF 83`. Level 24 and both blink phases are in
+`captures/manual2/live-timer-rec-line-volume/state.jsonl`.
+
+TIMER REC LINE start-hour editing uses source byte3 `08` and retained track
+bytes `FF FF 83`. Its 08:50 hour blink is captured and replayed from
+`captures/manual2/live-timer-rec-line-start-hour/state.jsonl`.
+
+PLAY RADIO timer volume can retain track bytes `FF FF 83` with source byte3
+`04`. Its changing level and blink phases are recorded in
+`captures/manual2/live-timer-play-radio-volume-retained/state.jsonl`.
+
+PLAY RADIO start-hour editing can use retained track bytes `FF FF 83` with
+source byte3 `04`. Its 08:50 hour blink is captured and replayed from
+`captures/manual2/live-timer-play-radio-start-retained/state.jsonl`.
+
+PLAY CD timer volume can retain track bytes `FF FF 83` with source byte3
+`02`. Level 16 and both blink phases are recorded in
+`captures/manual2/live-timer-play-cd-volume-retained/state.jsonl`.
+
+PLAY CD start-hour editing also uses retained disc bytes `FF FF 83` with
+source byte3 `02`; `live-timer-play-cd-start-retained` records the 08:50
+hour blink and is included in capture replay.
+
+PLAY LINE timer volume uses source byte3 `08` and retained track bytes
+`FF FF 83`. Level 16 and both blink phases were captured in
+`captures/manual2/live-timer-play-line-volume/state.jsonl`.
+
+PLAY LINE start-hour editing was captured at 08:50 with retained disc bytes
+`FF FF 83` and source byte3 `08`. The C3 snapshot replay covers both the
+visible and blank hour in `live-timer-play-line-start-hour`.
+
+MD wake timer volume can retain disc indicators (`FF FF 83`), with byte2 `07`
+and source byte3 `01`. A user-guided level 15 capture with both blink phases
+is in `captures/manual2/live-timer-play-md-volume-retained/state.jsonl`.
+
+The user-confirmed PLAY LINE source selection uses source byte3 `08` and
+retained track bytes `FF FF 83`. Its lit and blank phases are saved in
+`captures/manual2/live-timer-play-line-source/state.jsonl` and replayed by
+`captured_c3_snapshots`. REC LINE source selection was captured separately above.
+
+The current MD wake-source capture also uses retained track bytes `FF FF 83`;
+accepting this layout keeps the source-selection view stable across its blink.
+`LiveDisplay::timer_workflow()` and `/api/state` now expose the recognized
+timer stage, mode, source and edited field, with unknown for unsupported or
+stale states. The compact display uses this state to choose its timer screen.
+The manual sequence, capture evidence and current limits are documented in
+`analysis/timer-workflow-state-machine.md`.
+
+## Capture-based regression tests
+
+The user requests capture-based tests for future protocol changes. Preserve the
+original captures and add replay checks for each newly decoded layout and its
+blink/transition phases, including negative cases where appropriate. Prefer raw
+Saleae transitions when available. `captured_c3_snapshots` additionally replays
+the saved C3 JSONL payloads through the native `LiveDisplay` decoder for clock
+editing, wake sources, RADIO/CD wake timer volume, and timer REC source/time/
+volume. These are asynchronously sampled latest-bus snapshots, not a substitute
+for synchronized Saleae captures. Run the suite with `ctest --test-dir build
+--output-on-failure` after building.
+
+## Clock edit with non-default volume
+
+Live clock hour-setting frames at volume11 had byte6=`0B`; the prior guard
+required `0A`, hiding the clock edit. The decoder now accepts volume0..31
+with the other guards intact. The user's frame blinked hour `A0/AA` at 00:00.
+See `analysis/clock-setting-findings.md`.
+
+## RADIO and CD wake timer volume
+
+User-guided live snapshots captured wake timer volume20 for RADIO and CD. Both
+use byte6 `34/14` for visible/dark phases and numeric tail `00 00 00`, with
+source byte3 `04` (RADIO) or `02` (CD); text mode05 confirms the volume context.
+CD On/Off time entry also uses the same tail and is now decoded. Both websites
+use the existing timer volume UI and received blank phases. See
+`analysis/timer-setting-hour-findings.md`.
+
+## RADIO wake timer start hour
+
+User-selected RADIO wake start time used `On`, source byte3=`04`, TIMER PLAY
+bit04 and numeric tail bytes7..9=`00 00 00`; byte13 blinked `19/AA` while
+byte14 remained `09`. The time decoder now accepts that specific RADIO wake
+layout, so both pages can show the timer start and its selected hour blink.
+See `analysis/timer-setting-hour-findings.md`.
+
+## Wake timer RADIO source selection
+
+User-reported wake timer RADIO selection alternates source byte3 `04/00` with
+PLAY bit04 steady and numeric tail `00 00 00 AA AA 0A AA AA`. User-confirmed
+CD and MD selections use the same layout with byte3 `02/00` and `01/00`.
+This differs
+from the timer REC radio selection tail `FF FF 83`. Both produce a retained
+`timer_source_selection` with the actual blink phase; the compact screen shows
+TIMER PLAY and Wake-up source. A 200ms nonmatching-frame tolerance avoids
+dropping the screen for a single damaged packet. See
+`analysis/timer-recording-setup-findings.md`.
+
+## Timer REC setup, RADIO
+
+User-guided live C3 snapshots captured TIMER REC selecting RADIO, `On` 19:09,
+`Off` 19:12, hour/minute blink phases, and timer volume20. RADIO source blinks
+via byte3 `04/00` while REC bit02 stays on. The recording timer time/volume
+layouts differ from timer PLAY; their observed RADIO signatures are now decoded
+and the compact page shows recording-specific setup screens. The LINE source
+and timer-recording standby clock still need labelled captures. See
+`analysis/timer-recording-setup-findings.md`.
+
+## Timer setup PLAY/REC selection
+
+The user showed TIMER PLAY blinking at the first timer setup step. In the
+captured blank-numeric layout, the API now exposes `timer_mode_selection`
+after both a dark phase and a PLAY/REC phase have been observed. It remembers
+the selected option during the dark phase while reporting the individual
+TIMER and PLAY/REC bits. The compact `/tft` page shows Timer setup, the
+flashing choice and dial/ENTER guidance. The manual's following source-choice
+step needs a separate capture. See `analysis/timer-play-findings.md`.
+
+## Standby with single-digit clock hour
+
+Live C3 frames in a user-confirmed standby state contained hour `A0` (hour0
+with a blank tens digit) and minute `12`. The old BCD-only readout guard
+rejected the hour, which also hid the solid standby MD icon. The decoder now
+accepts `A0`..`A9`; both webpages show the standby time and solid MD graphic,
+and the compact view includes TIMER and PLAY. `AA` remains a blank phase.
+See `analysis/clock-readout-findings.md`.
+
+## 320 × 240 display prototype
+
+The receiver hosts `/tft`, a browser preview of a 320 × 240 TFT layout, with
+live API data and a clearly labelled example-state selector. It adapts to
+decoded MD playback, radio, radio recording, clock, timer, sleep, volume,
+bass/treble and program modes; it shows available text or a waiting state for
+other sources. CD playback details and other unknown protocol fields are not
+invented. The full dashboard links to the preview. The page is embedded by
+PlatformIO in `web_page.hpp`; no TFT hardware driver is included. The local
+fixture preview serves `/tft`, and `scripts/test_tft.py` checks the example
+states, live data, blink phase, fixed dimensions, layout bounds and escaping.
+
 ## Standby clock with solid MiniDisc graphic
 
 User-labelled capture manual2/live-standby-clock-md-icon shows19:08 in standby,

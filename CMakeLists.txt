@@ -17,6 +17,12 @@ target_link_libraries(display_replay PRIVATE display_protocol)
 
 include(CTest)
 if(BUILD_TESTING)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(c3_snapshot_replay tests/c3_snapshot_replay.cpp)
+    target_link_libraries(c3_snapshot_replay PRIVATE display_protocol)
+    add_test(NAME captured_c3_snapshots COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/c3_snapshot_replay_test.py
+        $<TARGET_FILE:c3_snapshot_replay> ${CMAKE_CURRENT_SOURCE_DIR})
     add_executable(clock_readout_test tests/clock_readout_test.cpp)
     target_link_libraries(clock_readout_test PRIVATE display_protocol)
     add_test(NAME captured_clock_readout COMMAND clock_readout_test
@@ -59,6 +65,12 @@ if(BUILD_TESTING)
     add_test(NAME captured_date_display COMMAND date_display_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual)
     add_executable(timer_display_test tests/timer_display_test.cpp)
     target_link_libraries(timer_display_test PRIVATE display_protocol)
+    add_executable(timer_recording_test tests/timer_recording_test.cpp)
+    target_link_libraries(timer_recording_test PRIVATE display_protocol)
+    add_test(NAME captured_timer_recording COMMAND timer_recording_test)
+    add_executable(timer_workflow_test tests/timer_workflow_test.cpp)
+    target_link_libraries(timer_workflow_test PRIVATE display_protocol)
+    add_test(NAME timer_workflow_transitions COMMAND timer_workflow_test)
     add_test(NAME captured_timer_display COMMAND timer_display_test
         ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual/timer-play-blinking-raw/digital.csv
         ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/timer-and-play-flashing/raw/digital.csv
@@ -82,7 +94,8 @@ if(BUILD_TESTING)
     target_link_libraries(sleep_timer_test PRIVATE display_protocol)
     add_test(NAME captured_sleep_timer COMMAND sleep_timer_test
         ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/SLEEP-blinking-with-10-20-30-60-90-120-on-display/raw/digital.csv
-        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-sleep-debug/raw/digital.csv)
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/live-sleep-debug/raw/digital.csv
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/manual2/iterate-sleep-button/raw/digital.csv)
     add_executable(md_animation_test tests/md_animation_test.cpp)
     target_link_libraries(md_animation_test PRIVATE display_protocol)
     add_test(NAME captured_md_animation COMMAND md_animation_test ${CMAKE_CURRENT_SOURCE_DIR}/captures/md-animation)

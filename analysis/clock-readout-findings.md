@@ -58,3 +58,19 @@ recognized clock. Other unobserved standby signatures remain unsupported.
 Replay verifies19:08, both colon phases, standby=true and md_disc=solid, while
 retaining normal clock and negative editing fixtures. Timer entry and volume
 regressions pass; Chromium checks include the standby clock and static icon.
+
+## Standby with a single-digit hour
+
+In a later user-reported standby state, the C3's live API showed numeric frames
+`0C/8C 00 07 00 00 00/02 00 00 00 00 AA AA 0A A0 12 xx`.
+The user confirmed the time and the MiniDisc graphic were visible, with TIMER
+and PLAY on. `A0` encodes hour0 with the tens position blank; it was rejected
+by the old ordinary-BCD-only clock parser. That also suppressed the solid MD
+graphic because the graphic is associated with the recognized standby layout.
+The parser now accepts `A0`..`A9` as hours0..9 and continues rejecting `AA`
+(the blink blank), preserving the clock/edit distinction. The full dashboard
+uses its existing standby view; the 320×240 view also shows the static graphic
+and the received TIMER/PLAY indicators. A regression uses the observed live
+payload and both colon phases. The local Saleae service was unavailable, so
+this particular reference consists of the C3 API frames rather than a new
+logic-analyzer capture.

@@ -23,6 +23,20 @@ int main(int argc,char**argv){
   hybrid.mosi[13]=0xa6;hybrid.mosi[14]=0xaa;hybrid_live.consume(hybrid,102);
   if(hybrid_live.json(102).find("\"editing\":\"minute\",\"hour_blank\":false,\"minute_blank\":true")==std::string::npos)
    throw std::runtime_error("Clock minute blink phase not exposed");
+  // Live clock edit at volume 11: 00:00 with the hour pair blinking.
+  zs_m7::SpiFrame clock11;clock11.bus=zs_m7::SpiBus::Display1;clock11.ended_by_enable=true;
+  clock11.mosi={0x80,0,7,0x41,0,2,0x0b,0xff,0xff,0x83,0xaa,0xaa,0x0a,0xa0,0,0xbf};
+  zs_m7::LiveDisplay variable_volume;
+  for(unsigned volume:{0U,1U,7U,10U,11U,31U}){
+   clock11.mosi[6]=volume;
+   if(!zs_m7::decode_clock_setting_display(clock11))throw std::runtime_error("Clock edit depends on volume");
+  }
+  clock11.mosi[6]=32;
+  if(zs_m7::decode_clock_setting_display(clock11))throw std::runtime_error("Unexpected clock volume bits accepted");
+  clock11.mosi[6]=11;variable_volume.consume(clock11,100);
+  clock11.mosi[0]=0;clock11.mosi[3]=1;clock11.mosi[13]=0xaa;variable_volume.consume(clock11,101);
+  if(variable_volume.json(101).find("\"clock_setting\":{\"hour\":0,\"minute\":0,\"editing\":\"hour\",\"hour_blank\":true")==std::string::npos)
+   throw std::runtime_error("Clock hour blink at volume 11 missing");
   for(int arg=1;arg<3;++arg){
    const bool edit_hour=arg==1;zs_m7::SaleaeCsvSource source(argv[arg],{true});
    zs_m7::SpiFrame f;zs_m7::LiveDisplay live;std::set<unsigned> values;

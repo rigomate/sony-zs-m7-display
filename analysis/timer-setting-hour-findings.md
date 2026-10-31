@@ -107,3 +107,33 @@ coverage requires both visible and blank On-hour phases and retained16:31.
 The same capture is a negative fixture for normal clock_readout classification,
 using actual capture timestamps. All four focused clock/time/volume regression
 suites passed, and the ESP32-C3 build succeeded. No IR commands were sent.
+
+## Wake timer RADIO start hour
+
+The user showed the RADIO wake timer start hour. C3 snapshots are saved in
+`captures/manual2/live-timer-play-radio-start/state.jsonl`. Alphanumeric text is
+`On`; numeric source byte3 stays `04` (RADIO), TIMER PLAY bit04 stays on,
+byte0 alternates `04/0C`, byte5 is `02`, bytes7..9 are `00 00 00`, and bytes
+10..12 are `AA AA 0A`. Byte13 alternates `19/AA`; byte14 remains `09`. The
+observed start time was therefore 19:09, with the hour selected. This differs
+from the earlier MD wake timer tails `00 00 80` and `FF FF 83`; the decoder
+now accepts the specific RADIO wake signature while retaining the existing
+`On`/`Off` text guard. Other wake sources and later RADIO setup phases were
+not captured in this observation.
+
+## RADIO and CD wake timer volume
+
+The user displayed the RADIO wake timer volume and then repeated setup for CD.
+C3 snapshots are in `captures/manual2/live-timer-play-radio-volume/`,
+`live-timer-play-cd-setup/` and `live-timer-play-cd-volume/`. In both volume
+screens TIMER PLAY is active, byte2 is `07`, bytes7..9 are `00 00 00`, and
+bytes10..14 are `AA AA 0A AA AA`. Byte3 is `04` for RADIO and `02` for CD.
+At level20 byte6 alternates `34/14`; bit20 is its visible phase and the low
+five bits are the level. The text bus sends mode05, value `14` and space
+parameters during the lit phase. The decoder now accepts these specific
+RADIO/CD wake layouts and keeps the text guard.
+
+The CD setup snapshots also showed `On` and `Off` time entry with byte3=`02`
+and the same `00 00 00` tail as RADIO, including blanked hour/minute fields.
+Those CD time-entry frames are supported too. This evidence consists of C3 API
+snapshots; other source layouts have not been generalized.

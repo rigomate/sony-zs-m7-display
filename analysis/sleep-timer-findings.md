@@ -1,5 +1,15 @@
 # Sleep timer display
 
+## Stopped MD with wake timer armed
+
+`captures/manual2/iterate-sleep-button.sal` contains all six values with
+numeric bytes 0..10 `8D 00 07 01 00 00 0B FF FF 83 AA` during selection.
+Volume is 11 and TIMER PLAY is armed. Unlike the earlier playback capture,
+the MD play flag is clear and byte2 is `07`. The same BCD digits and blank
+phases apply. An all-blank source-selection frame is indistinguishable without
+the SLEEP bit, so it is excluded when SLEEP is off. The raw Saleae CSV is
+replayed by `captured_sleep_timer`, including a negative source-screen check.
+
 Reference: user-labelled
 `captures/manual2/SLEEP-blinking-with-10-20-30-60-90-120-on-display.sal`.
 The6s Saleae recording has355 complete frames per bus; exported raw CSV and

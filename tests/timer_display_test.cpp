@@ -22,19 +22,40 @@ int main(int argc,char**argv){
   if(count<80||masks!=std::set<unsigned>{0,4,8,12})throw std::runtime_error("Missing timer phases/edge states");
   for(int arg=2;arg<=3;++arg){
    zs_m7::SaleaeCsvSource source(argv[arg],{true});std::set<unsigned> phases;unsigned frames=0;
+   zs_m7::LiveDisplay selection_live;unsigned selected_lit=0,selected_dark=0;
    while(source.read_next(f)){
     if(f.bus!=zs_m7::SpiBus::Display1||!f.complete())continue;
-    auto bits=f.mosi[0]&0x0e;phases.insert(bits);live.consume(f,200);auto j=live.json(200);
+    auto bits=f.mosi[0]&0x0e;phases.insert(bits);selection_live.consume(f,200);auto j=selection_live.json(200);
     if(j.find((bits&8)?"\"timer\":true":"\"timer\":false")==std::string::npos||
        j.find((bits&4)?"\"timer_play\":true":"\"timer_play\":false")==std::string::npos||
        j.find((bits&2)?"\"timer_rec\":true":"\"timer_rec\":false")==std::string::npos||
        j.find("\"clock\":false")==std::string::npos)
       throw std::runtime_error("Timer segment does not follow its received bit");
+    if(j.find("\"timer_source_selection\":null")==std::string::npos)
+      throw std::runtime_error("PLAY/REC choice was misclassified as source selection");
+    if(j.find("\"timer_mode_selection\":{")!=std::string::npos){
+     const auto choice=arg==2?"play":"rec";
+     const std::string expected=std::string("\"choice\":\"")+choice+"\",\"timer_on\":"+
+         ((bits&8)?"true":"false")+",\"choice_on\":"+((bits&(arg==2?4:2))?"true":"false");
+     if(j.find(expected)==std::string::npos)throw std::runtime_error("Timer selection or blink phase lost");
+     const auto wf=selection_live.timer_workflow(200);
+     if(wf.stage!=zs_m7::TimerStage::select_mode ||
+        wf.mode!=(arg==2?zs_m7::TimerMode::play:zs_m7::TimerMode::rec))
+      throw std::runtime_error("Timer workflow mode stage mismatch");
+     if(bits&(arg==2?4:2))++selected_lit;else ++selected_dark;
+    }
     ++frames;
    }
    const std::set<unsigned> expected=arg==2?std::set<unsigned>{0,4,8,12}:std::set<unsigned>{0,2,8,10};
    if(frames<75||phases!=expected)throw std::runtime_error("Missing timer capture phases");
+   if(selected_lit<20||selected_dark<20)throw std::runtime_error("Timer setup selection not retained through blink");
   }
+  zs_m7::SpiFrame steady;steady.bus=zs_m7::SpiBus::Display1;steady.ended_by_enable=true;
+  steady.mosi={0x8c,0,7,0,0,0,0,0xff,0xff,0x83,0xaa,0xaa,0x0a,0xaa,0xaa,0};
+  zs_m7::LiveDisplay steady_live;
+  for(unsigned i=0;i<80;++i)steady_live.consume(steady,i*32);
+  if(steady_live.json(2560).find("\"timer_mode_selection\":null")==std::string::npos)
+   throw std::runtime_error("Steady timer flags misclassified as flashing setup");
   zs_m7::SaleaeCsvSource clock_on(argv[4],{true});unsigned clock_frames=0;
   while(clock_on.read_next(f)){
    if(f.bus!=zs_m7::SpiBus::Display1||!f.complete())continue;

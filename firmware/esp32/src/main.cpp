@@ -90,6 +90,10 @@ void setup() {
         server.sendHeader("Cache-Control", "no-store");
         server.send_P(200, "text/html; charset=utf-8", kWebPage);
     });
+    server.on("/tft", HTTP_GET, [] {
+        server.sendHeader("Cache-Control", "no-store");
+        server.send_P(200, "text/html; charset=utf-8", kTftPage);
+    });
     server.on("/api/state", HTTP_GET, [] {
         const auto json = state_json();
         server.sendHeader("Cache-Control", "no-store");

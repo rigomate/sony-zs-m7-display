@@ -200,8 +200,16 @@ Build and run the captured-data replay:
 ```sh
 cmake -S . -B build
 cmake --build build
+ctest --test-dir build --output-on-failure
 ./build/display_replay captures/per-track/track-12-next-raw/digital.csv
 ```
+
+The regression suite uses Python 3 as well as the native compiler. In addition
+to raw Saleae replays, `captured_c3_snapshots` feeds saved C3 JSONL payloads
+through the native decoder and checks clock and timer blink phases. These are
+periodic snapshots of the latest bus frames, so they do not replace a
+synchronized logic-analyzer capture. Keep the referenced recordings under
+`captures/` when sharing or committing the tests.
 
 Append `--dump` to print every frame and its bytes. The `captured_track_replay` CMake test replays the prior twelve-track set and the twelve title-test raw CSVs, checking frame lengths, return-data presence, and within-capture payload variation. The test executable can also be run directly with the raw CSV paths.
 
