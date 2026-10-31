@@ -2,7 +2,7 @@
 
 Specification of the two serial links between the ZS-M7 main board and its front display (IC401 `CXP82832-005Q`, "DISPLAY DRIVE").
 
-**Source of truth:** the reverse-engineering work in <https://github.com/rigomate/sony-zs-m7-display> (`protocol-readme.md`, `display_state.hpp`, `title_decoder.hpp`, `TENSTAR-C3.md`), which is based on logic-analyzer captures. The user manual (ZS-M7.pdf) could not be read in this session, so feature names below come from the repository's decoders, not the manual.
+**Source of truth:** the reverse-engineering work in <https://github.com/rigomate/sony-zs-m7-display> (`protocol-readme.md`, `display_state.hpp`, `title_decoder.hpp`, `TENSTAR-C3.md`), which is based on logic-analyzer captures. The user manual (ZS-M7.pdf, pages 4-47 of the scan) has been transcribed in `sony-zs-m7-manual-for-reverse-engineering.md`; feature names and expected displays below are cross-checked against it (see §7). Manual pages 48-66 (sleep timer, bass/treble, error messages) were not in the scan.
 
 ## 0. Confidence legend
 
@@ -16,7 +16,7 @@ Specification of the two serial links between the ZS-M7 main board and its front
 Important limits (stated by the repo author):
 
 - The field map is **fully validated only for normal MiniDisc playback**. Other modes are decoded by *layout signatures*.
-- **No checksum is known.** Unknown bits/bytes are not assigned.
+- **The repo knows of no checksum; §3.5 gives a candidate for SPI-2.** Unknown bits/bytes are not assigned.
 - **Electrical levels and driver ownership have not been established.** Measure before connecting anything.
 - The original display is dead, so there is no ground-truth reference display. Values come from controlled disc contents.
 
@@ -46,7 +46,7 @@ Ground reference: `SGND`. Do **not** connect to display power or VFD pins.
 | Frame rate | about 31.4 frames/s (median period 31.866 ms) on both links |
 | CS relationship | `CS1` and `CS2` pulse together, once per frame period |
 
-Frames are only valid with exactly 128 (SPI-1) or 120 (SPI-2) clock edges while CS is low. Frames with other lengths must be discarded. The reference ESP32-C3 receiver sees about 6–7 % short frames under Wi-Fi load and rejects them; a correct bit count does not prove each bit was sampled correctly, since there is no checksum.
+Frames are only valid with exactly 128 (SPI-1) or 120 (SPI-2) clock edges while CS is low. Frames with other lengths must be discarded. The reference ESP32-C3 receiver sees about 6–7 % short frames under Wi-Fi load and rejects them; a correct bit count does not prove each bit was sampled correctly, since no checksum is confirmed (see §3.5).
 
 Receiver tip from the repo: publish a frame only ≥ 50 µs after CS deasserts, so a pending last clock interrupt finishes. Treat the display as blanked if no valid frame arrives for 1.5 s.
 
@@ -101,7 +101,7 @@ All byte indices are zero-based after the LSB-first assembly of §1.2. Byte 15 i
 | bit 2 (`0x04`) | TIMER **PLAY** selected (`(b0&0x06)==0x04`) |
 | bit 3 (`0x08`) | Set together with bit 1 or 2 in the `0x0A`/`0x0C` variants (timer-armed/blink phase) **[?]** |
 | bits 4–6 | 0 in all decoded timer/clock screens (`(b0&0x70)==0`) |
-| bit 7 (`0x80`) | Toggles in clock-setting screens (observed `0x00`/`0x80`); decoders mask it. Likely blink phase **[?]** |
+| bit 7 (`0x80`) | Toggles in clock-setting screens (observed `0x00`/`0x80`); decoders mask it. Likely the **PM** indicator (12-hour clock; see §8.2) **[I]** |
 
 Observed values used by decoders (bit 7 masked): `0x00` (clock date, radio sleep), `0x02`/`0x0A` (REC timer), `0x04`/`0x0C` (PLAY timer).
 
@@ -182,7 +182,7 @@ Nibble encoding: `0–9` = decimal digit, **`0xA` = blank digit**. Values are pa
 
 | Screen | b10 | b11 | b12 | b13 | b14 |
 |---|---|---|---|---|---|
-| **MD play/stop/pause** **[V]** | any (`0xAA` in rec) | track (BCD, 01–20 tested) | `0x00` | elapsed **minutes** (BCD) | elapsed **seconds** (BCD, ≤ 59) |
+| **MD play/stop/pause** **[V]** (the manual shows 3-digit track numbers, so `b12` low nibble is very likely the hundreds digit) | any (`0xAA` in rec) | track (BCD, 01–20 tested) | `0x00` | elapsed **minutes** (BCD) | elapsed **seconds** (BCD, ≤ 59) |
 | **MD program entry** **[O]** | – | selected track BCD; blank = `0xAA` | `0x00` (blank: `0x0A`) | – | – |
 | **Clock / timer time** **[O]** | `0xAA` | `0xAA` | `0x0A` | **hour** (BCD; tens may be `0xA_` = blank leading zero) | **minute** (BCD) |
 | **FM radio** **[O]** | `0xAA` | `0xAA` | `0x0A` | BCD of MHz (2 low digits) | high nibble = 0.1 MHz digit, low nibble = 0.01 MHz digit |
@@ -230,10 +230,10 @@ If you only need MD playback, you can skip this table: use the `b3` source nibbl
 
 | Byte | Content | Status |
 |---:|---|---|
-| 0 | not decoded | **[?]** |
+| 0 | **Frame counter**: +1 per frame, wraps 0xFF→0x00 (§3.5) | **[O]** (new, from user capture of 30 consecutive frames) |
 | 1 | Frame type / command selector | **[O]** |
 | 2–13 | 12 payload bytes (12 character cells for text frames) | **[V]** for text |
-| 14 | not decoded (possible trailer) | **[?]** |
+| 14 | **Checksum candidate**: `(XOR(b0..b13) + 2) & 0xFF` (§3.5) | **[O]** fits all 119 captured frames (two titles, incl. 0xFF→0x00 wrap); only `b1=0` text frames tested |
 
 ### 3.2 Text frame **[V]**
 
@@ -257,19 +257,43 @@ Example, title `TEST`: `54 45 53 54 FF FF FF FF FF FF FF FF` in `b2…b13`.
 | `0x1E` | "Blank Disc" | `b3…b6 = 0x00`, `b7…b13 = 0x20` |
 | `0x05` | "No Disc" | `b3…b6 = 0x00`, `b7…b13 = 0x20` |
 
+**Additional codes seen during EDIT-button presses (disc inserted) [O]:**
+
+| `b2` | Layout | Meaning |
+|---|---|---|
+| `0x7D` | `b3…b6 = 0x00`, `b7…b13 = 0x20` (same layout as "No Disc"/"Blank Disc") | Unidentified EDIT-mode message |
+| `0x7E` | same as `0x7D` | Unidentified EDIT-mode message (alternates with `0x7D`) |
+| `0x00` | `b3…b13 = 0x00` | **Blank** (display text cleared), seen briefly at the start and end of the EDIT sequence |
+
+The two EDIT codes alternate in runs of about 18–26 frames (about 0.6–0.8 s each; 46 frames once), which looks like a blink or an alternating prompt. The text itself is generated by the display from the code, so it is not on the bus. Mapping codes to text needs a photo of the display for each code. From the manual, the EDIT items reachable with a stopped disc are `All Erase` and `Disc Name` (manual p32, p39), so those two are the best **[I]** candidates for `0x7D`/`0x7E` (order unknown). While playing, EDIT reaches `Track Erase`, `Track Move`, `Combine` (and `Divide` when paused).
+
 (The strings are labels chosen by the repo author; the original on-screen wording is not captured.)
 
 ### 3.4 Parameter commands (non-text) **[O]**
 
-For all of these, `b3…b13 = 0x00` and `b14` is not checked.
+For all of these, `b3…b13 = 0x00`; `b14` is the checksum (§3.5).
 
 | `b1` | Command | `b2` range |
 |---|---|---|
-| `0x05` | **Volume** | 0–31 |
+| `0x05` | **Volume** | 0–31 (levels 0–12 captured; higher not yet seen) |
 | `0x06` | **BASS** adjustment | 0–12 (12-position display value, no known dB scale) |
 | `0x07` | **TREBLE** adjustment | 0–12 |
 
 ---
+
+**Volume capture note [O]:** while the volume key is held, the text frames are replaced by volume frames (`b1=0x05`, `b2=level`, `b3…b13=0x00`, `b14=checksum`). The level rises by 1 roughly every 5–6 frames (about 160–190 ms, key-repeat rate), with a few longer dwells. No text frames were sent while the volume was displayed (within the captured window).
+
+### 3.5 Frame counter and checksum candidate (from three captures, titles "Red Taylor's" and "TEST")
+
+Byte 0 is a free-running counter that increments by 1 every frame (about 31.4 Hz, so it wraps about every 8.1 s). Observed (LSB-first values): `0xED, 0xEE, … 0xFF, 0x00, 0x01 … 0x0A`.
+
+Byte 14 changes in lock-step with byte 0. For every captured frame (text and volume):
+
+```c
+b14 == (uint8_t)(b0 ^ b1 ^ b2 ^ ... ^ b13) + 2;
+```
+
+Verified on two different titles (one with `0xFF` padding), so the `+ 2` does not depend on the text. Also verified on volume frames (`b1=0x05`, levels 0–12, 60 frames), so the `+ 2` does not depend on `b1` for text and volume frames. Still untested: bass/treble (`b1=6/7`) and predefined messages (`b1=1`). A display that ignores `b14` is the safe choice; a *sender* (not needed for a display) would have to compute it.
 
 ## 4. Feature → bit quick reference
 
@@ -297,7 +321,7 @@ For all of these, `b3…b13 = 0x00` and `b14` is not checked.
 
 1. **Receiver:** 5 signals suffice (CS1, SCK1, SDT1, CS2, SCK2, SDI2 + GND; leave SDO2 open, as the reference ESP32-C3 does; it uses GPIO ISRs on the rising SCK edge, not hardware SPI, because hardware SPI reported wrong lengths).
 2. **Check voltage levels first.** The Sony high level has not been measured by the repo author; use level shifting if your MCU is 3.3 V and the lines are 5 V.
-3. **Frame validation:** length (128/120 bits), BCD validity, seconds/minutes ≤ 59, hour ≤ 23, track ≥ 1. No checksum exists.
+3. **Frame validation:** length (128/120 bits), BCD validity, seconds/minutes ≤ 59, hour ≤ 23, track ≥ 1; optionally the §3.5 checksum on SPI-2.
 4. **Persistence:** keep the last valid complete frame; timeout after 1.5 s.
 5. **Minimum viable MD screen:** text (SPI-2 `b2…b13`), track (`b11`), time (`b13:b14`), indicators (`b7:b9`), source (`b3&15`), play/pause (`b1`).
 6. **Blink handling:** blinking elements (sleep minutes, clock colon, timer fields) are encoded by alternating frames (e.g. blank digits `0xAA`), so the receiver should render each frame as received and not add its own blink.
@@ -305,8 +329,81 @@ For all of these, `b3…b13 = 0x00` and `b14` is not checked.
 
 ## 6. Known gaps (not defined by the source material)
 
-- SPI-1 byte 15; SPI-2 bytes 0 and 14; any checksum.
+- SPI-1 byte 15; whether SPI-1 also has a counter/checksum; SPI-2 byte 0/14 semantics beyond §3.5 (checksum candidate unconfirmed).
 - SPI-1 `b0` bits 3 and 7, `b3` bits 4/6/7, `b9` bits 4–7, `b2` value meanings, `b6` bit 5 outside timer-volume.
 - Remaining/total time, minutes beyond 02 in long captures, track numbers above 20, tuner/CD time fields beyond the signatures above.
+- Date fields of the clock screen (`98y 2m 14d` in the manual), and the **AM/PM** marker (the manual says the clock is a 12-hour system, while the repo decoder accepts hours 0-23).
+- Indicator bits not located yet: PGM, SHUFFLE, REPEAT, REPEAT 1, STEP, STEREO, MONO, TOC EDIT (flashing), REC, REMAIN (partly via `b3=0x91`), position-pointer segments.
+- Message codes for: Track Erase, All Erase, Disc Name, Erase OK?, Complete, Divide, Divide OK?, Combine, Combine OK?, Cannot Edit, Sorry, Track Move, Protected, TOC Reading, PGM Check, CD>MD OK?, AUTO PRESET.
 - Control/animation text codes, full long-title scroll behaviour, and what `SDO2` carries.
 - CD, edit, record-menu and other modes beyond those listed in §2.10.
+
+## 7. Cross-reference with the user manual
+
+Full transcription: `sony-zs-m7-manual-for-reverse-engineering.md`. Key points for the protocol:
+
+| Manual fact | Implication for the bus |
+|---|---|
+| Text window is **12 characters**; station labels max 12, disc/track labels up to 100 characters | Long labels must be sent as scrolling 12-char windows (or the window is updated over time). Matches SPI-2 `b2…b13`. |
+| Character set: upper/lowercase letters, digits and symbols `! " # $ % & ( ) * . ; < = > ? @ _ ` + - ' , / :` and space | Plain ASCII 0x20–0x7E is consistent; a few special glyphs (such as the move arrow in `Track Move`) are outside it. |
+| MD can hold 100+ tracks (`>10` pressed twice) | Track number is 3 digits: `b11` BCD low two digits, `b12` low nibble hundreds. |
+| Music calendar has **20** slots; "OVER 20" for longer discs | Matches the 20-bit mask `b7`, `b8`, `b9[3:0]`. "OVER 20" is probably a text message or a separate flag (unknown). |
+| DISPLAY button cycles views (MD play: remaining time + position pointer; tracks left + remaining MD time + disc name; recording date/time; elapsed time + track name) | The text window content and the meaning of `b13:b14` (elapsed vs remaining) depend on the active view. The `b3=0x91` "REMAIN" signature belongs to a remaining-time view. |
+| "CD>MD OK?" **alternates with the time display** | Expect SPI-2 message frames (`b1=0x01`) interleaved with normal frames, as in the `0x7D`/`0x7E` EDIT capture. |
+| `TOC EDIT` flashes after recording or editing | One indicator bit with a blink pattern (not yet found). |
+| Clock is 12-hour, date shown as `98y 2m 14d` | Needs an AM/PM bit and three date fields (not decoded). |
+| Timer: TIMER PLAY / TIMER REC flash during setup and are lit in standby; sources `MD`, `CD`, `RADIO`, `LINE` flash during selection | Matches `b0` bits 1/2 and the `b3` source nibble blink; timer volume uses `b6` with the `VOL` bar. |
+
+### 7.1 Next captures that would close most gaps
+
+1. SPI-1 and SPI-2 together, EDIT pressed one step at a time, each step photographed (identifies message codes).
+2. Toggle PGM, SHUFFLE, REPEAT, MONO/ST, DISPLAY, one at a time (identifies indicator bits by frame diff).
+3. Stop a recording and watch `TOC EDIT` (blink bit).
+4. Set the clock through all fields (date, AM/PM bit).
+5. Hold volume up to the maximum and test bass/treble (`b1=6/7`), then verify the `+2` checksum on those frames.
+
+## 8. Display glass inventory and bit-assignment hypotheses (from the display photo)
+
+The photo of the unlit VFD (`IMG_6467.jpeg`) lists every drivable element. Layout summary: 4 source boxes; MD and CD play/pause icons with disc symbols and a record arrow; `DIGITAL REC`, `TOC EDIT`; `REPEAT`+`1`, `SHUFFLE`, `PGM`; `STEREO`, `MONO`, `AUTO PRESET`, `FM`, `AM`, `PM`, `MHz`, `kHz`; clock symbol, `TIMER` box with `REC`/`PLAY`, `SLEEP`; 12 dot-matrix text cells with a `POSITION 0%..100%` scale; 2 `STEP` digits, 3 `TRACK` digits, a small leading-"1" digit, 4 time digits with colon, labels `REC`, `DATE`, `REMAIN`; track boxes `1`-`20` and `OVER 20`.
+
+### 8.1 What the photo confirms (matches the decoded fields)
+
+| Decoded in repo/spec | Glass |
+|---|---|
+| 12 text cells `b2…b13` (SPI-2) | 12 dot-matrix cells |
+| 20-bit track mask `b7`, `b8`, `b9[3:0]` | boxes 1–20 |
+| Source one-hot in `b3[3:0]` | four source boxes |
+| Track number `b11` + hundreds in `b12` | 3 digits at `TRACK` |
+| Time `b13:b14` (4 digits plus colon via `b5` bit 1) | 4 digits with colon |
+| Leading "1" of frequency (`b6` bit 6) | small partial digit |
+| Sleep minutes in `b11`/`b12` (up to 120) | the 3 `TRACK` digits (so sleep minutes are shown on the track digits) |
+| Fields `b10` always `0xAA` (blank) in the decoded screens | **2 `STEP` digits** (see hypotheses) |
+
+### 8.2 New hypotheses, derived by matching glass to bytes **[I]**
+
+These are inferences, not captured facts. Each can be tested with one action on the player.
+
+| Element | Hypothesis | Why |
+|---|---|---|
+| `STEP` digits | SPI-1 **`b10`** (two packed-BCD digits, `0xAA` = blank) | `b10` is a 2-digit field that is `0xAA` (blank) in every non-program screen the repo decodes; the glass has exactly 2 `STEP` digits. Test: program play, look at `b10`. |
+| `DATE` label | SPI-1 **`b3` bit 6 (`0x40`)** | clock-date screens use `b3 = 0x40/0x41` |
+| `REC` label (next to time) | SPI-1 `b3` bit 5 (`0x20`) | present in the radio-recording signature `b3 = 0xB4` but not in the MD-playback REMAIN signature `0x91` |
+| `REMAIN` label | SPI-1 `b3` bit 4 (`0x10`) or bit 7 (`0x80`) | both bits are set in `0x91` (REMAIN) and `0xB4` (REC+REMAIN); the other bit may be `TRACK` or a minus sign |
+| `PM` | SPI-1 **`b0` bit 7 (`0x80`)** | clock-setting screens show `b0` = `0x00` or `0x80`; the clock is 12-hour |
+| `TIMER` box / clock symbol | SPI-1 `b0` bit 3 (`0x08`) | set together with `REC` (bit 1) or `PLAY` (bit 2) in `0x0A` / `0x0C` |
+| `SLEEP` | SPI-1 `b0` bit 0 | decoder comment |
+| `REC` / `PLAY` inside `TIMER` | SPI-1 `b0` bits 1 / 2 | decoder constants |
+| `MD` play / pause icons | SPI-1 `b1` bits 5 / 4 | decoder constants |
+| `CD` play / pause icons, disc symbols, record arrow, `DIGITAL REC`, `TOC EDIT`, `REPEAT`/`1`/`SHUFFLE`/`PGM`, `STEREO`/`MONO`, `AM`, `AUTO`, `OVER 20`, `TV` | **unassigned**; candidates are the unknown bits in `b0`, `b1`, `b2`, `b4`, `b5`, `b6` bit 7, `b9` bits 4–6, `b15` | no decoder uses them |
+| Radio band bits in `b4` | possibly `b4` bit 7 = `FM`, bit 6 = `MHz`, bit 5 = `kHz` (FM = `0xC0`, AM = `0x20`), bit 1 = `PRESET` | the FM/AM decode constants and the `MHz`/`kHz` units on the glass; the `AM` label is not located |
+| Position pointer | drawn by **special glyph codes in the text cells** (the scale `POSITION 0%..100%` sits under the 12 cells, and the manual shows the bar in the text row) | explains non-ASCII codes in text frames; capture a playing MD with `DISPLAY` set to the position view |
+
+### 8.3 Single-action tests (each isolates one bit by diffing consecutive frames)
+
+1. Program play (SHUF/PGM, enter a track): watch `b10` for `STEP`.
+2. DISPLAY presses in MD play: `b3` bits 4/5/6/7 and the text-cell glyphs (position bar, date view).
+3. Set the clock past noon (PM) and before noon: `b0` bit 7 and any AM bit.
+4. Toggle REPEAT, SHUFFLE: bits in `b1`/`b2`/`b4`/`b5`.
+5. Stop a recording: blinking `TOC EDIT` bit.
+6. Radio: STEREO/MONO, preset, band change: `b4`, `b5`, `b6`.
+7. CD play and pause: CD icon bits (probably `b1` or `b2`).
