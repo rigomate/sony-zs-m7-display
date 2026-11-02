@@ -1,5 +1,6 @@
 # CMake and PlatformIO build output
 /build/
+/b/
 /cmake-build-*/
 **/.pio/
 
@@ -28,3 +29,6 @@ venv/
 *~
 .DS_Store
 Thumbs.db
+
+blackpill/Debug/
+blackpill/Release/
