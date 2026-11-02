@@ -34,6 +34,8 @@ __weak HAL_StatusTypeDef MX_SPI3_Init(SPI_HandleTypeDef* hspi);
   * @{
   */
 
+extern void Error_Handler(void);
+
 /** @defgroup CUSTOM_BUS_Exported_Variables BUS Exported Variables
   * @{
   */
@@ -198,6 +200,57 @@ int32_t BSP_SPI3_SendRecv(uint8_t *pTxData, uint8_t *pRxData, uint16_t Length)
   return ret;
 }
 
+/**
+  * @brief  Write Data through SPI BUS with DMA.
+  * @param  pData: Pointer to data buffer to send
+  * @param  Length: Length of data in byte
+  * @retval BSP status
+  */
+int32_t BSP_SPI3_Send_DMA(uint8_t *pData, uint16_t Length)
+{
+  int32_t ret = BSP_ERROR_NONE;
+
+  if(HAL_SPI_Transmit_DMA(&hspi3, pData, Length) != HAL_OK)
+  {
+      ret = BSP_ERROR_UNKNOWN_FAILURE;
+  }
+  return ret;
+}
+
+/**
+  * @brief  Receive Data from SPI BUS with DMA
+  * @param  pData: Pointer to data buffer to receive
+  * @param  Length: Length of data in byte
+  * @retval BSP status
+  */
+int32_t  BSP_SPI3_Recv_DMA(uint8_t *pData, uint16_t Length)
+{
+  int32_t ret = BSP_ERROR_NONE;
+
+  if(HAL_SPI_Receive_DMA(&hspi3, pData, Length) != HAL_OK)
+  {
+      ret = BSP_ERROR_UNKNOWN_FAILURE;
+  }
+  return ret;
+}
+
+/**
+  * @brief  Send and Receive data to/from SPI BUS (Full duplex) with DMA
+  * @param  pData: Pointer to data buffer to send/receive
+  * @param  Length: Length of data in byte
+  * @retval BSP status
+  */
+int32_t BSP_SPI3_SendRecv_DMA(uint8_t *pTxData, uint8_t *pRxData, uint16_t Length)
+{
+  int32_t ret = BSP_ERROR_NONE;
+
+  if(HAL_SPI_TransmitReceive_DMA(&hspi3, pTxData, pRxData, Length) != HAL_OK)
+  {
+      ret = BSP_ERROR_UNKNOWN_FAILURE;
+  }
+  return ret;
+}
+
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
 /**
   * @brief Register Default BSP SPI3 Bus Msp Callbacks
@@ -285,6 +338,8 @@ __weak HAL_StatusTypeDef MX_SPI3_Init(SPI_HandleTypeDef* hspi)
 
   return ret;
 }
+DMA_HandleTypeDef hdma_spi3_tx;
+DMA_HandleTypeDef hdma_spi3_rx;
 
 static void SPI3_MspInit(SPI_HandleTypeDef* spiHandle)
 {
@@ -322,6 +377,36 @@ static void SPI3_MspInit(SPI_HandleTypeDef* spiHandle)
     GPIO_InitStruct.Alternate = BUS_SPI3_MOSI_GPIO_AF;
     HAL_GPIO_Init(BUS_SPI3_MOSI_GPIO_PORT, &GPIO_InitStruct);
 
+    /* Peripheral DMA init*/
+
+    hdma_spi3_tx.Instance = DMA1_Stream5;
+    hdma_spi3_tx.Init.Channel = DMA_CHANNEL_0;
+    hdma_spi3_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_spi3_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_spi3_tx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_spi3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_spi3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_spi3_tx.Init.Mode = DMA_NORMAL;
+    hdma_spi3_tx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_spi3_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    HAL_DMA_Init(&hdma_spi3_tx);
+
+  __HAL_LINKDMA(spiHandle,hdmatx,hdma_spi3_tx);
+
+    hdma_spi3_rx.Instance = DMA1_Stream0;
+    hdma_spi3_rx.Init.Channel = DMA_CHANNEL_0;
+    hdma_spi3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_spi3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_spi3_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_spi3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_spi3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_spi3_rx.Init.Mode = DMA_NORMAL;
+    hdma_spi3_rx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_spi3_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    HAL_DMA_Init(&hdma_spi3_rx);
+
+  __HAL_LINKDMA(spiHandle,hdmarx,hdma_spi3_rx);
+
   /* USER CODE BEGIN SPI3_MspInit 1 */
 
   /* USER CODE END SPI3_MspInit 1 */
@@ -346,6 +431,9 @@ static void SPI3_MspDeInit(SPI_HandleTypeDef* spiHandle)
 
     HAL_GPIO_DeInit(BUS_SPI3_MOSI_GPIO_PORT, BUS_SPI3_MOSI_GPIO_PIN);
 
+    /* Peripheral DMA DeInit*/
+    HAL_DMA_DeInit(spiHandle->hdmatx);
+    HAL_DMA_DeInit(spiHandle->hdmarx);
   /* USER CODE BEGIN SPI3_MspDeInit 1 */
 
   /* USER CODE END SPI3_MspDeInit 1 */

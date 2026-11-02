@@ -17,6 +17,7 @@ enum ScreensEnum {
 
 typedef struct _objects_t {
     lv_obj_t *foo;
+    lv_obj_t *demo_bar;
 } objects_t;
 
 extern objects_t objects;

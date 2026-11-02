@@ -36,6 +36,10 @@
 /* BUS IO Instance handler */
 extern  SPI_HandleTypeDef                   hspi3;
 
+/* DMA Instance handlers */
+extern  DMA_HandleTypeDef                   hdma_spi3_rx;
+extern  DMA_HandleTypeDef                   hdma_spi3_tx;
+
 /* USER CODE BEGIN ET */
 
 /* USER CODE END ET */
@@ -47,15 +51,18 @@ extern  SPI_HandleTypeDef                   hspi3;
 /* BUS IO Instance handlers */
 #define hLCDSPI                             hspi3
 
+#define hLCDDMA_rx                          hdma_spi3_rx
+#define hLCDDMA_tx                          hdma_spi3_tx
+
 /* BUS IO functions */
 #define LCD_SPI_Init                        BSP_SPI3_Init
 #define LCD_SPI_DeInit                      BSP_SPI3_DeInit
 #define LCD_SPI_Send                        BSP_SPI3_Send
 #define LCD_SPI_Recv                        BSP_SPI3_Recv
 #define LCD_SPI_SendRecv                    BSP_SPI3_SendRecv
-#define LCD_SPI_Send_DMA(td, ln)            BSP_ERROR_FEATURE_NOT_SUPPORTED
-#define LCD_SPI_Recv_DMA(rd, ln)            BSP_ERROR_FEATURE_NOT_SUPPORTED
-#define LCD_SPI_SendRecv_DMA(td, rd, ln)    BSP_ERROR_FEATURE_NOT_SUPPORTED
+#define LCD_SPI_Send_DMA                    BSP_SPI3_Send_DMA
+#define LCD_SPI_Recv_DMA                    BSP_SPI3_Recv_DMA
+#define LCD_SPI_SendRecv_DMA                BSP_SPI3_SendRecv_DMA
 
 /* CS Pin mapping */
 #define LCD_CS_GPIO_PORT                    GPIOA

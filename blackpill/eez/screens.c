@@ -30,12 +30,11 @@ void create_screen_foo() {
     {
         lv_obj_t *parent_obj = obj;
         {
-            lv_obj_t *obj = lv_calendar_create(parent_obj);
-            lv_obj_set_pos(obj, 0, 0);
-            lv_obj_set_size(obj, 230, 240);
-            lv_calendar_add_header_arrow(obj);
-            lv_calendar_set_today_date(obj, 2022, 11, 1);
-            lv_calendar_set_month_shown(obj, 2022, 11);
+            // demoBar
+            lv_obj_t *obj = lv_bar_create(parent_obj);
+            objects.demo_bar = obj;
+            lv_obj_set_pos(obj, 53, 110);
+            lv_obj_set_size(obj, 225, 10);
         }
     }
     

@@ -51,6 +51,7 @@ SPI_HandleTypeDef hspi2;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_SPI2_Init(void);
 /* USER CODE BEGIN PFP */
@@ -71,9 +72,13 @@ volatile uint32_t height;
 #define LCD_WIDTH  320
 #define LCD_HEIGHT 240
 
-/* 20 lines of RGB565 = 12.8 KB RAM */
-static uint16_t lv_buffer[LCD_WIDTH * 20];
+static lv_display_t *gui_display = NULL;
 
+/* 20 lines of RGB565 = 12.8 KB RAM */
+static uint16_t lv_buffer[LCD_WIDTH * 50];
+
+#if 0
+//old
 static void lcd_flush(lv_display_t *disp,
                       const lv_area_t *area,
                       uint8_t *px_map)
@@ -91,6 +96,38 @@ static void lcd_flush(lv_display_t *disp,
     }
 
     lv_display_flush_ready(disp);
+}
+#endif
+static void lcd_flush(lv_display_t *disp,
+                      const lv_area_t *area,
+                      uint8_t *px_map)
+{
+    uint32_t w = area->x2 - area->x1 + 1;
+    uint32_t h = area->y2 - area->y1 + 1;
+
+    gui_display = disp;
+
+    if (BSP_LCD_FillRGBRect(
+            0,
+            1,       // DMA enabled
+            px_map,
+            area->x1,
+            area->y1,
+            w,
+            h) != BSP_ERROR_NONE)
+    {
+        Error_Handler();
+    }
+
+    // Do NOT call lv_display_flush_ready() here!
+}
+
+void BSP_LCD_SignalTransferDone(uint32_t Instance)
+{
+    if (Instance == 0 && gui_display != NULL)
+    {
+        lv_display_flush_ready(gui_display);
+    }
 }
 
 void GUI_Init(void)
@@ -110,6 +147,9 @@ void GUI_Init(void)
     lv_display_t *disp =
         lv_display_create(LCD_WIDTH, LCD_HEIGHT);
 
+    gui_display = disp;
+
+
     lv_display_set_color_format(
         disp, LV_COLOR_FORMAT_RGB565);
 
@@ -119,6 +159,7 @@ void GUI_Init(void)
         NULL,
         sizeof(lv_buffer),
         LV_DISPLAY_RENDER_MODE_PARTIAL);
+
 
     lv_display_set_flush_cb(disp, lcd_flush);
 
@@ -139,6 +180,68 @@ void GUI_Init(void)
     lv_obj_t *label = lv_label_create(btn);
     lv_label_set_text(label, "Start");
     lv_obj_center(label);
+}
+
+static uint16_t dma_test_pixels[320 * 10];
+
+void LCD_DMA_Test(void)
+{
+    for (uint32_t i = 0; i < 320 * 10; i++)
+    {
+        dma_test_pixels[i] = 0xF800; // Red
+    }
+
+    if (BSP_LCD_FillRGBRect(
+            0,
+            1,  // DMA enabled
+            (uint8_t *)dma_test_pixels,
+            0, 0, 320, 10
+        ) != BSP_ERROR_NONE)
+    {
+        Error_Handler();
+    }
+
+    BSP_LCD_WaitForTransferToBeDone(0);
+}
+
+
+
+
+
+//demo animation
+
+static void bar_anim_cb(void *obj, int32_t value)
+{
+    lv_bar_set_value(
+        (lv_obj_t *)obj,
+        value,
+        LV_ANIM_OFF
+    );
+}
+
+void GUI_StartDemo(void)
+{
+    /* Check the actual generated name in screens.h */
+    lv_obj_t *bar = objects.demo_bar;
+
+    lv_anim_t a;
+    lv_anim_init(&a);
+
+    lv_anim_set_var(&a, bar);
+    lv_anim_set_exec_cb(&a, bar_anim_cb);
+
+    lv_anim_set_values(&a, 0, 100);
+    lv_anim_set_duration(&a, 1500);
+
+    /* Reverse the animation */
+    lv_anim_set_playback_duration(&a, 1500);
+
+    /* Repeat forever */
+    lv_anim_set_repeat_count(
+        &a, LV_ANIM_REPEAT_INFINITE
+    );
+
+    lv_anim_start(&a);
 }
 
 /* USER CODE END 0 */
@@ -171,14 +274,18 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_SPI1_Init();
   MX_SPI2_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
+
+
 #if 0
   retval = BSP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE_ROT180);
   retval = BSP_LCD_DisplayOn(0);
+  LCD_DMA_Test();
 
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
 
@@ -215,6 +322,7 @@ int main(void)
 #endif
   GUI_Init();
   ui_init();   // EEZ Studio generated GUI
+  GUI_StartDemo();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -347,6 +455,25 @@ static void MX_SPI2_Init(void)
   /* USER CODE BEGIN SPI2_Init 2 */
 
   /* USER CODE END SPI2_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
+  /* DMA1_Stream5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 
 }
 
