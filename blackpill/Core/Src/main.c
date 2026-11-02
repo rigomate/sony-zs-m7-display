@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "ui.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -62,6 +62,85 @@ static void MX_SPI2_Init(void);
 volatile int retval = 1211;
 volatile uint32_t width;
 volatile uint32_t height;
+
+
+
+#include "lvgl.h"
+#include "lcd_io.h"
+
+#define LCD_WIDTH  320
+#define LCD_HEIGHT 240
+
+/* 20 lines of RGB565 = 12.8 KB RAM */
+static uint16_t lv_buffer[LCD_WIDTH * 20];
+
+static void lcd_flush(lv_display_t *disp,
+                      const lv_area_t *area,
+                      uint8_t *px_map)
+{
+    uint32_t w = area->x2 - area->x1 + 1;
+    uint32_t h = area->y2 - area->y1 + 1;
+
+    /* Blocking SPI transfer, no DMA */
+    if (BSP_LCD_FillRGBRect(
+            0, 0, px_map,
+            area->x1, area->y1, w, h)
+        != BSP_ERROR_NONE)
+    {
+        Error_Handler();
+    }
+
+    lv_display_flush_ready(disp);
+}
+
+void GUI_Init(void)
+{
+    lv_init();
+
+    /* Use STM32 HAL timebase */
+    lv_tick_set_cb(HAL_GetTick);
+
+    if (BSP_LCD_Init(0,
+        LCD_ORIENTATION_LANDSCAPE) != BSP_ERROR_NONE)
+        Error_Handler();
+
+    if (BSP_LCD_DisplayOn(0) != BSP_ERROR_NONE)
+        Error_Handler();
+
+    lv_display_t *disp =
+        lv_display_create(LCD_WIDTH, LCD_HEIGHT);
+
+    lv_display_set_color_format(
+        disp, LV_COLOR_FORMAT_RGB565);
+
+    lv_display_set_buffers(
+        disp,
+        lv_buffer,
+        NULL,
+        sizeof(lv_buffer),
+        LV_DISPLAY_RENDER_MODE_PARTIAL);
+
+    lv_display_set_flush_cb(disp, lcd_flush);
+
+    /* Create a simple screen */
+    lv_obj_t *screen = lv_screen_active();
+
+    lv_obj_set_style_bg_color(
+        screen, lv_color_hex(0x182638), 0);
+
+    lv_obj_t *title = lv_label_create(screen);
+    lv_label_set_text(title, "Hello STM32!");
+    lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 30);
+
+    lv_obj_t *btn = lv_button_create(screen);
+    lv_obj_set_size(btn, 160, 50);
+    lv_obj_center(btn);
+
+    lv_obj_t *label = lv_label_create(btn);
+    lv_label_set_text(label, "Start");
+    lv_obj_center(label);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -96,7 +175,9 @@ int main(void)
   MX_SPI2_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-  retval = BSP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
+#if 0
+  retval = BSP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE_ROT180);
   retval = BSP_LCD_DisplayOn(0);
 
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
@@ -131,12 +212,18 @@ int main(void)
           Error_Handler();
       }
   }
+#endif
+  GUI_Init();
+  ui_init();   // EEZ Studio generated GUI
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	    lv_timer_handler();
+	    ui_tick();
+	    HAL_Delay(5);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
