@@ -11,7 +11,7 @@ int main(int argc,char**argv){
    zs_m7::SpiFrame f,last;zs_m7::LiveDisplay live;unsigned count=0;std::set<unsigned> codes;
    while(input.read_next(f)){
     if(f.bus!=zs_m7::SpiBus::Display2||!f.complete())continue;
-    const auto expected=f.mosi[2]==0x84?"Program On":"Program Off";
+    const auto expected=f.mosi[2]==0x84?"MegaBass On":"MegaBass Off";
     auto message=zs_m7::decode_predefined_message(f);auto title=zs_m7::decode_title_window(f);
     if(!message||*message!=expected||!title||title->printable_text()!=message)
      throw std::runtime_error("Message code/text mismatch");

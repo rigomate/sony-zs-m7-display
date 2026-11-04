@@ -22,6 +22,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "../../sony/sony_spi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -243,5 +244,18 @@ void OTG_FS_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+void EXTI4_IRQHandler(void) {
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_4)) {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_4);
+        sony_spi_select_end(0);
+    }
+}
+void EXTI15_10_IRQHandler(void) {
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12)) {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_12);
+        sony_spi_select_end(1);
+    }
+}
+
 
 /* USER CODE END 1 */

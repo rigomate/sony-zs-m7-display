@@ -1,0 +1,20 @@
+# Supported CubeIDE hook: compile the Sony bridge outside generated source roots.
+# Shared protocol headers are reused from the repository, not copied into firmware.
+SONY_INCLUDES := -I../sony -I../eez -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/lvgl -I../../include
+SONY_FLAGS := -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -DSTM32F411xE -DUSE_HAL_DRIVER -Os -g -ffunction-sections -fdata-sections -Wall -Wextra $(SONY_INCLUDES)
+USER_OBJS += sony/sony_spi.o sony/sony_live.o sony/sony_usb.o
+LIBS += -lstdc++ -lsupc++
+sony/sony_spi.o: ../sony/sony_spi.c ../sony/sony_spi.h
+	@mkdir -p sony
+	arm-none-eabi-gcc $(SONY_FLAGS) -std=gnu11 -MMD -MP -c $< -o $@
+sony/sony_live.o: ../sony/sony_live.cpp ../sony/sony_spi.h
+	@mkdir -p sony
+	arm-none-eabi-g++ $(SONY_FLAGS) -std=gnu++17 -fno-exceptions -fno-rtti -fno-threadsafe-statics -MMD -MP -c $< -o $@
+sony/sony_usb.o: ../sony/sony_usb.c ../sony/sony_usb.h ../sony/sony_spi.h
+	@mkdir -p sony
+	arm-none-eabi-gcc $(SONY_FLAGS) -std=gnu11 -MMD -MP -c $< -o $@
+-include sony/sony_spi.d sony/sony_live.d sony/sony_usb.d
+clean: clean-sony
+.PHONY: clean-sony
+clean-sony:
+	$(RM) sony/sony_spi.o sony/sony_live.o sony/sony_usb.o sony/sony_spi.d sony/sony_live.d sony/sony_usb.d

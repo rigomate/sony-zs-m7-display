@@ -58,10 +58,21 @@ inline std::optional<SleepTimerDisplay> decode_sleep_timer_display(const SpiFram
     switch(minutes){case 10:case 20:case 30:case 60:case 90:case 120:
         return SleepTimerDisplay{minutes};default:return std::nullopt;}
 }
+// Timer setup can retain the currently playing MD transport/calendar even
+// when the selected timer input is radio. Confirmed by USB captures 6..9.
+inline bool timer_setup_retains_playback(const SpiFrame& f) {
+    if(f.bus!=SpiBus::Display1 || !f.complete())return false;
+    const auto& b=f.mosi;
+    const auto mode=b[0]&0x7f;
+    const bool md_play=(mode==4 || mode==12) && b[3]==1;
+    const bool radio_rec=(mode==2 || mode==10) && b[3]==4;
+    return (md_play || radio_rec) && b[1]==0x20 && b[2]==1 && (b[9]&0xf0)==0x80;
+}
 struct TimerVolumeSetting { unsigned level; bool blank; };
 inline std::optional<TimerVolumeSetting> decode_timer_volume_setting(const SpiFrame& f) {
     if(f.bus!=SpiBus::Display1 || !f.complete())return std::nullopt;
     const auto& b=f.mosi;
+    const bool playing_layout=timer_setup_retains_playback(f);
     const bool play_layout=((b[0]&0x7f)==4 || (b[0]&0x7f)==12) && b[2]==0 &&
                            b[3]==1 && b[7]==0 && b[8]==0 && b[9]==0x80;
     const bool play_radio_cd_layout=((b[0]&0x7f)==4 || (b[0]&0x7f)==12) && b[2]==7 &&
@@ -85,7 +96,7 @@ inline std::optional<TimerVolumeSetting> decode_timer_volume_setting(const SpiFr
     // Zero-track REC volume variants are inferred from the source selection.
     const bool rec_no_tracks=((b[0]&0x7f)==2 || (b[0]&0x7f)==10) && b[2]==7 &&
                              (b[3]==4 || b[3]==8) && b[7]==0 && b[8]==0 && b[9]==0;
-    if((!play_layout && !play_radio_cd_layout && !play_md_line_no_tracks && !play_md_retained_layout && !play_line_retained_layout && !play_cd_retained_layout && !play_radio_retained_layout && !rec_radio_layout && !rec_line_layout && !rec_no_tracks) || b[1]!=0 ||
+    if((!playing_layout && !play_layout && !play_radio_cd_layout && !play_md_line_no_tracks && !play_md_retained_layout && !play_line_retained_layout && !play_cd_retained_layout && !play_radio_retained_layout && !rec_radio_layout && !rec_line_layout && !rec_no_tracks) || (b[1]!=0 && !playing_layout) ||
        b[4]!=0 || b[5]!=0 || (b[6]&0xc0)!=0 || b[10]!=0xaa || b[11]!=0xaa ||
        b[12]!=0x0a || b[13]!=0xaa || b[14]!=0xaa)return std::nullopt;
     return TimerVolumeSetting{static_cast<unsigned>(b[6]&31),(b[6]&0x20)==0};
@@ -95,10 +106,13 @@ struct ClockReadout { unsigned hour,minute; bool colon_on; bool standby; };
 inline bool is_timer_mode_selection(const SpiFrame& f){
  if(f.bus!=SpiBus::Display1 || !f.complete())return false;
  const auto& b=f.mosi;
- return (b[0]&0x70)==0 && (b[0]&0x06)!=0x06 && b[1]==0 && b[2]==7 &&
-        b[3]==0 && b[4]==0 && b[5]==0 && b[6]<=31 && b[7]==0xff &&
-        b[8]==0xff && b[9]==0x83 && b[10]==0xaa && b[11]==0xaa &&
-        b[12]==0x0a && b[13]==0xaa && b[14]==0xaa;
+ // Timer setup entered during playback retains transport and track-calendar
+ // bits, even though source logos and numeric digits are blank (sony-usb5).
+ const bool stopped=b[1]==0 && b[2]==7 && b[7]==0xff && b[8]==0xff && b[9]==0x83;
+ const bool playing=b[1]==0x20 && b[2]==1 && (b[9]&0xf0)==0x80;
+ return (b[0]&0x70)==0 && (b[0]&0x06)!=0x06 && (stopped || playing) &&
+        b[3]==0 && b[4]==0 && b[5]==0 && b[6]<=31 &&
+        b[10]==0xaa && b[11]==0xaa && b[12]==0x0a && b[13]==0xaa && b[14]==0xaa;
 }
 // Timer source selection: source logos blink while PLAY/REC stays selected.
 struct TimerSourceSelection { bool recording; std::uint8_t source_mask; };
@@ -141,6 +155,7 @@ inline std::optional<ClockSettingDisplay> decode_timer_on_setting(const SpiFrame
     const bool blank_tracks=b[7]==0 && b[8]==0 && b[9]==0x80;
     const bool retained_tracks=b[7]==0xff && b[8]==0xff && b[9]==0x83;
     const bool no_tracks=b[7]==0 && b[8]==0 && b[9]==0;
+    const bool playing_layout=timer_setup_retains_playback(f);
     const bool play_layout=((b[0]&0x7f)==0x04 || (b[0]&0x7f)==0x0c) &&
                            (b[2]==7 || b[2]==0) && b[3]==1;
     const bool play_radio_cd_layout=((b[0]&0x7f)==0x04 || (b[0]&0x7f)==0x0c) &&
@@ -162,9 +177,9 @@ inline std::optional<ClockSettingDisplay> decode_timer_on_setting(const SpiFrame
     // Zero-track REC RADIO time is captured; LINE follows by analogy.
     const bool rec_no_tracks=((b[0]&0x7f)==0x02 || (b[0]&0x7f)==0x0a) &&
                              b[2]==7 && (b[3]==4 || b[3]==8) && no_tracks;
-    if ((!play_layout && !play_radio_cd_layout && !play_md_line_no_tracks && !play_line_retained_layout && !play_cd_retained_layout && !play_radio_retained_layout && !rec_radio_layout && !rec_line_layout && !rec_no_tracks) ||
-        b[1]!=0 || b[4]!=0 || b[5]!=2 ||
-        (!blank_tracks && !retained_tracks && !play_radio_cd_layout && !play_md_line_no_tracks && !rec_no_tracks) || b[10]!=0xaa ||
+    if ((!playing_layout && !play_layout && !play_radio_cd_layout && !play_md_line_no_tracks && !play_line_retained_layout && !play_cd_retained_layout && !play_radio_retained_layout && !rec_radio_layout && !rec_line_layout && !rec_no_tracks) ||
+        (b[1]!=0 && !playing_layout) || b[4]!=0 || b[5]!=2 ||
+        (!playing_layout && !blank_tracks && !retained_tracks && !play_radio_cd_layout && !play_md_line_no_tracks && !rec_no_tracks) || b[10]!=0xaa ||
         b[11]!=0xaa || b[12]!=0x0a) return std::nullopt;
     ClockSettingDisplay result;
     result.hour_blank=b[13]==0xaa;
@@ -188,7 +203,12 @@ inline std::optional<ClockSettingDisplay> decode_clock_setting_display(const Spi
     const bool playing_layout=b[1]==0x20 && b[2]==1;
     const bool stopped_tail=b[7]==3 && b[8]==0 && b[9]==0x80;
     const bool playing_tail=b[7]==0xff && b[8]==0xff && b[9]==0x83;
-    if ((b[0]!=0 && b[0]!=0x80) || (!stopped_layout && !playing_layout) ||
+    // sony-usb11: clock editing after date setup preserves armed timer flags.
+    // Both blink phases retain the clock-edit marker and stopped transport.
+    const auto timer_flags=b[0]&0x7f;
+    const bool armed_setting=(timer_flags==0x0c || timer_flags==0x0a) &&
+                             stopped_layout && playing_tail && b[5]==2;
+    if ((b[0]!=0 && b[0]!=0x80 && !armed_setting) || (!stopped_layout && !playing_layout) ||
         (b[3]!=1 && b[3]!=0x41) || b[4]!=0 || (b[5]!=0 && b[5]!=2) || b[6]>31 ||
         (!stopped_tail && !playing_tail) || b[10]!=0xaa ||
         b[11]!=0xaa || b[12]!=0x0a) return std::nullopt;

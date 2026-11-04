@@ -33,3 +33,4 @@ Thumbs.db
 blackpill/Debug/
 blackpill/Release/
 eez-studio/sony-gui/.docker-build-output/
+venv/

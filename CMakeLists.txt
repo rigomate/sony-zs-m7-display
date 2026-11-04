@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(zs_m7_display_protocol LANGUAGES CXX)
+project(zs_m7_display_protocol LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -17,6 +17,25 @@ target_link_libraries(display_replay PRIVATE display_protocol)
 
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(scrolling_title_test tests/scrolling_title_test.cpp)
+    target_link_libraries(scrolling_title_test PRIVATE display_protocol)
+    add_test(NAME scrolling_title_reconstruction COMMAND scrolling_title_test
+        ${CMAKE_CURRENT_SOURCE_DIR}/captures/sony-usb4.csv)
+    add_executable(stm32_usb_transport_test tests/stm32_usb_transport_test.c
+        blackpill/USB_DEVICE/App/usbd_cdc_if.c)
+    target_include_directories(stm32_usb_transport_test PRIVATE tests/usb_host blackpill/sony
+        blackpill/USB_DEVICE/App blackpill/Middlewares/ST/STM32_USB_Device_Library/Core/Inc
+        blackpill/Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc)
+    add_test(NAME stm32_usb_transport COMMAND stm32_usb_transport_test)
+    add_executable(stm32_usb_test tests/stm32_usb_test.cpp blackpill/sony/sony_usb.c)
+    target_include_directories(stm32_usb_test PRIVATE blackpill/sony)
+    add_test(NAME stm32_usb_stream COMMAND stm32_usb_test)
+    add_executable(stm32_live_test tests/stm32_live_test.cpp blackpill/sony/sony_live.cpp)
+    target_compile_definitions(stm32_live_test PRIVATE SONY_LIVE_HOST LV_CONF_INCLUDE_SIMPLE)
+    target_include_directories(stm32_live_test PRIVATE blackpill/sony blackpill/eez
+        blackpill/Core/Inc blackpill/Middlewares/Third_Party/lvgl)
+    target_link_libraries(stm32_live_test PRIVATE display_protocol)
+    add_test(NAME stm32_live_capture_replay COMMAND stm32_live_test ${CMAKE_CURRENT_SOURCE_DIR})
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
     add_executable(c3_snapshot_replay tests/c3_snapshot_replay.cpp)
     target_link_libraries(c3_snapshot_replay PRIVATE display_protocol)

@@ -15,6 +15,7 @@ typedef struct {
     unsigned track;             /* 1..20; zero means no selected track */
     uint32_t tracks;            /* bit 0 = track 1; bit 19 = track 20 */
     unsigned level, maximum;
+    bool expanded_title; /* Completed title: two compact lines above track/time. */
 } sony_display_state_t;
 /* Stops the automatic demo and displays an application-supplied state. */
 void sony_display_show(const sony_display_state_t *state);

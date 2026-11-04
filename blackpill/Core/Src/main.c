@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "ui.h"
+#include "../../sony/sony_spi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -270,13 +271,15 @@ int main(void)
 #endif
   GUI_Init();
   ui_init();   // EEZ Studio generated GUI
-  //GUI_StartDemo();
+  sony_live_init();
+  sony_spi_start();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+        sony_live_tick();
 	    lv_timer_handler();
 	    ui_tick();
 	    HAL_Delay(5);
@@ -350,12 +353,12 @@ static void MX_SPI1_Init(void)
   /* SPI1 parameter configuration*/
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_SLAVE;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi1.Init.Direction = SPI_DIRECTION_2LINES_RXONLY;
   hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi1.Init.CLKPolarity = SPI_POLARITY_HIGH;
+  hspi1.Init.CLKPhase = SPI_PHASE_2EDGE;
   hspi1.Init.NSS = SPI_NSS_HARD_INPUT;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi1.Init.FirstBit = SPI_FIRSTBIT_LSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   hspi1.Init.CRCPolynomial = 10;
@@ -389,10 +392,10 @@ static void MX_SPI2_Init(void)
   hspi2.Init.Mode = SPI_MODE_SLAVE;
   hspi2.Init.Direction = SPI_DIRECTION_1LINE;
   hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi2.Init.CLKPolarity = SPI_POLARITY_HIGH;
+  hspi2.Init.CLKPhase = SPI_PHASE_2EDGE;
   hspi2.Init.NSS = SPI_NSS_HARD_INPUT;
-  hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi2.Init.FirstBit = SPI_FIRSTBIT_LSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   hspi2.Init.CRCPolynomial = 10;
@@ -417,10 +420,10 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Stream0_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
   /* DMA1_Stream5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 
 }

@@ -2,6 +2,7 @@
 
 #include "zs_m7/display_state.hpp"
 #include "zs_m7/title_decoder.hpp"
+#include "zs_m7/scrolling_title.hpp"
 #include <array>
 #include <iomanip>
 #include <sstream>
@@ -34,12 +35,47 @@ inline const char* timer_mode_name(TimerMode mode) {
     return mode==TimerMode::play?"play":mode==TimerMode::rec?"rec":"unknown";
 }
 
+// Typed view for embedded renderers; shares the same decoding and blink history
+// as json(), without pulling JSON streams/parsing into the MCU application.
+struct EditTimeView {
+    std::optional<unsigned> hour, minute;
+    bool hour_blank=false, minute_blank=false;
+    std::string editing;
+};
+struct LiveDisplaySnapshot {
+    bool numeric_fresh=false, text_fresh=false;
+    bool title_complete=false;
+    std::string source, title, date_text;
+    bool play=false, pause=false, remain=false, repeat=false, repeat_one=false;
+    bool shuffle=false, pgm=false, sleep=false, timer_play=false, timer_rec=false;
+    bool source_on=false, mode_on=false;
+    TimerWorkflow timer;
+    std::optional<NumericDisplay> numeric;
+    std::optional<TrackDisplay> track;
+    std::optional<RadioDisplay> radio;
+    std::optional<RadioRecordingDisplay> recording;
+    std::optional<MdTransport> md;
+    std::optional<MdPlaybackDisplay> md_display;
+    std::optional<ProgramDisplay> program;
+    std::optional<ClockReadout> clock;
+    std::optional<CalendarDate> date;
+    std::optional<EditTimeView> clock_setting, timer_setting;
+    std::optional<TimerVolumeSetting> timer_volume;
+    std::optional<unsigned> volume, message;
+    std::optional<AudioAdjustment> audio;
+    bool sleep_setting=false;
+    std::optional<unsigned> sleep_minutes;
+};
+
 // Owned by the consumer task only. Both CSV replay and the ESP32 feed this.
 class LiveDisplay {
 public:
     static constexpr std::uint32_t stale_after_ms = 1500;
 
     void consume(const SpiFrame& frame, std::uint32_t now_ms) {
+        if(buses_[0].have_complete && static_cast<std::uint32_t>(now_ms-buses_[0].last_complete_ms)>stale_after_ms){
+            scrolling_title_.reset();title_track_=title_track_pending_=0;title_track_repeats_=0;
+        }
         auto& bus = buses_[frame.bus == SpiBus::Display1 ? 0 : 1];
         bus.seen = true;
         bus.last_ms = now_ms;
@@ -99,6 +135,9 @@ public:
             }else{clock_readout_seen_=false;clock_readout_active_=false;}
             timer_volume_setting_=decode_timer_volume_setting(frame);
             if(!timer_volume_setting_)timer_volume_text_seen_=false;
+            // The mode-05 command is only sent on entry. Keep its context while
+            // fresh numeric frames continue matching timer volume (sony-usb7).
+            else if(timer_volume_text_seen_)timer_volume_text_ms_=now_ms;
             const auto sleep_timer=decode_sleep_timer_display(frame);
             if(sleep_timer && !sleep_timer_active_) sleep_timer_minutes_.reset();
             sleep_timer_active_=sleep_timer.has_value();
@@ -172,6 +211,14 @@ public:
             if (!(!program_ && md_ && md_->time_blank && numeric_ &&
                   decode_bcd(frame.mosi[11]) == std::optional<unsigned>(numeric_->track)))
                 numeric_ = next;
+            if(source_!="md" && source_!="unknown"){
+                scrolling_title_.reset();title_track_=title_track_pending_=0;title_track_repeats_=0;
+            }else if(source_=="md" && track_display_){
+                unsigned track=track_display_->number;
+                if(track!=title_track_pending_){title_track_pending_=track;title_track_repeats_=1;}
+                else if(title_track_repeats_<2)++title_track_repeats_;
+                if(title_track_repeats_>=2 && track!=title_track_){scrolling_title_.reset();title_track_=track;}
+            }
         }
         else {
             if(frame.mosi[1]==5 && frame.mosi[2]<=31){
@@ -184,6 +231,11 @@ public:
             if (decode_predefined_message(frame)) message_code_ = frame.mosi[2];
             else message_code_.reset();
             if (!text_volume_) title_ = decode_title_window(frame);
+            if(message_code_ && (*message_code_==5 || *message_code_==0x1e)){
+                scrolling_title_.reset();title_track_=title_track_pending_=0;title_track_repeats_=0;
+            }
+            if(frame.mosi[1]==0 && title_ && title_context() && fresh(buses_[0],now_ms))
+                scrolling_title_.consume(*title_,now_ms);
             std::string phase;
             if(frame.mosi[1]==0 && title_){
                 const auto text=title_->printable_text();
@@ -235,6 +287,44 @@ public:
             result.mode=timer_mode_choice_=="rec"?TimerMode::rec:TimerMode::play;
         }
         return result;
+    }
+
+    LiveDisplaySnapshot snapshot(std::uint32_t now_ms) const {
+        LiveDisplaySnapshot v;
+        v.numeric_fresh=fresh(buses_[0],now_ms);
+        v.text_fresh=fresh(buses_[1],now_ms);
+        v.timer=timer_workflow(now_ms);
+        if(v.numeric_fresh){
+            v.source=source_;v.play=md_play_;v.pause=md_pause_;v.remain=md_remain_;
+            v.repeat=repeat_;v.repeat_one=repeat_one_;v.shuffle=shuffle_;v.pgm=pgm_;
+            v.sleep=sleep_;v.timer_play=(timer_play_mask_&4)!=0;v.timer_rec=timer_rec_;
+            v.source_on=timer_source_on_;v.mode_on=timer_mode_choice_on_;
+            v.numeric=numeric_;v.track=track_display_;v.radio=radio_;
+            v.recording=radio_recording_;v.md=md_;v.md_display=md_playback_display_;
+            v.program=program_;
+            if(clock_readout_active_)v.clock=clock_readout_;
+            if(clock_setting_active_)v.clock_setting=EditTimeView{clock_hour_,clock_minute_,clock_hour_blank_,clock_minute_blank_,clock_edit_field_};
+            if(timer_on_active_ && !timer_title_phase_.empty() && v.text_fresh)
+                v.timer_setting=EditTimeView{timer_on_hour_,timer_on_minute_,timer_on_hour_blank_,timer_on_minute_blank_,timer_on_edit_field_};
+            if(timer_volume_text_seen_ && static_cast<std::uint32_t>(now_ms-timer_volume_text_ms_)<=stale_after_ms)
+                v.timer_volume=timer_volume_setting_;
+            v.sleep_setting=sleep_timer_active_;v.sleep_minutes=sleep_timer_minutes_;
+        }
+        if(v.text_fresh){
+            v.volume=text_volume_;v.audio=audio_adjustment_;v.message=message_code_;
+            if(title_){
+                if(auto text=title_->printable_text())v.title=*text;
+                if(v.clock && date_)v.date=decode_calendar_date(*title_);
+                if(v.md_display && v.md_display->view==MdPlaybackView::recording_date){
+                    for(auto c:title_->codes){if(c==0)v.date_text+=' ';else if(c>=32 && c<=126)v.date_text+=static_cast<char>(c);else{v.date_text.clear();break;}}
+                    if(v.date_text.size()!=12 || v.date_text[2]!='y' || v.date_text[6]!='m' || v.date_text[10]!='d')v.date_text.clear();
+                }
+            }
+        }
+        if(v.text_fresh && v.numeric_fresh && title_context() && !v.volume && !v.audio && !v.message && !scrolling_title_.text().empty()){
+            v.title=scrolling_title_.text();v.title_complete=true;
+        }
+        return v;
     }
 
     std::string json(std::uint32_t now_ms, std::uint32_t dropped = 0,
@@ -435,6 +525,8 @@ public:
             out << "{\"text\":";
             if (auto text = title_->printable_text()) quote(out, *text);
             else out << "null";
+            out << ",\"full_text\":";
+            if(title_context() && !scrolling_title_.text().empty())quote(out,scrolling_title_.text());else out<<"null";
             out << ",\"codes\":[";
             for (std::size_t i = 0; i < title_->codes.size(); ++i) {
                 if (i) out << ',';
@@ -447,6 +539,13 @@ public:
     }
 
 private:
+    ScrollingTitle scrolling_title_;
+    unsigned title_track_=0,title_track_pending_=0,title_track_repeats_=0;
+    bool title_context() const {
+        return source_=="md" && title_track_!=0 && track_display_ &&
+               track_display_->number==title_track_ && !program_ && !clock_setting_active_ &&
+               !timer_on_active_ && !sleep_timer_active_;
+    }
     struct Bus {
         bool seen = false, have_complete = false;
         std::uint32_t last_ms = 0, last_complete_ms = 0;

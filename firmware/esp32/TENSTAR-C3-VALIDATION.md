@@ -328,7 +328,11 @@ No player commands were transmitted. Program playlist indicators remain unmapped
 
 Program-track firmware SHA256: `964e0b85a2cb5a7a351b82e8c1d7dbbb7475293922cd951fdd1fac1982f52579`.
 
-## Predefined Program On/Off text messages
+## Predefined Program On/Off text messages (wording corrected)
+
+Correction: the user identified these as **MegaBass On / MegaBass Off**, codes
+`0x84` / `0x85`. The Program wording below is historical and superseded; the
+original capture filenames are retained. See [corrected findings](../../analysis/program-message-findings.md).
 
 The user-labelled program-on.sal has23 complete text frames: mode01/code84,
 zero parameters, explicitly identified as Program On. The earlier paired

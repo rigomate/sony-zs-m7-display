@@ -129,7 +129,7 @@ Every on-screen message in the supplied pages. `Context` is the situation. `Code
 | `Track Move` | EDIT menu item | 38 | - | |
 | arrow + `Track 003?` | Move destination prompt (the arrow glyph precedes "Track"); jog dial changes the number | 38 | - | contains a non-ASCII arrow glyph |
 | `Disc Name` | EDIT menu item (stopped MD): name entry | 39 | - | candidate for `b2=0x7D/0x7E` |
-| `Program On` / `Program Off` | (not in this scan) | - | `b1=1,b2=0x84/0x85` | known from repo |
+| `MegaBass On` / `MegaBass Off` | (not in this scan) | - | `b1=1,b2=0x84/0x85` | known from repo |
 | `No Disc` | (not in this scan) | - | `b1=1,b2=0x05` | known from repo |
 | `- -y - -m - -d`, `- -:- -` | Clock not yet set | 42 | - | blank date/time placeholders |
 | `TIMER PLAY`, `TIMER REC` | Timer type selection (flash) | 44, 46 | - | |
@@ -334,8 +334,8 @@ messages:
   - {text: "Track Move", context: "EDIT menu", page: 38}
   - {text: "->Track 003?", context: "move destination prompt (arrow glyph)", page: 38}
   - {text: "Disc Name", context: "EDIT menu stopped", page: 39}
-  - {text: "Program On", bus: {b1: 1, b2: 0x84}, source: repo}
-  - {text: "Program Off", bus: {b1: 1, b2: 0x85}, source: repo}
+  - {text: "MegaBass On", bus: {b1: 1, b2: 0x84}, source: repo}
+  - {text: "MegaBass Off", bus: {b1: 1, b2: 0x85}, source: repo}
   - {text: "No Disc", bus: {b1: 1, b2: 0x05}, source: repo}
 indicators:
   - {name: "TOC EDIT", behavior: "flashes after recording/editing stop"}

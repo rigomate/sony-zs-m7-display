@@ -366,7 +366,11 @@ User could not see it. Earlier byte9 mask40 candidate is ruled out by the
 01:01..01:03; Chromium rendered21/01:04. Player left playing21 at last check.
 See analysis/track21-findings.md for proof and limits.
 
-## Program On/Off messages resolved
+## Program On/Off messages resolved (wording corrected)
+
+Correction: the user identified these as **MegaBass On / MegaBass Off**, codes
+`0x84` / `0x85`. The Program wording below is historical and superseded; the
+original capture filenames are retained. See [corrected findings](analysis/program-message-findings.md).
 
 User-labelled program-on.sal contains23 complete mode01/code84 messages,
 confirming Program On. Earlier paired84/85 recording had confirmed ON/OFF

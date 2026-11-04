@@ -4,6 +4,14 @@
 
 Capture and decode the serial signals between the Sony ZS-M7 main board and its front display, then use the decoded display data to drive a replacement OLED.
 
+## STM32 TFT and USB debugging
+
+The `blackpill` STM32F411 firmware receives both Sony SPI streams, drives the
+white-on-black LVGL display, and streams timestamped raw frames over its prepared
+USB virtual COM port. See [wiring, build and USB trace instructions](blackpill/README.md).
+Use [`scripts/capture_stm32_usb.py`](scripts/capture_stm32_usb.py) to save payload
+traces on a PC without the logic analyzer.
+
 ## Files and references
 
 - [`images/display-intreface.png`](images/display-intreface.png): connector/interface schematic. The filename contains the spelling `intreface`.

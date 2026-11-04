@@ -252,8 +252,8 @@ Example, title `TEST`: `54 45 53 54 FF FF FF FF FF FF FF FF` in `b2…b13`.
 
 | `b2` | Message | Other bytes |
 |---|---|---|
-| `0x84` | "Program On" | `b3…b13 = 0x00` |
-| `0x85` | "Program Off" | `b3…b13 = 0x00` |
+| `0x84` | "MegaBass On" | `b3…b13 = 0x00` |
+| `0x85` | "MegaBass Off" | `b3…b13 = 0x00` |
 | `0x1E` | "Blank Disc" | `b3…b6 = 0x00`, `b7…b13 = 0x20` |
 | `0x05` | "No Disc" | `b3…b6 = 0x00`, `b7…b13 = 0x20` |
 
@@ -300,7 +300,7 @@ Verified on two different titles (one with `0xFF` padding), so the `+ 2` does no
 | Display feature | Where |
 |---|---|
 | 12-char text | SPI-2 `b2…b13` |
-| "Program On/Off", "Blank Disc", "No Disc" | SPI-2 `b1=1`, `b2` code |
+| "MegaBass On/Off", "Blank Disc", "No Disc" | SPI-2 `b1=1`, `b2` code |
 | Volume (momentary) | SPI-2 `b1=5`, `b2` (0–31) |
 | BASS / TREBLE | SPI-2 `b1=6/7`, `b2` (0–12) |
 | Source logo MD/CD/RADIO/LINE | SPI-1 `b3 & 0x0F` (1/2/4/8) |

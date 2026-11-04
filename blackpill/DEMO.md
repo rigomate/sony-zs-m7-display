@@ -1,5 +1,9 @@
 # Sony ZS-M7 LVGL demo
 
+The default firmware now receives live Sony SPI data. See [receiver setup](README.md).
+To run this original demo, pause `sony_live_tick()` and call `sony_demo_start()`
+after `sony_live_init()`. The rest of this document describes the demo mode.
+
 Build the existing `blackpill` project in STM32CubeIDE (Release), then
 flash the resulting ELF using the usual ST-Link configuration. The demo starts
 automatically after the existing LCD initialization. No touch input is needed.

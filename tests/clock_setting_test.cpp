@@ -6,6 +6,24 @@
 
 int main(int argc,char**argv){
  try{
+  for(unsigned flags:{0x0cU,0x8cU,0x0aU,0x8aU}){
+   zs_m7::SpiFrame f;f.bus=zs_m7::SpiBus::Display1;f.ended_by_enable=true;
+   f.mosi={static_cast<std::uint8_t>(flags),0,7,0x41,0,2,0,0xff,0xff,0x83,0xaa,0xaa,0x0a,0x22,5,0};
+   zs_m7::LiveDisplay live;live.consume(f,0);f.mosi[3]=1;f.mosi[13]=0xaa;live.consume(f,250);
+   auto s=live.snapshot(250);
+   if(!s.clock_setting || s.clock || s.clock_setting->hour!=22 || s.clock_setting->minute!=5 || !s.clock_setting->hour_blank || s.clock_setting->editing!="hour")
+    throw std::runtime_error("Armed-timer clock hour setting not retained");
+   f.mosi[13]=0x22;f.mosi[14]=0xaa;live.consume(f,500);s=live.snapshot(500);
+   if(!s.clock_setting || !s.clock_setting->minute_blank || s.clock_setting->editing!="minute")throw std::runtime_error("Armed-timer clock minute not decoded");
+   auto bad=f;bad.mosi[13]=0x24;
+   if(zs_m7::decode_clock_setting_display(bad))throw std::runtime_error("Invalid armed-timer hour accepted");
+   bad=f;bad.mosi[14]=0x60;
+   if(zs_m7::decode_clock_setting_display(bad))throw std::runtime_error("Invalid armed-timer minute accepted");
+   bad=f;bad.mosi[3]=0x40;
+   if(zs_m7::decode_clock_setting_display(bad))throw std::runtime_error("Standby date readout mistaken for hour setting");
+   bad=f;bad.mosi[0]=2;
+   if(zs_m7::decode_clock_setting_display(bad))throw std::runtime_error("Timer REC setup mistaken for clock edit");
+  }
   if(argc!=4)throw std::runtime_error("Expected stopped hour/minute and live MD playback clock captures");
   // A clock edit can retain the stopped-player header but use the updated
   // playback trailer. This is the live frame observed while the user edited

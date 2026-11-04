@@ -1,6 +1,7 @@
 /* Hand-maintained Sony demo. EEZ export will overwrite this file: see DEMO.md. */
 #include "screens.h"
 #include "fonts.h"
+#include <string.h>
 
 objects_t objects;
 ext_font_desc_t fonts[] = {
@@ -9,6 +10,8 @@ ext_font_desc_t fonts[] = {
     { "MONTSERRAT_40", &lv_font_montserrat_40 }
 };
 static lv_obj_t *source, *status, *heading, *value, *detail, *footer;
+static lv_obj_t *value_cells[5], *detail_cells[5];
+static int32_t value_cell_width, detail_cell_width;
 static lv_obj_t *track_label, *track_value, *calendar[20], *level_bar, *demo_label;
 static uint32_t demo_started, last_second = UINT32_MAX;
 static unsigned last_scene = UINT32_MAX;
@@ -64,11 +67,49 @@ static void visible(lv_obj_t *obj, bool show) {
     if (show) lv_obj_remove_flag(obj, LV_OBJ_FLAG_HIDDEN);
     else lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
 }
+/* Give all five time characters fixed cells. A blank colon or an editing
+ * digit pair then changes visibility without changing any other position. */
+static int32_t time_cell_width(const lv_font_t *font) {
+    int32_t width = lv_font_get_glyph_width(font, ':', 0);
+    for (char c = '0'; c <= '9'; ++c) {
+        int32_t digit = lv_font_get_glyph_width(font, c, 0);
+        if (digit > width) width = digit;
+    }
+    int32_t dash = lv_font_get_glyph_width(font, '-', 0);
+    return dash > width ? dash : width;
+}
+static bool is_time_text(const char *text) {
+    if (!text || strlen(text) != 5 || (text[2] != ':' && text[2] != ' ')) return false;
+    for (unsigned i = 0; i < 5; ++i) {
+        if (i == 2) continue;
+        if ((text[i] < '0' || text[i] > '9') && text[i] != '-' && text[i] != ' ') return false;
+    }
+    return true;
+}
+static void render_time(lv_obj_t *base, lv_obj_t **cells, const char *text,
+                        int32_t cell_width, int32_t x, int32_t y,
+                        int32_t width, bool right_align) {
+    bool fixed = is_time_text(text);
+    visible(base, !fixed);
+    if (right_align) x += width - 5 * cell_width;
+    for (unsigned i = 0; i < 5; ++i) {
+        visible(cells[i], fixed);
+        if (!fixed) continue;
+        char digit[2] = { text[i] == ' ' ? '\0' : text[i], '\0' };
+        lv_obj_set_pos(cells[i], x + i * cell_width, y);
+        lv_label_set_text(cells[i], digit);
+    }
+}
 static void render(const sony_display_state_t *s) {
     const bool track = s->view == SONY_VIEW_TRACK;
     const bool level = s->view == SONY_VIEW_LEVEL;
     lv_label_set_text(source, s->source ? s->source : "");
     lv_label_set_text(status, s->status ? s->status : "");
+    const bool expanded = track && s->expanded_title;
+    lv_obj_set_style_text_font(heading, expanded ? &lv_font_montserrat_14 : &lv_font_montserrat_24, 0);
+    lv_label_set_long_mode(heading, LV_LABEL_LONG_DOT);
+    lv_obj_set_pos(heading, 12, expanded ? 44 : 51);
+    lv_obj_set_height(heading, expanded ? 36 : 29);
     lv_label_set_text(heading, s->heading ? s->heading : "");
     lv_label_set_text(value, s->value ? s->value : "");
     lv_label_set_text(detail, s->detail ? s->detail : "");
@@ -79,6 +120,10 @@ static void render(const sony_display_state_t *s) {
     lv_obj_set_pos(detail, track ? 111 : 12, track ? 92 : 139);
     lv_obj_set_style_text_align(detail, track ? LV_TEXT_ALIGN_RIGHT : LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_width(detail, track ? 197 : 296);
+    render_time(value, value_cells, s->value, value_cell_width,
+                track ? 111 : 12, track ? 113 : 82, track ? 197 : 296, track);
+    render_time(detail, detail_cells, s->detail, detail_cell_width,
+                track ? 111 : 12, track ? 92 : 139, track ? 197 : 296, track);
     visible(footer, !track);
     visible(track_label, track);
     visible(track_value, track);
@@ -124,6 +169,14 @@ void create_screen_main(void) {
     heading = label(12, 51, 296, &lv_font_montserrat_24);
     value = label(12, 82, 296, &lv_font_montserrat_40);
     detail = label(12, 139, 296, &lv_font_montserrat_14);
+    value_cell_width = time_cell_width(&lv_font_montserrat_40);
+    detail_cell_width = time_cell_width(&lv_font_montserrat_14);
+    for (unsigned i = 0; i < 5; ++i) {
+        value_cells[i] = label(0, 0, value_cell_width, &lv_font_montserrat_40);
+        detail_cells[i] = label(0, 0, detail_cell_width, &lv_font_montserrat_14);
+        lv_obj_set_style_text_align(value_cells[i], LV_TEXT_ALIGN_CENTER, 0);
+        lv_obj_set_style_text_align(detail_cells[i], LV_TEXT_ALIGN_CENTER, 0);
+    }
     track_label = label(12, 92, 90, &lv_font_montserrat_14);
     lv_label_set_text(track_label, "Track");
     track_value = label(12, 113, 90, &lv_font_montserrat_40);
@@ -160,7 +213,11 @@ void tick_screen_main(void) {
     }
     if (second != last_second) {
         /* Only the playing example advances. Paused and settings stay fixed. */
-        if (scene == 0) lv_label_set_text_fmt(value, "02:%02u", 37 + second);
+        if (scene == 0) {
+            lv_label_set_text_fmt(value, "02:%02u", 37 + second);
+            render_time(value, value_cells, lv_label_get_text(value), value_cell_width,
+                        111, 113, 197, true);
+        }
         last_second = second;
     }
 }

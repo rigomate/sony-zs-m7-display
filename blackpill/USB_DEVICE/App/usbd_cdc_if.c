@@ -22,6 +22,8 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
+#include "../../sony/sony_usb.h"
+#include <string.h>
 
 /* USER CODE END INCLUDE */
 
@@ -94,6 +96,10 @@ uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
 uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
 
 /* USER CODE BEGIN PRIVATE_VARIABLES */
+static volatile uint8_t debug_dtr;
+static volatile uint32_t debug_epoch = 1;
+static uint8_t line_coding[7] = { 0x00, 0xc2, 0x01, 0x00, 0, 0, 8 }; /* 115200 8N1 */
+
 
 /* USER CODE END PRIVATE_VARIABLES */
 
@@ -152,6 +158,8 @@ USBD_CDC_ItfTypeDef USBD_Interface_fops_FS =
 static int8_t CDC_Init_FS(void)
 {
   /* USER CODE BEGIN 3 */
+  debug_dtr = 0;
+  if (++debug_epoch == 0) ++debug_epoch;
   /* Set Application Buffers */
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
@@ -166,6 +174,8 @@ static int8_t CDC_Init_FS(void)
 static int8_t CDC_DeInit_FS(void)
 {
   /* USER CODE BEGIN 4 */
+  debug_dtr = 0;
+  if (++debug_epoch == 0) ++debug_epoch;
   return (USBD_OK);
   /* USER CODE END 4 */
 }
@@ -220,15 +230,22 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   /* 6      | bDataBits  |   1   | Number Data bits (5, 6, 7, 8 or 16).          */
   /*******************************************************************************/
     case CDC_SET_LINE_CODING:
-
+      if (length == sizeof(line_coding)) memcpy(line_coding, pbuf, sizeof(line_coding));
     break;
 
     case CDC_GET_LINE_CODING:
-
+      if (length == sizeof(line_coding)) memcpy(pbuf, line_coding, sizeof(line_coding));
     break;
 
-    case CDC_SET_CONTROL_LINE_STATE:
-
+    case CDC_SET_CONTROL_LINE_STATE: {
+      /* For zero-data setup requests ST passes the setup packet as pbuf. */
+      const USBD_SetupReqTypedef *req = (const USBD_SetupReqTypedef *)pbuf;
+      uint8_t dtr = (req->wValue & 1U) != 0;
+      if (dtr != debug_dtr) {
+        debug_dtr = dtr;
+        if (++debug_epoch == 0) ++debug_epoch;
+      }
+    }
     break;
 
     case CDC_SEND_BREAK:
@@ -283,6 +300,7 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
   uint8_t result = USBD_OK;
   /* USER CODE BEGIN 7 */
   USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
+  if (hUsbDeviceFS.dev_state != USBD_STATE_CONFIGURED || hcdc == NULL) return USBD_FAIL;
   if (hcdc->TxState != 0){
     return USBD_BUSY;
   }
@@ -316,6 +334,36 @@ static int8_t CDC_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
 }
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
+/* Only the USB IRQ can reconfigure/free the CDC class or complete an IN transfer.
+   Mask it for the copy/submission, while leaving Sony capture IRQs enabled. */
+static uint32_t debug_session_locked(void) {
+  return hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED &&
+         hUsbDeviceFS.pClassData != NULL && debug_dtr ? debug_epoch : 0;
+}
+uint32_t sony_usb_session(void) {
+  uint32_t enabled = NVIC_GetEnableIRQ(OTG_FS_IRQn);
+  NVIC_DisableIRQ(OTG_FS_IRQn);
+  uint32_t session = debug_session_locked();
+  if (enabled) NVIC_EnableIRQ(OTG_FS_IRQn);
+  return session;
+}
+int sony_usb_write(const uint8_t *bytes, uint16_t size, uint32_t session) {
+  if (size > APP_TX_DATA_SIZE) return 0;
+  uint32_t enabled = NVIC_GetEnableIRQ(OTG_FS_IRQn);
+  NVIC_DisableIRQ(OTG_FS_IRQn);
+  int sent = 0;
+  if (session != 0 && session == debug_session_locked()) {
+    USBD_CDC_HandleTypeDef *cdc = (USBD_CDC_HandleTypeDef *)hUsbDeviceFS.pClassData;
+    if (cdc->TxState == 0) {
+      /* Never overwrite the buffer retained by the USB driver while busy. */
+      memcpy(UserTxBufferFS, bytes, size);
+      sent = CDC_Transmit_FS(UserTxBufferFS, size) == USBD_OK;
+    }
+  }
+  if (enabled) NVIC_EnableIRQ(OTG_FS_IRQn);
+  return sent;
+}
+
 
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 

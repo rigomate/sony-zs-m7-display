@@ -346,11 +346,11 @@ try:
     render('exit program to playback', ['id="track">20', 'id="time">00:14'], ['MD PROGRAM'])
     active = copy.deepcopy(base)
     active['message']={'mode':1,'code':132}
-    active['title']={'text':'Program On','codes':list(b'Program On')+[255]*2}
-    render('Program On message', ['Title: Program On', 'Player message'], ['Display transition'])
+    active['title']={'text':'MegaBass On','codes':list(b'MegaBass On')+[255]}
+    render('MegaBass On message', ['Title: MegaBass On', 'Player message'], ['Display transition'])
     active['message']['code']=133
-    active['title']={'text':'Program Off','codes':list(b'Program Off')+[255]}
-    render('Program Off message', ['Title: Program Off', 'Player message'], ['Display transition'])
+    active['title']={'text':'MegaBass Off','codes':list(b'MegaBass Off')}
+    render('MegaBass Off message', ['Title: MegaBass Off', 'Player message'], ['Display transition'])
     active['message']['code']=30
     active['title']={'text':'Blank Disc','codes':list(b'Blank Disc')+[255]*2}
     render('Blank Disc message', ['Title: Blank Disc', 'Player message'], ['Display transition'])
