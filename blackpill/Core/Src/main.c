@@ -163,23 +163,7 @@ void GUI_Init(void)
 
     lv_display_set_flush_cb(disp, lcd_flush);
 
-    /* Create a simple screen */
-    lv_obj_t *screen = lv_screen_active();
 
-    lv_obj_set_style_bg_color(
-        screen, lv_color_hex(0x182638), 0);
-
-    lv_obj_t *title = lv_label_create(screen);
-    lv_label_set_text(title, "Hello STM32!");
-    lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 30);
-
-    lv_obj_t *btn = lv_button_create(screen);
-    lv_obj_set_size(btn, 160, 50);
-    lv_obj_center(btn);
-
-    lv_obj_t *label = lv_label_create(btn);
-    lv_label_set_text(label, "Start");
-    lv_obj_center(label);
 }
 
 static uint16_t dma_test_pixels[320 * 10];
@@ -207,43 +191,6 @@ void LCD_DMA_Test(void)
 
 
 
-
-//demo animation
-
-static void bar_anim_cb(void *obj, int32_t value)
-{
-    lv_bar_set_value(
-        (lv_obj_t *)obj,
-        value,
-        LV_ANIM_OFF
-    );
-}
-#if 0
-void GUI_StartDemo(void)
-{
-    /* Check the actual generated name in screens.h */
-    lv_obj_t *bar = objects.demo_bar;
-
-    lv_anim_t a;
-    lv_anim_init(&a);
-
-    lv_anim_set_var(&a, bar);
-    lv_anim_set_exec_cb(&a, bar_anim_cb);
-
-    lv_anim_set_values(&a, 0, 100);
-    lv_anim_set_duration(&a, 1500);
-
-    /* Reverse the animation */
-    lv_anim_set_playback_duration(&a, 1500);
-
-    /* Repeat forever */
-    lv_anim_set_repeat_count(
-        &a, LV_ANIM_REPEAT_INFINITE
-    );
-
-    lv_anim_start(&a);
-}
-#endif
 
 /* USER CODE END 0 */
 
