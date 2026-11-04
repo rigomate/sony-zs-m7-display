@@ -1,7 +1,7 @@
 #ifndef EEZ_LVGL_UI_SCREENS_H
 #define EEZ_LVGL_UI_SCREENS_H
 
-#include <lvgl/lvgl.h>
+#include <lvgl.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,19 +11,38 @@ extern "C" {
 
 enum ScreensEnum {
     _SCREEN_ID_FIRST = 1,
-    SCREEN_ID_FOO = 1,
+    SCREEN_ID_MAIN = 1,
     _SCREEN_ID_LAST = 1
 };
 
 typedef struct _objects_t {
-    lv_obj_t *foo;
-    lv_obj_t *demo_bar;
+    lv_obj_t *main;
+    lv_obj_t *title;
+    lv_obj_t *subtitle;
+    lv_obj_t *swatch_white;
+    lv_obj_t *label_white;
+    lv_obj_t *swatch_red;
+    lv_obj_t *label_red;
+    lv_obj_t *swatch_yellow;
+    lv_obj_t *label_yellow;
+    lv_obj_t *swatch_divider;
+    lv_obj_t *intensity_title;
+    lv_obj_t *swatch_gray_100;
+    lv_obj_t *percent_100;
+    lv_obj_t *swatch_gray_75;
+    lv_obj_t *percent_75;
+    lv_obj_t *swatch_gray_50;
+    lv_obj_t *percent_50;
+    lv_obj_t *swatch_gray_25;
+    lv_obj_t *percent_25;
+    lv_obj_t *swatch_gray_10;
+    lv_obj_t *percent_10;
 } objects_t;
 
 extern objects_t objects;
 
-void create_screen_foo();
-void tick_screen_foo();
+void create_screen_main();
+void tick_screen_main();
 
 void tick_screen_by_id(enum ScreensEnum screenId);
 void tick_screen(int screen_index);

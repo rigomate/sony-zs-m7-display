@@ -218,7 +218,7 @@ static void bar_anim_cb(void *obj, int32_t value)
         LV_ANIM_OFF
     );
 }
-
+#if 0
 void GUI_StartDemo(void)
 {
     /* Check the actual generated name in screens.h */
@@ -243,6 +243,7 @@ void GUI_StartDemo(void)
 
     lv_anim_start(&a);
 }
+#endif
 
 /* USER CODE END 0 */
 
@@ -322,7 +323,7 @@ int main(void)
 #endif
   GUI_Init();
   ui_init();   // EEZ Studio generated GUI
-  GUI_StartDemo();
+  //GUI_StartDemo();
   /* USER CODE END 2 */
 
   /* Infinite loop */

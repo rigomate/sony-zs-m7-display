@@ -1,14 +1,6 @@
-#ifndef EEZ_LVGL_UI_EVENTS_H
-#define EEZ_LVGL_UI_EVENTS_H
+#ifndef EEZ_LVGL_UI_ACTIONS_H
+#define EEZ_LVGL_UI_ACTIONS_H
 
-#include <lvgl/lvgl.h>
+#include <lvgl.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /*EEZ_LVGL_UI_EVENTS_H*/
+#endif /*EEZ_LVGL_UI_ACTIONS_H*/
