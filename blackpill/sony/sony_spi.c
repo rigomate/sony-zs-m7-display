@@ -48,7 +48,10 @@ void sony_spi_start(void) {
     receivers[1].spi = SPI2;
     receivers[1].dma = DMA1_Stream3; /* SPI2_RX, channel 0; LCD uses streams 0/5 */
     receivers[1].channel = DMA_CHANNEL_0;
-    receivers[1].cr1 = (hspi2.Instance->CR1 & ~(SPI_CR1_SPE | SPI_CR1_BIDIOE));
+    /* Software-selected slave: PB12 is unused. CS1 rising edges delimit
+       both streams; SPI2 samples its own clock between those boundaries. */
+    receivers[1].cr1 = (hspi2.Instance->CR1 | SPI_CR1_SSM) &
+                       ~(SPI_CR1_SPE | SPI_CR1_BIDIOE | SPI_CR1_SSI);
     for (unsigned i = 0; i < 2; ++i) {
         receiver_t *r = &receivers[i];
         r->spi->CR1 &= ~SPI_CR1_SPE;
@@ -57,22 +60,20 @@ void sony_spi_start(void) {
         r->synchronized = 0;
         arm(i);
     }
-    /* NSS stays alternate-function hardware input while also feeding EXTI.
-       EXTI4 -> PA4, EXTI12 -> PB12. Do not reconfigure these pins as GPIO. */
+    /* PA4 remains SPI1 hardware NSS and also frames SPI2 through EXTI4.
+       SPI2 uses software NSS; ignore the damaged/unconnected PB12 line. */
     __HAL_RCC_SYSCFG_CLK_ENABLE();
     SYSCFG->EXTICR[1] &= ~SYSCFG_EXTICR2_EXTI4;
-    SYSCFG->EXTICR[3] = (SYSCFG->EXTICR[3] & ~SYSCFG_EXTICR4_EXTI12) | SYSCFG_EXTICR4_EXTI12_PB;
+    EXTI->IMR &= ~GPIO_PIN_12;
     EXTI->FTSR &= ~(GPIO_PIN_4 | GPIO_PIN_12);
-    EXTI->RTSR |= GPIO_PIN_4 | GPIO_PIN_12;
+    EXTI->RTSR = (EXTI->RTSR & ~GPIO_PIN_12) | GPIO_PIN_4;
     EXTI->PR = GPIO_PIN_4 | GPIO_PIN_12;
-    EXTI->IMR |= GPIO_PIN_4 | GPIO_PIN_12;
+    EXTI->IMR |= GPIO_PIN_4;
     started = 1;
     /* Above LCD DMA/USB IRQs, so display traffic cannot delay frame rearming. */
     HAL_NVIC_SetPriority(OTG_FS_IRQn, 2, 0);
     HAL_NVIC_SetPriority(EXTI4_IRQn, 0, 0);
-    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(EXTI4_IRQn);
-    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 void sony_spi_select_end(unsigned bus) {
     if (!started || bus > 1) return;

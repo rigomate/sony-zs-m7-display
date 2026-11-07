@@ -11,15 +11,15 @@ Use the existing SPI1 and SPI2 pins from this STM32F411 project:
 
 | Sony signal | STM32 pin | Function |
 |---|---|---|
-| CS1 | PA4 | SPI1 hardware NSS, active low; EXTI4 frame end |
+| CS1 | PA4 | SPI1 hardware NSS and shared frame end for both receivers |
 | SCK1 | PA5 | SPI1 clock |
 | SDT1 (numeric data; SDI1 on schematic) | PA7 | SPI1 receive data |
-| CS2 | PB12 | SPI2 hardware NSS, active low; EXTI12 frame end |
+| CS2 | Unconnected | Damaged line; SPI2 is framed using CS1 internally |
 | SCK2 | PB13 | SPI2 clock |
 | SDI2 (text / commands) | PB14 | SPI2 bidirectional **receive-only** data |
 | SGND | GND | Common signal reference |
 
-Leave **PA6, PB15 and Sony SDO2 unconnected**. Do not join the Sony CS1 and CS2
+Leave **PA6, PB12, PB15, Sony CS2 and Sony SDO2 unconnected**. Do not join the Sony CS1 and CS2
 lines. SPI2 deliberately retains the project's one-line slave pin PB14, which
 is the bidirectional data input in this configuration; it is not transmitting
 MISO data. SPI1 uses two-line receive-only mode and leaves PA6 as a GPIO input.
@@ -55,7 +55,7 @@ The stack reservation is increased to 8 KiB for decoding/rendering.
 
 SPI1 RX uses DMA2 stream 0, channel 3. SPI2 RX uses DMA1 stream 3, channel 0.
 These do not conflict with the existing SPI3 LCD DMA1 streams 0 and 5.
-At each NSS rising edge, the ISR stops DMA, checks received byte count and
+At each CS1 rising edge, the ISR handles both receivers: it stops DMA, checks received byte count and
 DMA/overrun errors, queues a fixed-size raw record including error flags, resets
 the SPI to discard partial shift state, then rearms for the next frame. The first
 transaction is excluded from display decoding
@@ -259,3 +259,21 @@ keeps its existing spacing; no additional font is required.
 confirmed identical minute pixels across colon and hour blanking for both font
 sizes and both alignments, and checked that time cells disappear when switching
 to ordinary values. The Release firmware build passes.
+
+
+## Shared CS1 for SPI1 and SPI2
+
+The damaged SPI2 select connection is bypassed. Connect Sony CS1 only to PA4;
+**disconnect Sony CS2 from PB12 and leave PB12 unused**. Do not electrically tie
+the damaged CS2 line to CS1. SCK2 remains PB13 and SDI2 remains PB14.
+`MX_SPI2_Init()` now selects software NSS, and the capture driver explicitly
+sets SSM=1 / SSI=0 (internally selected slave, receive-only). SPI2's own clock
+still controls sampling; its DMA packet is finalized and rearmed on the same
+PA4 rising edge as SPI1. There is no dependency on PB12 or EXTI12.
+
+SPI2 remains selected between frame boundaries, so any stray clocks in that
+interval also count toward its next packet. Frame lengths and DMA/overrun flags
+continue to detect incomplete/oversized transactions. The shared-select replay
+test checks saved Sony traces against the original independent-CS framing;
+live timing on the repaired setup still needs checking with a fresh USB log.
+USB records retain their existing format and separate bus counters.
